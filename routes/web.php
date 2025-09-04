@@ -18,3 +18,7 @@ Route::get('/login', function () {
 Route::get('/sidebar', function () {
     return view('sidebar.sidebar');
 });
+
+Route::get('/navbar', function () {
+    return view('navbar.navbar');
+});
