@@ -9,8 +9,10 @@
 </head>
 <body>
     @include('sidebar.sidebar')
-    <div class="main-content" style="padding: 2rem;">
-        <h1>Halo dunia</h1>
+    <div class="main-content">
+        <div class="content" style="padding-left: 2rem;">
+            <h1>ini content</h1>
+        </div>
     </div>
 </body>
 </html>

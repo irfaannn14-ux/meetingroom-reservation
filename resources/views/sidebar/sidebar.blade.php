@@ -17,7 +17,11 @@
     body {
         background-color: var(--color-bg);
         font-family: 'Montserrat', sans-serif;
+        margin: 0; /* reset margin default browser agar tidak ada jarak tepi */
     }
+    /* Reset margin heading pada navbar agar tidak mendorong tinggi/ada jarak */
+    .navbar { width: 100%; margin: 0; padding: 0; }
+    .navbar h1 { margin: 0; }
     /* Sidebar base */
     .sidebar {
         width: var(--sidebar-collapsed);
