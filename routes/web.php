@@ -22,3 +22,7 @@ Route::get('/sidebar', function () {
 Route::get('/navbar', function () {
     return view('navbar.navbar');
 });
+
+Route::get('/forgotpassword', function () {
+    return view('forgotpassword');
+});

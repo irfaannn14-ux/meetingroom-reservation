@@ -9,6 +9,7 @@
 </head>
 <body>
     @include('sidebar.sidebar')
+    @include('navbar.navbar')
     <div class="main-content">
         <div class="content" style="padding-left: 2rem;">
             <h1>ini content</h1>
