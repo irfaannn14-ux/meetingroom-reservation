@@ -1,5 +1,4 @@
-<?php
-?>
+<?php ?>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
 
@@ -13,6 +12,7 @@
         --sidebar-collapsed: 60px;
         --sidebar-expanded: 210px;
         --logo-left-padding: 0.5rem;
+        --content-gap: 12px;
     }
     body {
         background-color: var(--color-bg);
@@ -44,6 +44,14 @@
     .sidebar:hover {
         width: var(--sidebar-expanded);
         padding: 1rem 1rem;
+    }
+    /* Konten utama menyesuaikan lebar sidebar */
+    .main-content {
+        margin-left: var(--sidebar-collapsed);
+        transition: margin-left 0.3s ease-in-out;
+    }
+    .sidebar:hover ~ .main-content {
+        margin-left: calc(var(--sidebar-expanded) + var(--content-gap));
     }
     /* tetap start di kiri; jangan animasi justify-content */
     .sidebar-logo {
@@ -125,7 +133,7 @@
                 <span class="sidebar-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
                 </span>
-                <span class="sidebar-link-text">Dashboard</span>
+                <span class="sidebar-link-text"><strong>Dashboard</strong></span>
             </a>
         </li>
         <li class="sidebar-item">
@@ -133,7 +141,7 @@
                 <span class="sidebar-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-checks"><path d="m3 12 2 2 4-4"/><path d="M11 6h9"/><path d="M11 12h9"/><path d="M11 18h9"/><path d="M3 18h.01"/><path d="M3 6h.01"/></svg>
                 </span>
-                <span class="sidebar-link-text">Daftar Pengajuan</span>
+                <span class="sidebar-link-text"><strong>Daftar Pengajuan</strong></span>
             </a>
         </li>
         <li class="sidebar-item">
@@ -141,9 +149,9 @@
                 <span class="sidebar-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 </span>
-                <span class="sidebar-link-text">Manajemen User</span>
+                <span class="sidebar-link-text"><strong>Manajemen User</strong></span>
             </a>
         </li>
     </ul>
 </div>
-</php>
+<?php ?>
