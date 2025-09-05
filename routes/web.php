@@ -24,5 +24,11 @@ Route::get('/navbar', function () {
 });
 
 Route::get('/forgotpassword', function () {
-    return view('forgotpassword');
+    return view('forgotpassword.forgotpassword');
+});
+Route::get('/new_password', function () {
+    return view('forgotpassword.new_password');
+});
+Route::get('/verifikasi_email', function () {
+    return view('forgotpassword.verifikasi_email');
 });

@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password</title>
+    <title>New Password</title>
     <style>
         body {
             margin: 0;
@@ -17,7 +17,7 @@
             align-items: center;
             height: 100vh;
         }
-        .forgot-card {
+        .card {
             background: #fff;
             padding: 40px;
             border-radius: 6px;
@@ -26,16 +26,16 @@
             text-align: center;
         }
 
-        .forgot-card h2{
+        h2{
             color: #1D64F2;
             margin-bottom: 5px;
         }
-        .forgot-card p{
+        p{
             font-size: 12px;
             color: #1D64F2;
             margin-bottom: 30px;
         }
-        .forgot-card label{
+        .card label{
             display: block;
             text-align: left;
             margin-bottom: 5px;
@@ -52,7 +52,7 @@
         box-sizing: border-box;
         margin-bottom: 20px;
         }
-        .forgot-password {
+        .back {
         display: flex;
         text-align: center;
         font-size: 10px;
@@ -63,12 +63,12 @@
         text-decoration: none;
         cursor: pointer;
         }
-        .forgot-password.arrow{
+        .back.arrow{
         margin-right: 6px;
         text-decoration: none;
         }
 
-        .forgot-card button {
+        .btn {
         width: 100%;
         background-color: #1D64F2;
         color: white;
@@ -80,29 +80,31 @@
         cursor: pointer;
         margin-top: 25px;
         }
-        .forgot-password:hover {
+        .back:hover {
         text-decoration: underline;
         }
-        .forgot-card button:hover {
+        .btn:hover {
         background-color: #010D26;
         }
 
     </style>
 </head>
 <body>
-    <div class="forgot-card">
-        <a href="" class="forgot-password" >
+    <div class="card">
+        <a href="{{ url('/verifikasi_email') }}" class="back" >
             <span class="arrow">&lt;</span>
-            <span>Forgot Password</span>
+            <span>Back</span>
         </a>
-        <h2>Forgot Password?</h2>
-        <p>Enter your email addres</p>
+        <h2>New Password?</h2>
+        <p>Please write your new password</p>
         <form>
             <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" placeholder="Enter your email" required>
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" id="confirm-password" placeholder="Enter your confirm password" required>
             </div>
-        <button type="submit">Send</button>
+        <button class="btn" type="submit">Confirm Password</button>
         </form>
     </div>
 </body>
