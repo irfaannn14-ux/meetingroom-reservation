@@ -32,3 +32,6 @@ Route::get('/new_password', function () {
 Route::get('/verifikasi_email', function () {
     return view('forgotpassword.verifikasi_email');
 });
+Route::get('/dashboard', function () {
+    return view('dashboard');
+});
