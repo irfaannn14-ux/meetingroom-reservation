@@ -59,13 +59,13 @@
 
     .form-group label {
         font-weight: 600;
-        margin-bottom: 0.3rem;
+        margin-bottom: 0.1rem;
     }
 
     .form-group input,
     .form-group textarea,
     .form-group select {
-        padding: 0.6rem;
+        padding: 0.5rem;
         border: 1px solid #ccc;
         border-radius: 6px;
         width: 100%;
@@ -80,14 +80,14 @@
     .form-actions {
         display: flex;
         justify-content: center;
-        gap: 1.2rem;
+        gap: 1rem;
         margin-top: 5rem;
     }
 
     .btn-cancel {
         background: #fff;
         border: 1px solid #000;
-        padding: 0.6rem 1.5rem;  /* ✅ diperbaiki */
+        padding: 0.6rem 1.5rem;  
         border-radius: 6px;
         cursor: pointer;
         font-weight: 600;
@@ -116,7 +116,7 @@
                 @csrf
                 <h1 style="margin-top:0; margin-bottom:3rem;">Form Pengajuan</h1>
 
-                <div class="form-row">
+                <div class="form-row" style="grid-template-columns: 1.1fr 1.1fr; gap: 2.2rem;">
                     <div class="form-group">
                         <label for="nama">Nama</label>
                         <input type="text" id="nama" name="nama" required>
@@ -134,15 +134,15 @@
                     </div>
                 </div>
 
-                <div class="form-row">
+                <div class="form-row" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div class="form-group">
                         <label for="ruangan">Ruangan</label>
                         <select id="ruangan" name="ruangan" required>
                             <option value="">-- Pilih Ruangan --</option>
-                            <option value="Aula">Aula</option>
-                            <option value="Ruang Rapat">Ruang Rapat</option>
-                            <option value="Meeting 1">Meeting 1</option>
-                            <option value="Meeting 2">Meeting 2</option>
+                            <option value="Ruangan 1">Ruangan 1</option>
+                            <option value="Ruangan 2">Ruangan 2</option>
+                            <option value="Ruangan 3">Ruangan 3</option>
+                            <option value="Ruangan 4">Ruangan 4</option>
                         </select>
                     </div>
                     <div class="form-group">
