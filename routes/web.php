@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\pengajuanController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -24,14 +25,20 @@ Route::get('/navbar', function () {
 });
 
 Route::get('/forgotpassword', function () {
-    return view('forgotpassword.forgotpassword');
+    return view('auth.forgotpassword');
 });
 Route::get('/new_password', function () {
-    return view('forgotpassword.new_password');
+    return view('auth.new_password');
 });
 Route::get('/verifikasi_email', function () {
-    return view('forgotpassword.verifikasi_email');
+    return view('auth.verifikasi_email');
 });
 Route::get('/dashboard', function () {
     return view('dashboard');
+});
+Route::get('/list_ruangan', function () {
+    return view('list_ruangan');
+});
+Route::get('/main', function () {
+    return view('layout.main');
 });
