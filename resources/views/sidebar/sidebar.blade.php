@@ -141,12 +141,46 @@
             </a>
         </li>
         <li class="sidebar-item">
-            <a href="/list_ruangan" class="sidebar-link">
+            <a href="#masterDataSubmenu" data-bs-toggle="collapse" class="sidebar-link">
                 <span class="sidebar-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-pen-icon lucide-file-pen"><path d="M12.5 22H18a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v9.5"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M13.378 15.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-folder">
+                        <path d="M3 7h5l2 3h11v9a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"/>
+                    </svg>
                 </span>
-                <span class="sidebar-link-text"><strong>Pengajuan</strong></span>
+                <span class="sidebar-link-text"><strong>Master Data</strong></span>
+                <span class="sidebar-icon">
+                    <span class="sidebar-icon">
+                        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
+                        </svg>
+                    </span>
+                </span>
             </a>
+            <ul class="collapse list-unstyled ps-3" id="masterDataSubmenu">
+                <li class="sidebar-item">
+                    <a href="/listdata" class="sidebar-link">
+                        <span class="sidebar-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-pen">
+                                <path d="M12.5 22H18a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v9.5"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M13.378 15.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/>
+                            </svg>
+                        </span>
+                        <span class="sidebar-link-text">Pengajuan</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ route('ruangan.index') }}" class="sidebar-link">
+                        <span class="sidebar-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house-icon lucide-house">
+                                <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            </svg>
+                        </span>
+                        <span class="sidebar-link-text">Ruangan</span>
+                    </a>
+                </li>
+            </ul>
         </li>
         <li class="sidebar-item">
             <a href="/daftar-pengajuan" class="sidebar-link">

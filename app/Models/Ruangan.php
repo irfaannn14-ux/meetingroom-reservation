@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Ruangan extends Model
 {
     use HasFactory;
-    protected $table = "ruangan";
+    protected $table = "ruangans";
     protected $primarykey = "id";
     public $timestamps = false; // Menonaktifkan timestamps (created_at, updated_at)
     protected $fillable = [
