@@ -35,3 +35,6 @@ Route::get('/verifikasi_email', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 });
+Route::get('/pengajuan', function () {
+    return view('pengajuan');
+});
