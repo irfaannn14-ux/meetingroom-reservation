@@ -141,6 +141,14 @@
             </a>
         </li>
         <li class="sidebar-item">
+            <a href="/pengajuan" class="sidebar-link">
+                <span class="sidebar-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-pen-icon lucide-file-pen"><path d="M12.5 22H18a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v9.5"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M13.378 15.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/></svg>
+                </span>
+                <span class="sidebar-link-text"><strong>Pengajuan</strong></span>
+            </a>
+        </li>
+        <li class="sidebar-item">
             <a href="/daftar-pengajuan" class="sidebar-link">
                 <span class="sidebar-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-checks"><path d="m3 12 2 2 4-4"/><path d="M11 6h9"/><path d="M11 12h9"/><path d="M11 18h9"/><path d="M3 18h.01"/><path d="M3 6h.01"/></svg>

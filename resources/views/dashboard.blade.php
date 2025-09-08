@@ -1,184 +1,180 @@
-<?php ?>
+<?php?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        body{
+        body {
             font-family: 'Montserrat', sans-serif;
             margin: 0;
         }
-        *{
-            box-sizing: border-box;
-        }
+
         .main-content {
-            padding: 80px 20px 20px 20px;
-            background: #cfe4f8; /* biar sama dengan contohmu */
-            min-height: 100vh;
+            padding: 80px 20px 20px;
         }
 
-        .content {
-            width: 100%;
-        }
-
-        h1 {
+        /* Gaya untuk judul Dashboard */
+        .dashboard-title {
+            margin-top: 0;
             margin-bottom: 20px;
             font-size: 2rem;
             font-weight: bold;
-        }
-
-        /* ===== Card Welcome ===== */
-        .card {
-            background: #ffffff;
-            padding: 15px;
-            border-radius: 10px;
-            width: 100%;
-            margin-bottom: 20px;
-            display: flex;              /* teks & gambar sejajar */
-            justify-content: space-between;
-            align-items: center;
-            box-sizing: border-box;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .card-left{
-            flex: 1;
-        }
-        h2{
-            margin: 0 0 20px;
-            font-size: 1.5rem;
-            color: #1335F2;
-            font-weight: bold;
-        }
-        p{
-            margin: 0 0 10px;
-            font-size: 15px;
             color: #333;
         }
-        .card-right img {
-            max-width: 250px; /* ukuran gambar */
-            height: auto;
-            margin: 0 10px;
-        }
 
-        /* ===== Kotak Statistik ===== */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .stat-card {
-            color: #fff;
-            border-radius: 8px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card-content {
+        /* Card Welcome */
+        .welcome-card {
+            background-color: #fff;
             padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .card-content h3 {
-            margin: 0;
-            font-size: 2rem;
+        .welcome-card-text {
+            color: #1335F2;
             font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .welcome-card p {
+            margin-bottom: 5px; /* Mengurangi jarak antar baris */
+            line-height: 1.5; /* Atur line height jika perlu */
+        }
+        .welcome-card img {
+            max-width: 250px;
+            height: auto;
         }
 
-        .card-content p {
-            margin: 5px 0 0;
-            font-size: 1.1rem;
+        /* Kotak-kotak di bawahnya */
+        .info-card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background-color: #fff;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .icon-box {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             color: #fff;
+            font-size: 24px;
         }
 
-        .card-footer {
-            background: rgba(0, 0, 0, 0.1);
-            padding: 10px 15px;
-            text-align: center;
+        .icon-box.total { background-color: #3876F2; }
+        .icon-box.accepted { background-color: #28a745; }
+        .icon-box.new { background-color: #17a2b8; }
+        .icon-box.rejected { background-color: #dc3545; }
+
+        .card-title-text {
+            color: #6c757d;
+            font-weight: 500;
+            font-size: 1rem;
         }
 
-        .card-footer a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 0.9rem;
+        .h3-custom {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #343a40;
         }
-
-        .card-footer a:hover {
-            text-decoration: underline;
-        }
-
-
-        .blue { background: #007bff; }
-        .green { background: #28a745; }
-        .yellow { background: #ffc107; }
-        .red { background: #dc3545; }
-
     </style>
 </head>
 <body>
     @include('sidebar.sidebar')
     @include('navbar.navbar')
     <div class="main-content">
-        <div class="content" >
-            <h1>Dashboard</h1>
+        <h1 class="dashboard-title">Dashboard</h1>
 
-            <!-- Card Welcome -->
-            <div class="card">
-                <div class="card-left">
-                    <h2>Selamat Datang Administrator!</h2>
-                    <p>Di Aplikasi Pengajuan Peminjaman Ruangan</p>
-                    <p>Pemerintah Daerah Kab. Probolinggo</p>
-                </div>
-                <div class="card-right">
-                    <img src="{{ asset('images/gambar.jpeg') }}" alt="Welcome Image">
-                </div>
+        <div class="welcome-card d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+            <div class="me-md-4 mb-3 mb-md-0">
+                <h1 class="welcome-card-text">Selamat Datang Administrator!</h1>
+                <p>Di Aplikasi Pengajuan Peminjaman Ruangan</p>
+                <p>Pemerintah Daerah Kab. Probolinggo</p>
             </div>
+            <div>
+                <img src="{{ asset('images/gambar.jpeg') }}" alt="Welcome Image">
+            </div>
+        </div>
 
-            <!-- Kotak Statistik -->
-            <div class="stats-grid">
-                <div class="stat-card blue">
-                    <div class="card-content">
-                        <h3>27</h3>
-                        <p>Total Pengajuan</p>
-                    </div>
-                    <div class="card-footer">
-                        <a href="#">More info</a>
-                    </div>
-                </div>
-                <div class="stat-card green">
-                    <div class="card-content">
-                        <h3>23</h3>
-                        <p>Pengajuan Diterima</p>
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card info-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-box total me-3">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0 card-title-text">Total Pengajuan</h5>
+                                <div class="h3 h3-custom">145</div>
+                            </div>
                         </div>
-                    <div class="card-footer">
-                        <a href="#">More info</a>
-                    </div>
-                </div>
-                <div class="stat-card yellow">
-                    <div class="card-content">
-                        <h3>3</h3>
-                        <p>Pengajuan Baru</p>
-                        </div>
-                    <div class="card-footer">
-                        <a href="#">More info</a>
-                    </div>
-                </div>
-                <div class="stat-card red">
-                    <div class="card-content">
-                        <h3>1</h3>
-                        <p>Pengajuan Ditolak</p>
-                        </div>
-                    <div class="card-footer">
-                        <a href="#">More info</a>
                     </div>
                 </div>
             </div>
 
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card info-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-box accepted me-3">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0 card-title-text">Pengajuan Diterima</h5>
+                                <div class="h3 h3-custom">90</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card info-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-box new me-3">
+                                <i class="fas fa-folder-plus"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0 card-title-text">Pengajuan Baru</h5>
+                                <div class="h3 h3-custom">25</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card info-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-box rejected me-3">
+                                <i class="fas fa-times-circle"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0 card-title-text">Pengajuan Ditolak</h5>
+                                <div class="h3 h3-custom">30</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
