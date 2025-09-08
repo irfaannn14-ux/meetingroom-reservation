@@ -35,15 +35,15 @@
         border-radius: 8px;
         box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         width: 90%;
-        max-width: 600px;
+        max-width: 500px;
         margin: 5rem auto;
-        min-height: 500px;  
+        min-height: 700px;  
     }
 
     .form-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 3rem;
+        gap: 2rem;
         margin-bottom: 1rem;
     }
 
@@ -72,7 +72,7 @@
         font-size: 14px;
         font-weight: 400 !important;        
         font-family: 'Montserrat', sans-serif !important; 
-        color: #000;                       
+        color: #000000ff;                       
         -webkit-font-smoothing: antialiased; 
         -moz-osx-font-smoothing: grayscale;  
     }
@@ -149,9 +149,16 @@
                         <label for="jumlah_peserta">Jumlah Peserta</label>
                         <input type="number" id="jumlah_peserta" name="jumlah_peserta" required>
                     </div>
-                </div>
-
-                <div class="form-row">
+                    </div>
+                    <div class="form-group">
+                        <label for="tanggal_mulai">Tanggal Mulai</label>
+                        <input type="date" id="tanggal_mulai" name="tanggal_mulai" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tanggal_berakhir">Tanggal Berakhir</label>
+                        <input type="date" id="tanggal_berakhir" name="tanggal_berakhir" required>
+                    </div>
+                    <div class="form-row">
                     <div class="form-group">
                         <label for="jam_mulai">Jam Mulai</label>
                         <input type="time" id="jam_mulai" name="jam_mulai" required>
