@@ -42,3 +42,6 @@ Route::get('/list_ruangan', function () {
 Route::get('/main', function () {
     return view('layout.main');
 });
+Route::get('/pengajuan', function () {
+    return view('pengajuan');
+});
