@@ -182,7 +182,7 @@
 
                 <!-- Tombol -->
                 <div class="form-actions">
-                    <button type="button" class="btn-cancel">Cancel</button>
+                    <a href="/listdata"><button type="button" class="btn-cancel">Cancel</button></a>
                     <button type="submit" class="btn-submit">Submit</button>
                 </div>
             </form>
