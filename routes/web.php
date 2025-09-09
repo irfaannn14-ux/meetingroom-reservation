@@ -38,3 +38,6 @@ Route::delete('ruangan/{id}',[RuanganController::class, 'destroy'])->name('ruang
 //pengajuan
 Route::get('/listdata', function () {return view('pengajuan.listdata');});
 Route::get('/pengajuan', function () {return view('pengajuan');});
+
+//user
+Route::get('/user', function () {return view('user');});
