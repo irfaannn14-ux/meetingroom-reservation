@@ -161,7 +161,7 @@
             </a>
             <ul class="collapse list-unstyled ps-3" id="masterDataSubmenu">
                 <li class="sidebar-item">
-                    <a href="/listdata" class="sidebar-link">
+                    <a href="{{ route('pengajuan.index') }}" class="sidebar-link">
                         <span class="sidebar-icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-pen">
                                 <path d="M12.5 22H18a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v9.5"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M13.378 15.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/>
@@ -191,7 +191,7 @@
             </a>
         </li>
         <li class="sidebar-item">
-            <a href="/manajemen-user" class="sidebar-link">
+            <a href="{{ route('user.index') }}" class="sidebar-link">
                 <span class="sidebar-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 </span>

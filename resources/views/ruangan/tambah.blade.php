@@ -1,6 +1,6 @@
 <?php ?>
 @extends('layout.main')
-
+@section('title', 'Form Ruangan')
 @section('content')
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
@@ -14,7 +14,7 @@
     <div class="main-content">
         <div class="container d-flex justify-content-center mt-4">
         <div class="card shadow p-4" style="max-width: 500px; width: 100%; border-radius: 12px;">
-            <h4 class="text-left mb-4 fw-bold">Form Pengajuan</h4>
+            <h4 class="text-left mb-4 fw-bold">Form Ruangan</h4>
 
             <form action="{{ route('ruangan.store') }}" method="POST">
                 @csrf

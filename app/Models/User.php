@@ -11,16 +11,17 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    protected $table = "users";
+    protected $primarykey = "id";
+    public $timestamps = false; // Menonaktifkan timestamps (created_at, updated_at)
     protected $fillable = [
-        'name',
+        'id',
+        'nama_apd',
         'email',
         'password',
+        'username',
+        'admin',
+        'superadmin',
     ];
 
     /**
@@ -45,4 +46,15 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function pengajuans()
+    {
+        return $this->hasMany(Pengajuan::class);
+    }
+
+    public function komentars()
+    {
+        return $this->hasMany(Komentar::class);
+    }
+
 }
