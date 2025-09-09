@@ -25,7 +25,7 @@
     <div class="main-content">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 ms-auto">
             <h1 class="dashboard-title">List Data Pengajuan</h1>
-            <a href="#" class="btn btn-primary" ><i class="bi bi-person-plus-fill"></i>Buat Pengajuan</a>
+            <a href="/pengajuan" class="btn btn-primary" ><i class="bi bi-person-plus-fill"></i>Buat Pengajuan</a>
         </div>
 
     <div class="welcome-card">
