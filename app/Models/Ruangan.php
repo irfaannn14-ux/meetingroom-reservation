@@ -17,4 +17,9 @@ class Ruangan extends Model
         'fasilitas',
         'jml_peserta',
     ];
+
+    public function pengajuans()
+    {
+        return $this->hasMany(Pengajuan::class);
+    }
 }

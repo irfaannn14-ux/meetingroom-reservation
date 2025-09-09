@@ -1,6 +1,6 @@
 <?php ?>
 @extends('layout.main')
-@section('title', 'Ruangan')
+@section('title', 'User')
 @section('content')
 <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
@@ -25,8 +25,8 @@
 
     <div class="main-content">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 ms-auto">
-            <h1 class="dashboard-title">List Ruangan</h1>
-            <a href="{{ route('ruangan.tambah') }}" class="btn btn-primary" ><i class="bi bi-person-plus-fill"></i>Tambah Ruangan</a>
+            <h1 class="dashboard-title">User</h1>
+            <a href="{{ route('user.tambah') }}" class="btn btn-primary" ><i class="bi bi-person-plus-fill"></i> Tambah User</a>
         </div>
         @if (session('success'))
             <div class="alern alert-success">
@@ -38,9 +38,11 @@
                 <thead class="table-dark">
                     <tr>
                         <th>No</th>
-                        <th>Nama Ruangan</th>
-                        <th>Jumlah Peserta</th>
-                        <th>Fasilitas</th>
+                        <th>Nama </th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Admin</th>
+                        <th>Super Admin</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -48,13 +50,15 @@
                     @foreach ($all as $key => $item)
                         <tr>
                             <td>{{$key + 1}}</td>
-                            <td>{{$item->nama_ruangan}}</td>
-                            <td>{{$item->jml_peserta}}</td>
-                            <td>{{$item->fasilitas}}</td>
+                            <td>{{$item->nama_apd}}</td>
+                            <td>{{$item->username}}</td>
+                            <td>{{$item->email}}</td>
+                            <td>{{$item->admin}}</td>
+                            <td>{{$item->superadmin}}</td>
                             <td>
                                 {{-- nim ada primary key --}}
-                                <a href="{{route('ruangan.edit',['id' => $item->id])}}" class="btn btn-success btn-sm nav-icon bi bi-pencil-square"></a>
-                                <form action="{{route('ruangan.destroy', ['id' => $item->id]) }}" method="POST" style="display: inline;">
+                                <a href="{{route('user.edit',['id' => $item->id])}}" class="btn btn-success btn-sm nav-icon bi bi-pencil-square"></a>
+                                <form action="{{route('user.destroy', ['id' => $item->id]) }}" method="POST" style="display: inline;">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger btn-sm bi bi-trash" onclick="return confirm('Yakin ingin menghapus data?')"></button>

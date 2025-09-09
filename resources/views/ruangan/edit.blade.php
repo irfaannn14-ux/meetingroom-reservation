@@ -1,6 +1,6 @@
 <?php ?>
 @extends('layout.main')
-
+@section('title', 'Edit Ruangan')
 @section('content')
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');

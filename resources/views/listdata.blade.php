@@ -25,6 +25,9 @@
     <div class="main-content">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 ms-auto">
             <h1 class="dashboard-title">List Data Pengajuan</h1>
+<<<<<<< HEAD:resources/views/listdata.blade.php
+            <a href="{{route('pengajuan.tambah')}}" class="btn btn-primary" ><i class="bi bi-person-plus-fill"></i>Buat Pengajuan</a>
+=======
             <div class="d-flex gap-2">
                 <a href="/pengajuan" class="btn btn-primary">
                     <i class="bi bi-person-plus-fill"></i> Buat Pengajuan
@@ -33,6 +36,7 @@
                     <i class="bi bi-plus-square"></i> Tambah Ruangan
                 </a>
             </div>
+>>>>>>> 7d125fcd27b4c6576153dbf5a6d7f6599ec5a88f:resources/views/pengajuan/listdata.blade.php
         </div>
 
     <div class="welcome-card">
@@ -48,27 +52,28 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>Ruang Meeting 1</td>
-                    <td>Ruang Meeting 1</td>
-                    <td>Ruang Meeting 1</td>
-                    <td>25</td>
-                    <td>
-                        <div class="d-flex gap-2">
-                            <!-- Tombol Lihat -->
-                            <button class="btn btn-sm btn-outline-primary rounded-15px" title="Lihat">
-                                <i class="bi bi-eye"></i>
-                            </button>
+                @foreach ($all as $key => $item)
+                    <tr>
+                        <td>{{$key + 1}}</td>
+                        <td>{{$item->nama_apd}}</td>
+                        <td>{{$item->kegiatan}}</td>
+                        <td>{{$item->ruangan}}</td>
+                        <td>{{$item->status}}</td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <!-- Tombol Lihat -->
+                                <button class="btn btn-sm btn-outline-primary rounded-15px" title="Lihat">
+                                    <i class="bi bi-eye"></i>
+                                </button>
 
-                            <!-- Tombol Edit/Dokumen -->
-                            <button class="btn btn-sm btn-outline-secondary rounded-15px" title="Edit">
-                                <i class="bi bi-file-earmark-text"></i>
-                            </button>
-                        </div>
-                    </td>
-
-                </tr>
+                                <!-- Tombol Edit/Dokumen -->
+                                <button class="btn btn-sm btn-outline-secondary rounded-15px" title="Edit">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
             </tbody>
         </table>
     </div>

@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\pengajuanController;
 use App\Http\Controllers\RuanganController;
+use App\Http\Controllers\UserController;
+use App\Models\Pengajuan;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -41,3 +43,14 @@ Route::get('/pengajuan', function () {return view('pengajuan');});
 
 //user
 Route::get('/user', function () {return view('user');});
+Route::get('pengajuan/',[PengajuanController::class, 'index'])->name('pengajuan.index');
+Route::get('pengajuan/tambah',[PengajuanController::class, 'tambah'])->name('pengajuan.tambah');
+Route::post('pengajuan',[PengajuanController::class, 'store'])->name('pengajuan.store');
+
+//manajemen user
+Route::get('user/',[UserController::class, 'index'])->name('user.index');
+Route::get('user/tambah',[UserController::class, 'tambah'])->name('user.tambah');
+Route::post('user',[UserController::class, 'store'])->name('user.store');
+Route::get('user/{id}/edit', [UserController::class, 'edit'])->name('user.edit');
+Route::put('/user/{id}', [UserController::class, 'update'])->name('user.update');
+Route::delete('user/{id}',[UserController::class, 'destroy'])->name('user.destroy');
