@@ -17,10 +17,10 @@ class PengajuanController extends Controller
         ->select([
             'pengajuans.*',
             'users.nama_apd as nama_apd',
-            'ruangans.nama_ruangan as nama_ruangan',
+            'ruangans.nama_ruangan as ruangan',
         ])
     ->get();
-    return view('pengajuan.index',compact ('all')) ;
+    return view('listdata', compact('all'));
     }
 
     public function tambah(){

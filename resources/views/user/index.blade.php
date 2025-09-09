@@ -3,72 +3,151 @@
 @section('title', 'User')
 @section('content')
 <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
-        body {
-            font-family: 'Montserrat', sans-serif;
-            margin: 0;
-        }
-        .main-content { padding: 80px 20px 20px; }
-        .dashboard-title {
-            margin-bottom: 20px;
-            font-size: 2rem;
-            font-weight: bold;
-            color: #333;
-        }
-        .welcome-card {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-    </style>
+    /* CSS Styling untuk Halaman User */
+    :root {
+        --color-bg: #C9DFF2;
+        --color-dark: #010D26;
+        --color-light: #ffffff;
+    }
+    body {
+        font-family: 'Montserrat', sans-serif;
+        margin: 0;
+    }
+    .main-content {
+        padding: 80px 20px 20px;
+        background-color: var(--color-bg);
+        min-height: 100vh;
+    }
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .page-title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--color-dark);
+    }
+    .add-button {
+        background-color: var(--color-dark);
+        color: var(--color-light);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s;
+    }
+    .add-button:hover {
+        background-color: rgba(1, 13, 38, 0.8);
+    }
+    .user-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+    .user-card {
+        background-color: var(--color-light);
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; /* Penting agar gambar tidak keluar dari sudut kartu */
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        /* Animasi hover seperti dashboard */
+    }
+    .user-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+    .card-image {
+        width: 100%;
+        height: 180px; /* Tinggi gambar statis */
+        overflow: hidden;
+    }
+    .user-photo {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .card-content {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .user-name {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: var(--color-dark);
+        margin: 0;
+    }
+    .user-role {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 15px;
+    }
+    .card-actions {
+        display: flex;
+        gap: 10px;
+    }
+    .action-button {
+        background-color: transparent;
+        border: 2px solid var(--color-dark);
+        color: var(--color-dark);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s, color 0.2s;
+        text-decoration: none; /* Hilangkan garis bawah pada link */
+    }
+    .action-button:hover {
+        background-color: var(--color-dark);
+        color: var(--color-light);
+    }
+</style>
 
-    <div class="main-content">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 ms-auto">
-            <h1 class="dashboard-title">User</h1>
-            <a href="{{ route('user.tambah') }}" class="btn btn-primary" ><i class="bi bi-person-plus-fill"></i> Tambah User</a>
-        </div>
-        @if (session('success'))
-            <div class="alern alert-success">
-                {{session('success')}}
-            </div>
-        @endif
-        <div class="welcome-card">
-            <table id="myTable" class="table table-striped table-bordered">
-                <thead class="table-dark">
-                    <tr>
-                        <th>No</th>
-                        <th>Nama </th>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Admin</th>
-                        <th>Super Admin</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($all as $key => $item)
-                        <tr>
-                            <td>{{$key + 1}}</td>
-                            <td>{{$item->nama_apd}}</td>
-                            <td>{{$item->username}}</td>
-                            <td>{{$item->email}}</td>
-                            <td>{{$item->admin}}</td>
-                            <td>{{$item->superadmin}}</td>
-                            <td>
-                                {{-- nim ada primary key --}}
-                                <a href="{{route('user.edit',['id' => $item->id])}}" class="btn btn-success btn-sm nav-icon bi bi-pencil-square"></a>
-                                <form action="{{route('user.destroy', ['id' => $item->id]) }}" method="POST" style="display: inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm bi bi-trash" onclick="return confirm('Yakin ingin menghapus data?')"></button>
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+<div class="main-content">
+    <div class="header-content">
+        <h1 class="page-title">Daftar Pengguna</h1>
+        <a href="{{ route('user.tambah') }}" class="add-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-plus"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+            Tambah Akun
+        </a>
     </div>
 
+    {{-- Pesan sukses --}}
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    {{-- Grid pengguna --}}
+    <div class="user-grid">
+        @foreach ([1, 2, 3, 4, 5, 6] as $item) {{-- Contoh dummy data --}}
+            <div class="user-card">
+                <div class="card-image">
+                    <img src="/images/dummyperson.jpg" alt="Foto Profil" class="user-photo">
+                </div>
+                <div class="card-content">
+                    <h3 class="user-name">Jason Price</h3>
+                    <p class="user-role">APD Probolinggo</p>
+                    <div class="card-actions">
+                        <a href="#" class="action-button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></a>
+                        <a href="#" class="action-button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg></a>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+</div>
 @endsection

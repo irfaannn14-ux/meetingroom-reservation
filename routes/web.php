@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\pengajuanController;
+use App\Http\Controllers\PengajuanController;
 use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\UserController;
 use App\Models\Pengajuan;
@@ -38,11 +38,9 @@ Route::put('ruangan/{id}',[RuanganController::class, 'update'])->name('ruangan.u
 Route::delete('ruangan/{id}',[RuanganController::class, 'destroy'])->name('ruangan.destroy');
 
 //pengajuan
-Route::get('/listdata', function () {return view('pengajuan.listdata');});
-Route::get('/pengajuan', function () {return view('pengajuan');});
+Route::get('/listdata', [PengajuanController::class, 'index'])->name('pengajuan.index');
 
 //user
-Route::get('/user', function () {return view('user');});
 Route::get('pengajuan/',[PengajuanController::class, 'index'])->name('pengajuan.index');
 Route::get('pengajuan/tambah',[PengajuanController::class, 'tambah'])->name('pengajuan.tambah');
 Route::post('pengajuan',[PengajuanController::class, 'store'])->name('pengajuan.store');
