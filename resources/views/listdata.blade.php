@@ -25,7 +25,18 @@
     <div class="main-content">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 ms-auto">
             <h1 class="dashboard-title">List Data Pengajuan</h1>
+<<<<<<< HEAD:resources/views/listdata.blade.php
             <a href="{{route('pengajuan.tambah')}}" class="btn btn-primary" ><i class="bi bi-person-plus-fill"></i>Buat Pengajuan</a>
+=======
+            <div class="d-flex gap-2">
+                <a href="/pengajuan" class="btn btn-primary">
+                    <i class="bi bi-person-plus-fill"></i> Buat Pengajuan
+                </a>
+                <a href="/ruangan/tambah" class="btn btn-success">
+                    <i class="bi bi-plus-square"></i> Tambah Ruangan
+                </a>
+            </div>
+>>>>>>> 7d125fcd27b4c6576153dbf5a6d7f6599ec5a88f:resources/views/pengajuan/listdata.blade.php
         </div>
 
     <div class="welcome-card">

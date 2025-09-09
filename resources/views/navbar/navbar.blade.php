@@ -86,7 +86,7 @@
         <div class="profile-photo"></div>
         <div class="profile-info">
             <span class="profile-name">Milinda Ayu</span>
-            <span class="profile-role">Admin</span>
+            <span class="profile-role">Super Admin</span>
         </div>
     </div>
 </div>

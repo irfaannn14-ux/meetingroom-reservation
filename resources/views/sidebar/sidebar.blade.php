@@ -10,7 +10,7 @@
         --color-hover-text: #ffffff;
 
         --sidebar-collapsed: 60px;
-        --sidebar-expanded: 210px;
+        --sidebar-expanded: 310px;
         --logo-left-padding: 0.5rem;
         --content-gap: 12px;
     }
@@ -88,6 +88,7 @@
     }
     .sidebar-item {
         margin-bottom: 0.5rem;
+        position: relative;
     }
     .sidebar-link {
         display: flex;
@@ -125,21 +126,57 @@
     .sidebar:hover .sidebar-link-text {
         opacity: 1;
     }
+
+    /* Dropdown khusus untuk Manajemen Pengajuan */
+    .sidebar-dropdown {
+        position: relative;
+    }
+    /* --- Transisi halus untuk dropdown Manajemen Pengajuan --- */
+    .sidebar-dropdown-menu {
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        padding-left: 2.2rem;
+        margin-top: 0.2rem;
+        transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s cubic-bezier(0.4,0,0.2,1);
+        /* display: none; dihapus agar transisi bisa berjalan */
+    }
+    .sidebar-dropdown:hover > .sidebar-dropdown-menu,
+    .sidebar-dropdown:focus-within > .sidebar-dropdown-menu {
+        max-height: 500px; /* cukup besar untuk menampung isi */
+        opacity: 1;
+        /* display: flex; tidak perlu, sudah flex di default */
+    }
+    .sidebar-dropdown-menu .sidebar-link {
+        font-size: 15px;
+        padding: 0.6rem 0.5rem;
+        background: transparent;
+        color: var(--color-dark);
+    }
+    .sidebar-dropdown-menu .sidebar-link:hover {
+        background-color: var(--color-hover-bg);
+        color: var(--color-hover-text);
+    }
 </style>
 
 <div class="sidebar">
     <div class="sidebar-logo">
-        <img src="{{ asset('images/logoipsum.png') }}" alt="Logo">
+        <a href="/">
+            <img src="{{ asset('images/logoipsum.png') }}" alt="Logo">
+        </a>
     </div>
     <ul class="sidebar-menu">
         <li class="sidebar-item">
-            <a href="/dashboard" class="sidebar-link">
+            <a href="/" class="sidebar-link">
                 <span class="sidebar-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
                 </span>
                 <span class="sidebar-link-text"><strong>Dashboard</strong></span>
             </a>
         </li>
+<<<<<<< HEAD
         <li class="sidebar-item">
             <a href="#masterDataSubmenu" data-bs-toggle="collapse" class="sidebar-link">
                 <span class="sidebar-icon">
@@ -184,12 +221,37 @@
         </li>
         <li class="sidebar-item">
             <a href="/daftar-pengajuan" class="sidebar-link">
+=======
+        <!-- Mulai custom dropdown Manajemen Pengajuan -->
+        <li class="sidebar-item sidebar-dropdown">
+            <a href="#" class="sidebar-link">
+>>>>>>> 7d125fcd27b4c6576153dbf5a6d7f6599ec5a88f
                 <span class="sidebar-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-checks"><path d="m3 12 2 2 4-4"/><path d="M11 6h9"/><path d="M11 12h9"/><path d="M11 18h9"/><path d="M3 18h.01"/><path d="M3 6h.01"/></svg>
                 </span>
-                <span class="sidebar-link-text"><strong>Daftar Pengajuan</strong></span>
+                <span class="sidebar-link-text"><strong>Manajemen Pengajuan</strong></span>
+                <span class="sidebar-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
+                    </svg>
+                </span>
             </a>
+            <div class="sidebar-dropdown-menu">
+                <a href="/listdata" class="sidebar-link">
+                    <span class="sidebar-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-checks"><path d="m3 12 2 2 4-4"/><path d="M11 6h9"/><path d="M11 12h9"/><path d="M11 18h9"/><path d="M3 18h.01"/><path d="M3 6h.01"/></svg>
+                    </span>
+                    <span class="sidebar-link-text">Daftar Pengajuan</span>
+                </a>
+                <a href="/history-pengajuan" class="sidebar-link">
+                    <span class="sidebar-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-history"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3"/><path d="M12 7v5l4 2"/></svg>
+                    </span>
+                    <span class="sidebar-link-text">History Pengajuan</span>
+                </a>
+            </div>
         </li>
+        <!-- Akhir custom dropdown Manajemen Pengajuan -->
         <li class="sidebar-item">
             <a href="{{ route('user.index') }}" class="sidebar-link">
                 <span class="sidebar-icon">
