@@ -43,8 +43,8 @@
     .form-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 2rem;
-        margin-bottom: 1rem;
+        gap: 2.2rem;
+        margin-bottom: 0rem;
     }
 
     .form-group {
@@ -58,8 +58,9 @@
     }
 
     .form-group label {
-        font-weight: 600;
-        margin-bottom: 0.1rem;
+        font-weight: 400;
+        margin-bottom: 0.3rem;
+        color: #000;
     }
 
     .form-group input,
@@ -93,6 +94,11 @@
         font-weight: 600;
     }
 
+    .btn-cancel:hover {
+    background: #adadadff;
+    color: #fff;
+    }
+
     .btn-submit {
         background: #010D26;
         color: #fff;
@@ -101,6 +107,11 @@
         border-radius: 6px;
         cursor: pointer;
         font-weight: 600;
+    }
+    .btn-submit:hover {
+    background: #1D64F2;
+    color: #010D26;
+    border: 1px solid #010d26;
     }
 
 
@@ -134,7 +145,7 @@
                     </div>
                 </div>
 
-                <div class="form-row" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-row" style="grid-template-columns: 1fr 1fr; gap: 0.9rem;">
                     <div class="form-group">
                         <label for="ruangan">Ruangan</label>
                         <select id="ruangan" name="ruangan" required>
@@ -158,7 +169,7 @@
                         <label for="tanggal_berakhir">Tanggal Berakhir</label>
                         <input type="date" id="tanggal_berakhir" name="tanggal_berakhir" required>
                     </div>
-                    <div class="form-row">
+                    <div class="form-row" style="grid-template-columns: 1.1fr 1.1fr; gap: 2.2rem;">
                     <div class="form-group">
                         <label for="jam_mulai">Jam Mulai</label>
                         <input type="time" id="jam_mulai" name="jam_mulai" required>
