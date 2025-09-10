@@ -1,70 +1,150 @@
-<?php ?>
 @extends('layout.main')
 @section('title', 'Ruangan')
 @section('content')
-<style>
+    <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
         body {
             font-family: 'Montserrat', sans-serif;
+            background-color: #C9DFF2;
             margin: 0;
+            padding: 0;
         }
-        .main-content { padding: 80px 20px 20px; }
+        .main-content {
+            margin-left: 220px;
+            padding: 2rem;
+            min-height: 100vh;
+            background-color: #C9DFF2;
+            margin-top: 60px;
+        }
+        .content {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .ruangan-table-container {
+            background: #fff;
+            padding: 2.5rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            /* margin-top: 4rem; */
+            margin-top: 1.5rem; /* Jarak antara H1 dan tabel diperkecil */
+        }
         .dashboard-title {
-            margin-bottom: 20px;
+            margin-top: 0;
+            margin-bottom: 1.2rem; /* Jarak bawah H1 diperkecil */
             font-size: 2rem;
-            font-weight: bold;
-            color: #333;
+            font-weight: 700;
+            color: #010D26;
         }
-        .welcome-card {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 15px;
+            background: #fff;
+        }
+        th, td {
+            padding: 0.85rem 1rem;
+            text-align: center;
+        }
+        th {
+            background-color: #C9DFF2;
+            color: #010D26;
+            font-weight: 700;
+            border-bottom: 2px solid #B0C4DE;
+        }
+        tr {
+            border-bottom: 1px solid #e0e0e0;
+        }
+        tr:last-child {
+            border-bottom: none;
+        }
+        td {
+            color: #222;
+        }
+        .btn-action {
+            margin: 0 2px;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            padding: 0.75rem 1.25rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+        @media (max-width: 900px) {
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            .content {
+                max-width: 100%;
+            }
+            .ruangan-table-container {
+                padding: 1rem 0.5rem;
+                margin-top: 1rem; /* Responsive: jarak tabel juga diperkecil di mobile */
+            }
+            table, th, td {
+                font-size: 13px;
+            }
+            .dashboard-title {
+                margin-bottom: 0.8rem;
+            }
         }
     </style>
 
+    @include('sidebar.sidebar')
+    @include('navbar.navbar')
+
     <div class="main-content">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 ms-auto">
-            <h1 class="dashboard-title">List Ruangan</h1>
-            <a href="{{ route('ruangan.tambah') }}" class="btn btn-primary" ><i class="bi bi-person-plus-fill"></i>Tambah Ruangan</a>
-        </div>
-        @if (session('success'))
-            <div class="alern alert-success">
-                {{session('success')}}
+        <div class="content">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 ms-auto">
+                <h1 class="dashboard-title">List Ruangan</h1>
+                <a href="{{ route('ruangan.tambah') }}" class="btn btn-primary">
+                    <i class="bi bi-person-plus-fill"></i> Tambah Ruangan
+                </a>
             </div>
-        @endif
-        <div class="welcome-card">
-            <table id="myTable" class="table table-striped table-bordered">
-                <thead class="table-dark">
-                    <tr>
-                        <th>No</th>
-                        <th>Nama Ruangan</th>
-                        <th>Jumlah Peserta</th>
-                        <th>Fasilitas</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($all as $key => $item)
+            @if (session('success'))
+                <div class="alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+            <div class="ruangan-table-container">
+                <table>
+                    <thead>
                         <tr>
-                            <td>{{$key + 1}}</td>
-                            <td>{{$item->nama_ruangan}}</td>
-                            <td>{{$item->jml_peserta}}</td>
-                            <td>{{$item->fasilitas}}</td>
-                            <td>
-                                {{-- nim ada primary key --}}
-                                <a href="{{route('ruangan.edit',['id' => $item->id])}}" class="btn btn-success btn-sm nav-icon bi bi-pencil-square"></a>
-                                <form action="{{route('ruangan.destroy', ['id' => $item->id]) }}" method="POST" style="display: inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm bi bi-trash" onclick="return confirm('Yakin ingin menghapus data?')"></button>
-                                </form>
-                            </td>
+                            <th>No</th>
+                            <th>Nama Ruangan</th>
+                            <th>Jumlah Peserta</th>
+                            <th>Fasilitas</th>
+                            <th>Aksi</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach ($all as $key => $item)
+                            <tr>
+                                <td>{{ $key + 1 }}</td>
+                                <td>{{ $item->nama_ruangan }}</td>
+                                <td>{{ $item->jml_peserta }}</td>
+                                <td>{{ $item->fasilitas }}</td>
+                                <td>
+                                    <a href="{{ route('ruangan.edit', ['id' => $item->id]) }}" class="btn btn-success btn-sm btn-action nav-icon bi bi-pencil-square" title="Edit"></a>
+                                    <form action="{{ route('ruangan.destroy', ['id' => $item->id]) }}" method="POST" style="display: inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm btn-action bi bi-trash" onclick="return confirm('Yakin ingin menghapus data?')" title="Hapus"></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                        @if(count($all) == 0)
+                            <tr>
+                                <td colspan="5" style="color:#888;">Tidak ada data ruangan.</td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-
 @endsection

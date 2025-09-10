@@ -21,7 +21,7 @@
 
                 <div class="row mb-3">
                     <div class="col">
-                        <label for="nama_ruangan" class="form-label">Nama</label>
+                        <label for="nama_ruangan" class="form-label">Nama Ruangan</label>
                         <input type="text" name="nama_ruangan" id="nama_ruangan" class="form-control" required>
                     </div>
                     <div class="col">
@@ -36,7 +36,7 @@
                 </div>
 
                 <div class="d-flex justify-content-between">
-                    <a href="/listdata" class="btn btn-outline-dark px-4">Cancel</a>
+                    <a href="/ruangan" class="btn btn-outline-dark px-4">Cancel</a>
                     <button type="submit" class="btn btn-dark px-4"><i class="bi bi-floppy"></i>Submit</button>
                 </div>
             </form>
