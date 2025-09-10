@@ -9,7 +9,7 @@
         --color-hover-bg: #010D26;
         --color-hover-text: #ffffff;
 
-        --sidebar-collapsed: 60px;
+        --sidebar-collapsed: 70px;
         --sidebar-expanded: 310px;
         --logo-left-padding: 0.5rem;
         --content-gap: 12px;
