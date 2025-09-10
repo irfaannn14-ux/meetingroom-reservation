@@ -25,7 +25,14 @@
     <div class="main-content">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 ms-auto">
             <h1 class="dashboard-title">List Data Pengajuan</h1>
-            <a href="{{route('pengajuan.tambah')}}" class="btn btn-primary" ><i class="bi bi-person-plus-fill"></i>Buat Pengajuan</a>
+            <div class="d-flex gap-2">
+                <a href="/pengajuan" class="btn btn-primary">
+                    <i class="bi bi-person-plus-fill"></i> Buat Pengajuan
+                </a>
+                <a href="/ruangan/tambah" class="btn btn-success">
+                    <i class="bi bi-plus-square"></i> Tambah Ruangan
+                </a>
+            </div>
         </div>
 
     <div class="welcome-card">
@@ -33,37 +40,35 @@
             <thead class="table-dark">
                 <tr>
                     <th>No</th>
-                    <th>Nama</th>
+                    <th>Pengajuan</th>
                     <th>Kegiatan</th>
                     <th>Ruangan</th>
-                    <th>Tanggal</th>
+                    <th>Status</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach ($all as $key => $item)
+
                     <tr>
-                        <td>{{$key + 1}}</td>
-                        <td>{{$item->nama_apd}}</td>
-                        <td>{{$item->kegiatan}}</td>
-                        <td>{{$item->ruangan}}</td>
-                        <td>{{$item->tanggal}}</td>
+                        <td>1</td>
+                        <td>Dinas Kominfo</td>
+                        <td>Work Shop</td>
+                        <td>Jabung 1</td>
+                        <td>diproses</td>
                         <td>
-                            <a href="#" class="btn btn-info btn-sm">Detail</a>
-                            <form action="#" method="POST" style="display:inline">
-                                @csrf
-                                <input type="text" name="komentar" placeholder="Komentar">
-                                <button type="submit" class="btn btn-success btn-sm">Approve</button>
-                            </form>
-                            <a href="#" class="btn btn-warning btn-sm">Edit</a>
-                            <form action="#" method="POST" style="display:inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Hapus data?')">Delete</button>
-                            </form>
+                            <div class="d-flex gap-2">
+                                <!-- Tombol Lihat -->
+                                <button class="btn btn-sm btn-outline-primary rounded-15px" title="Lihat">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+
+                                <!-- Tombol Edit/Dokumen -->
+                                <button class="btn btn-sm btn-outline-secondary rounded-15px" title="Edit">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
-                @endforeach
             </tbody>
         </table>
     </div>

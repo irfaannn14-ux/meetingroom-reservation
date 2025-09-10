@@ -20,7 +20,7 @@ class PengajuanController extends Controller
             'ruangans.nama_ruangan as ruangan',
         ])
     ->get();
-    return view('listdata', compact('all'));
+    return view('pengajuan.index', compact('all'));
     }
 
     public function tambah(){

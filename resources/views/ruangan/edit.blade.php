@@ -16,7 +16,7 @@
         <div class="card shadow p-4" style="max-width: 500px; width: 100%; border-radius: 12px;">
             <h4 class="text-left mb-4 fw-bold">Form Pengajuan</h4>
 
-            <form action="{{ route('ruangan.update', ['id' => $one->id]) }}" method="POST">
+            <form action="#" method="POST">
                 @csrf
                 @method('PUT')
                 <div class="row mb-3">
@@ -36,7 +36,7 @@
                 </div>
 
                 <div class="d-flex justify-content-between">
-                    <a href="{{ route('ruangan.index') }}" class="btn btn-outline-dark px-4">Cancel</a>
+                    <a href="#" class="btn btn-outline-dark px-4">Cancel</a>
                     <button type="submit" class="btn btn-dark px-4"><i class="bi bi-floppy"></i>Submit</button>
                 </div>
             </form>

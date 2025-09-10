@@ -100,15 +100,10 @@
         <div class="content">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 ms-auto">
                 <h1 class="dashboard-title">List Ruangan</h1>
-                <a href="{{ route('ruangan.tambah') }}" class="btn btn-primary">
+                <a href="#" class="btn btn-primary">
                     <i class="bi bi-person-plus-fill"></i> Tambah Ruangan
                 </a>
             </div>
-            @if (session('success'))
-                <div class="alert-success">
-                    {{ session('success') }}
-                </div>
-            @endif
             <div class="ruangan-table-container">
                 <table>
                     <thead>
@@ -121,27 +116,22 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($all as $key => $item)
-                            <tr>
-                                <td>{{ $key + 1 }}</td>
-                                <td>{{ $item->nama_ruangan }}</td>
-                                <td>{{ $item->jml_peserta }}</td>
-                                <td>{{ $item->fasilitas }}</td>
-                                <td>
-                                    <a href="{{ route('ruangan.edit', ['id' => $item->id]) }}" class="btn btn-success btn-sm btn-action nav-icon bi bi-pencil-square" title="Edit"></a>
-                                    <form action="{{ route('ruangan.destroy', ['id' => $item->id]) }}" method="POST" style="display: inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm btn-action bi bi-trash" onclick="return confirm('Yakin ingin menghapus data?')" title="Hapus"></button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                        @if(count($all) == 0)
-                            <tr>
-                                <td colspan="5" style="color:#888;">Tidak ada data ruangan.</td>
-                            </tr>
-                        @endif
+
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <a href="#" class="btn btn-success btn-sm btn-action nav-icon bi bi-pencil-square" title="Edit"></a>
+                                <form action="" method="POST" style="display: inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm btn-action bi bi-trash" onclick="return confirm('Yakin ingin menghapus data?')" title="Hapus"></button>
+                                </form>
+                            </td>
+                        </tr>
+
                     </tbody>
                 </table>
             </div>

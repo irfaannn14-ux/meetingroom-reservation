@@ -30,20 +30,16 @@ Route::get('/verifikasi_email', function () {return view('auth.verifikasi_email'
 // Route::get('/dashboard', function () {return view('dashboard');});
 
 //ruangan
-Route::get('ruangan/',[RuanganController::class, 'index'])->name('ruangan.index');
-Route::get('ruangan/tambah',[RuanganController::class, 'tambah'])->name('ruangan.tambah');
-Route::post('ruangan',[RuanganController::class, 'store'])->name('ruangan.store');
-Route::get('ruangan/{id}/edit',[RuanganController::class, 'edit'])->name('ruangan.edit');
-Route::put('ruangan/{id}',[RuanganController::class, 'update'])->name('ruangan.update');
-Route::delete('ruangan/{id}',[RuanganController::class, 'destroy'])->name('ruangan.destroy');
+Route::get('ruangan/index', function(){return view('ruangan.index');});
+Route::get('ruangan/tambah', function(){return view('ruangan.tambah');});
 
 //pengajuan
-Route::get('/listdata', [PengajuanController::class, 'index'])->name('pengajuan.index');
+
 
 //user
-Route::get('pengajuan/',[PengajuanController::class, 'index'])->name('pengajuan.index');
-Route::get('pengajuan/tambah',[PengajuanController::class, 'tambah'])->name('pengajuan.tambah');
-Route::post('pengajuan',[PengajuanController::class, 'store'])->name('pengajuan.store');
+Route::get('/index', function(){return view('pengajuan.index');});
+// Route::get('pengajuan/tambah',[PengajuanController::class, 'tambah'])->name('pengajuan.tambah');
+// Route::post('pengajuan',[PengajuanController::class, 'store'])->name('pengajuan.store');
 
 //manajemen user
 Route::get('user/',[UserController::class, 'index'])->name('user.index');

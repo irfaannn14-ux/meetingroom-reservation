@@ -16,7 +16,7 @@
         <div class="card shadow p-4" style="max-width: 500px; width: 100%; border-radius: 12px;">
             <h4 class="text-left mb-4 fw-bold">Form Ruangan</h4>
 
-            <form action="{{ route('ruangan.store') }}" method="POST">
+            <form action="#" method="POST">
                 @csrf
 
                 <div class="row mb-3">
