@@ -26,11 +26,8 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 ms-auto">
             <h1 class="dashboard-title">List Data Pengajuan</h1>
             <div class="d-flex gap-2">
-                <a href="/pengajuan" class="btn btn-primary">
+                <a href="/pengajuan/tambah" class="btn btn-primary">
                     <i class="bi bi-person-plus-fill"></i> Buat Pengajuan
-                </a>
-                <a href="/ruangan/tambah" class="btn btn-success">
-                    <i class="bi bi-plus-square"></i> Tambah Ruangan
                 </a>
             </div>
         </div>

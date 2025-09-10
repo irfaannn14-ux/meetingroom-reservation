@@ -36,7 +36,7 @@
                 </div>
 
                 <div class="d-flex justify-content-between">
-                    <a href="/ruangan" class="btn btn-outline-dark px-4">Cancel</a>
+                    <a href="/ruangan/index" class="btn btn-outline-dark px-4">Cancel</a>
                     <button type="submit" class="btn btn-dark px-4"><i class="bi bi-floppy"></i>Submit</button>
                 </div>
             </form>

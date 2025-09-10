@@ -40,6 +40,8 @@ Route::get('ruangan/tambah', function(){return view('ruangan.tambah');});
 Route::get('/index', function(){return view('pengajuan.index');});
 // Route::get('pengajuan/tambah',[PengajuanController::class, 'tambah'])->name('pengajuan.tambah');
 // Route::post('pengajuan',[PengajuanController::class, 'store'])->name('pengajuan.store');
+Route::get('pengajuan/index', function(){return view('pengajuan.index');});
+Route::get('pengajuan/tambah', function(){return view('pengajuan.tambah');});
 
 //manajemen user
 Route::get('user/',[UserController::class, 'index'])->name('user.index');
