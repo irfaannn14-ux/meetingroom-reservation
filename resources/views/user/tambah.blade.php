@@ -13,7 +13,7 @@
     .form-action-row {
         display: flex;
         gap: 10px;
-        justify-content: flex-end;
+        justify-content: center;
     }
 </style>
     <div class="main-content">
