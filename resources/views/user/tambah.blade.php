@@ -1,6 +1,9 @@
-<?php ?>
+<?php
+$isEdit = isset($user);
+?>
+
 @extends('layout.main')
-@section('title', 'Form User')
+@section('title', $isEdit ? 'Edit User' : 'Tambah User')
 @section('content')
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
@@ -20,7 +23,7 @@
         <div class="container d-flex justify-content-center mt-4">
         <div class="card shadow p-4" style="max-width: 500px; width: 100%; border-radius: 12px;">
             <h4 class="text-left mb-4 fw-bold">
-                {{ isset($user) ? 'Edit User' : 'Tambah User' }}
+                {{ $isEdit ? 'Edit User' : 'Tambah User' }}
             </h4>
 
             @if ($errors->any())
@@ -39,9 +42,9 @@
                 </div>
             @endif
 
-            <form action="{{ isset($user) ? route('user.update', $user->id) : route('user.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ $isEdit ? route('user.update', $user->id) : route('user.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                @if(isset($user))
+                @if($isEdit)
                     @method('PUT')
                 @endif
 
@@ -134,7 +137,7 @@
                            name="password"
                            id="password"
                            class="form-control @error('password') is-invalid @enderror"
-                           {{ isset($user) ? '' : 'required' }}>
+                           placeholder="Kosongkan jika tidak diubah">
                     @error('password')
                         <div class="text-danger small">{{ $message }}</div>
                     @enderror
@@ -155,7 +158,7 @@
 
                 <div class="form-action-row mt-4">
                     <a href="{{ route('user.index') }}" class="btn btn-outline-dark px-4">Cancel</a>
-                    <button type="submit" class="btn btn-dark px-4"><i class="bi bi-floppy"></i>{{ isset($user) ? 'Update' : 'Submit' }}</button>
+                    <button type="submit" class="btn btn-dark px-4"><i class="bi bi-floppy"></i>{{ $isEdit ? 'Update' : 'Submit' }}</button>
                 </div>
             </form>
         </div>

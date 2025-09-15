@@ -113,6 +113,38 @@
         background-color: var(--color-dark);
         color: var(--color-light);
     }
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        width: 400px;
+        text-align: center;
+    }
+    .close-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+    }
+    .edit-button {
+        background-color: var(--color-dark);
+        color: var(--color-light);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
 </style>
 
 <div class="main-content">
@@ -146,7 +178,7 @@
                     <h3 class="user-name">{{ $user->nama }}</h3>
                     <p class="user-role">{{ $user->role }}</p>
                     <div class="card-actions">
-                        <a href="#" class="action-button" title="Lihat Detail">
+                        <a href="#" class="action-button" title="Lihat Detail" onclick="openModal({{ json_encode($user) }})">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                         </a>
                         <a href="https://wa.me/62{{ ltrim($user->no_wa, '0') }}" target="_blank" class="action-button" title="Chat WhatsApp">
@@ -158,4 +190,43 @@
         @endforeach
     </div>
 </div>
+
+<div id="userDetailModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeModal()">&times;</span>
+        <h2>Detail Akun</h2>
+        <p><strong>Nama:</strong> <span id="modalNama"></span></p>
+        <p><strong>Role:</strong> <span id="modalRole"></span></p>
+        <p><strong>No. WhatsApp:</strong> <span id="modalNoWa"></span></p>
+        <button id="editButton" class="edit-button">Edit</button>
+    </div>
+</div>
+
+<script>
+    function handleOpenModal(element) {
+        console.log('handleOpenModal called with element:', element); // Debugging
+        const user = {
+            nama: element.getAttribute('data-nama'),
+            role: element.getAttribute('data-role'),
+            no_wa: element.getAttribute('data-no_wa'),
+            id: element.getAttribute('data-id')
+        };
+        console.log('User data:', user); // Debugging
+        openModal(user);
+    }
+
+    function openModal(user) {
+        document.getElementById('modalNama').innerText = user.nama;
+        document.getElementById('modalRole').innerText = user.role;
+        document.getElementById('modalNoWa').innerText = user.no_wa;
+        document.getElementById('editButton').onclick = function () {
+            window.location.href = `/user/tambah?id=${user.id}`;
+        };
+        document.getElementById('userDetailModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('userDetailModal').style.display = 'none';
+    }
+</script>
 @endsection
