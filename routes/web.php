@@ -48,7 +48,7 @@ Route::get('user/',[UserController::class, 'index'])->name('user.index');
 Route::get('user/tambah',[UserController::class, 'tambah'])->name('user.tambah');
 Route::post('user',[UserController::class, 'store'])->name('user.store');
 Route::get('user/{id}/edit', [UserController::class, 'edit'])->name('user.edit');
-Route::put('/user/{id}', [UserController::class, 'update'])->name('user.update');
+Route::put('user/{id}', [UserController::class, 'update'])->name('user.update');
 Route::delete('user/{id}',[UserController::class, 'destroy'])->name('user.destroy');
 
 //history

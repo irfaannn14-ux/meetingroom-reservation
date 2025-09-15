@@ -23,11 +23,19 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $roles = ['APD', 'Admin', 'Super Admin'];
+        $role = fake()->randomElement($roles);
+        
         return [
-            'name' => fake()->name(),
+            'nama' => fake()->name(),
+            'username' => fake()->unique()->userName(),
             'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
+            'no_wa' => fake()->phoneNumber(),
             'password' => static::$password ??= Hash::make('password'),
+            'role' => $role,
+            'foto_profil' => null, // Default no foto for factory
+            'admin' => in_array($role, ['Admin', 'Super Admin']),
+            'superadmin' => $role === 'Super Admin',
             'remember_token' => Str::random(10),
         ];
     }

@@ -16,10 +16,13 @@ class User extends Authenticatable
     public $timestamps = false; // Menonaktifkan timestamps (created_at, updated_at)
     protected $fillable = [
         'id',
-        'nama_apd',
+        'nama',
         'email',
         'password',
         'username',
+        'no_wa',
+        'role',
+        'foto_profil',
         'admin',
         'superadmin',
     ];

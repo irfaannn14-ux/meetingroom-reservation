@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -20,25 +21,42 @@ class UserController extends Controller
 
     public function store(Request $request){
         $request->validate([
-            'nama_apd' => 'required|string|max:255',
-            'username' => 'required|string|max:255',
+            'nama' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'admin' => 'required|boolean',
-            'superadmin' => 'required|boolean'
+            'no_wa' => 'required|string|max:20',
+            'password' => 'required|string',
+            'role' => 'required|string|in:APD,Admin,Super Admin',
+            'foto_profil' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
+        // Set admin dan superadmin berdasarkan role
+        $admin = $request->role === 'Admin' || $request->role === 'Super Admin';
+        $superadmin = $request->role === 'Super Admin';
+
+        // Handle upload foto profil
+        $foto_profil = null;
+        if ($request->hasFile('foto_profil')) {
+            $foto_profil = $request->file('foto_profil')->store('foto_profil', 'public');
+        }
+
         $save = [
-            'nama_apd' => $request->nama_apd,
+            'nama' => $request->nama,
             'username' => $request->username,
             'email' => $request->email,
+            'no_wa' => $request->no_wa,
             'password' => Hash::make($request->password),
-            'admin' => $request->boolean('admin'),
-            'superadmin' => $request->boolean('superadmin'),
+            'role' => $request->role,
+            'foto_profil' => $foto_profil,
+            'admin' => $admin,
+            'superadmin' => $superadmin,
         ];
 
         DB::table('users')->insert($save);
-        return redirect()->route('user.index')->with('success', 'User berhasil ditambahkan!');
+        return redirect()->route('user.index')->with([
+            'success' => 'User berhasil ditambahkan!',
+            'alert_dismissible' => true
+        ]);
     }
 
     public function edit($id){
@@ -50,16 +68,40 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         $request->validate([
-            'nama_apd' => 'required|string|max:255',
+            'nama' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,username,' . $user->id,
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'no_wa' => 'required|string|max:20',
             'password' => 'nullable|string|min:8', // nullable biar bisa kosong
-            'admin' => 'required|boolean',
-            'superadmin' => 'required|boolean'
+            'role' => 'required|string|in:APD,Admin,Super Admin',
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
+        // Set admin dan superadmin berdasarkan role
+        $admin = $request->role === 'Admin' || $request->role === 'Super Admin';
+        $superadmin = $request->role === 'Super Admin';
+
+        // Handle upload foto profil
+        $foto_profil = $user->foto_profil; // keep existing foto if not updated
+        if ($request->hasFile('foto_profil')) {
+            // Delete old foto if exists
+            if ($user->foto_profil && Storage::disk('public')->exists($user->foto_profil)) {
+                Storage::disk('public')->delete($user->foto_profil);
+            }
+            $foto_profil = $request->file('foto_profil')->store('foto_profil', 'public');
+        }
+
         // ambil data kecuali password
-        $save = $request->only(['nama_apd','username','email','admin','superadmin']);
+        $save = [
+            'nama' => $request->nama,
+            'username' => $request->username,
+            'email' => $request->email,
+            'no_wa' => $request->no_wa,
+            'role' => $request->role,
+            'foto_profil' => $foto_profil,
+            'admin' => $admin,
+            'superadmin' => $superadmin,
+        ];
 
         // kalau password diisi baru update
         if ($request->filled('password')) {
@@ -68,7 +110,7 @@ class UserController extends Controller
 
         $user->update($save);
 
-        return redirect()->route('user.index');
+        return redirect()->route('user.index')->with('success', 'User berhasil diperbarui!');
     }
 
     public function destroy($id){
