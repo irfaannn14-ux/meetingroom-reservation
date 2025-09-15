@@ -75,6 +75,19 @@
         font-size: 0.8rem;
         color: var(--color-dark);
     }
+    .dropdown-toggle {
+        border: none;
+        background: none;
+        color: var(--color-dark);
+        padding: 5px;
+    }
+    .dropdown-toggle:hover {
+        background-color: #f8f9fa;
+        border-radius: 4px;
+    }
+    .dropdown-menu {
+        min-width: 150px;
+    }
 </style>
 
 @include('sidebar.sidebar')
@@ -83,10 +96,26 @@
     <div class="navbar-title">Aplikasi Pengajuan Peminjaman Ruangan PemDa Probolinggo</div>
     <div class="navbar-right">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="profile-icon lucide lucide-bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-        <div class="profile-photo"></div>
+        
+        @if(session('user_foto'))
+            <img src="{{ asset('storage/' . session('user_foto')) }}" alt="Foto Profil" class="profile-photo" style="object-fit: cover;">
+        @else
+            <div class="profile-photo"></div>
+        @endif
+        
         <div class="profile-info">
-            <span class="profile-name">Milinda Ayu</span>
-            <span class="profile-role">Super Admin</span>
+            <span class="profile-name">{{ session('user_nama', 'Guest') }}</span>
+            <span class="profile-role">{{ session('user_role', 'Guest') }}</span>
+        </div>
+        
+        <div class="dropdown">
+            <button class="btn btn-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{{ route('user.edit', session('user_id')) }}">Profil</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{{ route('logout') }}">Logout</a></li>
+            </ul>
         </div>
     </div>
 </div>

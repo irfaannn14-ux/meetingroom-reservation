@@ -47,7 +47,7 @@
         }
         .login-card input[type="email"],
         .login-card input[type="password"] {
-        width: 100%;
+        width: 93%;
         padding: 10px;
         margin-bottom: 15px;
         border: 1px solid #ccc;
@@ -92,16 +92,60 @@
         <h2>Login to Your Account</h2>
         <p>Enter your email & password to login</p>
 
-        <form>
-        <label for="email">Email</label>
-        <input type="email" id="email" placeholder="Enter your email" required>
+        @if ($errors->any())
+            <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 12px;">
+                <ul style="margin: 0; padding-left: 15px;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Enter your password" required>
+        @if(session('success'))
+            <div id="success-alert" style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 12px; position: relative;">
+                {{ session('success') }}
+                <button type="button" onclick="this.parentElement.style.display='none'" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #155724; font-size: 16px; cursor: pointer;">&times;</button>
+            </div>
+            <script>
+                // Auto hide setelah 5 detik
+                setTimeout(function() {
+                    var alert = document.getElementById('success-alert');
+                    if (alert) {
+                        alert.style.transition = 'opacity 0.5s';
+                        alert.style.opacity = '0';
+                        setTimeout(function() {
+                            alert.style.display = 'none';
+                        }, 500);
+                    }
+                }, 5000);
+            </script>
+        @endif
 
-        <a href="{{ url('/forgotpassword') }}" class="forgot-password">Forgot Password?</a>
+        @if(session('error'))
+            <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 12px;">
+                {{ session('error') }}
+            </div>
+        @endif
 
-        <button type="submit">Login</button>
+        <form action="{{ route('login') }}" method="POST">
+            @csrf
+            <label for="email">Email</label>
+            <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                placeholder="Masukkan email Anda" 
+                required
+                style="padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 15px; background-color: #f8f9fa;"
+            >
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="off" required>
+
+            <a href="{{ url('/forgotpassword') }}" class="forgot-password">Forgot Password?</a>
+
+            <button type="submit">Login</button>
         </form>
     </div>
 </body>
