@@ -115,27 +115,77 @@
     }
     .modal {
         position: fixed;
-        top: 0;
-        left: 0;
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: center; /* Pastikan modal berada di tengah secara vertikal */
+        z-index: 1000; /* Pastikan modal berada di atas elemen lain */
+        padding-left: 35%;
+        padding-top: 5%;
+        box-sizing: border-box; /* Pastikan padding tidak memengaruhi ukuran modal */
     }
     .modal-content {
         background-color: white;
         padding: 20px;
         border-radius: 8px;
-        width: 400px;
+        width: 600px; /* Perbesar lebar modal */
         text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        animation: fadeIn 0.3s ease;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
+
+    .modal-body {
+        display: flex;
+        gap: 20px; /* Jarak antara sisi kiri dan kanan */
+        margin-top: 20px;
+    }
+
+    .modal-left {
+        flex: 1; /* Sisi kiri mengambil 1 bagian */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-left img {
+        max-height: 200px; /* Maksimal tinggi 200px */
+        width: auto; /* Lebar menyesuaikan */
+        border-radius: 8px; /* Opsional: tambahkan sudut melengkung */
+    }
+
+    .modal-right {
+        flex: 2; /* Sisi kanan mengambil 2 bagian */
+        text-align: left;
+    }
+
     .close-button {
         position: absolute;
-        top: 10px;
-        right: 10px;
+        top: 15px;
+        right: 15px;
+        font-size: 24px; /* Perbesar ukuran tombol close */
         cursor: pointer;
+        background: none;
+        border: none;
+        color: #333;
+        font-weight: bold;
+    }
+
+    /* Tambahkan animasi opsional untuk efek muncul */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
     }
     .edit-button {
         background-color: var(--color-dark);
@@ -144,6 +194,13 @@
         padding: 10px 20px;
         border-radius: 8px;
         cursor: pointer;
+    }
+    #modalFotoProfil {
+        max-width: 350px; /* Lebar maksimal 350px */
+        height: auto; /* Tinggi menyesuaikan rasio asli */
+        display: block; /* Pastikan gambar ditampilkan sebagai blok */
+        margin: 20px auto; /* Beri jarak dan posisikan di tengah */
+        border-radius: 8px; /* Opsional: tambahkan sudut melengkung */
     }
 </style>
 
@@ -178,8 +235,20 @@
                     <h3 class="user-name">{{ $user->nama }}</h3>
                     <p class="user-role">{{ $user->role }}</p>
                     <div class="card-actions">
-                        <a href="#" class="action-button" title="Lihat Detail" onclick="openModal({{ json_encode($user) }})">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <a href="#" class="action-button" title="Lihat Detail" 
+                           onclick="openModal({{ json_encode([
+                               'id' => $user->id,
+                               'nama' => $user->nama,
+                               'email' => $user->email,
+                               'username' => $user->username,
+                               'role' => $user->role,
+                               'no_wa' => $user->no_wa,
+                               'foto_profil' => $user->foto_profil
+                           ]) }})">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye">
+                                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
                         </a>
                         <a href="https://wa.me/62{{ ltrim($user->no_wa, '0') }}" target="_blank" class="action-button" title="Chat WhatsApp">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>
@@ -195,10 +264,19 @@
     <div class="modal-content">
         <span class="close-button" onclick="closeModal()">&times;</span>
         <h2>Detail Akun</h2>
-        <p><strong>Nama:</strong> <span id="modalNama"></span></p>
-        <p><strong>Role:</strong> <span id="modalRole"></span></p>
-        <p><strong>No. WhatsApp:</strong> <span id="modalNoWa"></span></p>
-        <button id="editButton" class="edit-button">Edit</button>
+        <div class="modal-body">
+            <div class="modal-left">
+                <img id="modalFotoProfil" src="" alt="Foto Profil">
+            </div>
+            <div class="modal-right">
+                <p><strong>Nama:</strong> <span id="modalNama"></span></p>
+                <p><strong>Email:</strong> <span id="modalEmail"></span></p>
+                <p><strong>Username:</strong> <span id="modalUsername"></span></p>
+                <p><strong>Role:</strong> <span id="modalRole"></span></p>
+                <p><strong>No. WhatsApp:</strong> <span id="modalNoWa"></span></p>
+                <button id="editButton" class="edit-button">Edit</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -216,9 +294,14 @@
     }
 
     function openModal(user) {
+        document.getElementById('modalFotoProfil').src = user.foto_profil 
+            ? `/storage/${user.foto_profil}` 
+            : '/images/dummyperson.jpg'; // Default foto jika tidak ada
         document.getElementById('modalNama').innerText = user.nama;
-        document.getElementById('modalRole').innerText = user.role;
-        document.getElementById('modalNoWa').innerText = user.no_wa;
+        document.getElementById('modalEmail').innerText = user.email || 'N/A';
+        document.getElementById('modalUsername').innerText = user.username || 'N/A';
+        document.getElementById('modalRole').innerText = user.role || 'N/A';
+        document.getElementById('modalNoWa').innerText = user.no_wa || 'N/A';
         document.getElementById('editButton').onclick = function () {
             window.location.href = `/user/tambah?id=${user.id}`;
         };
@@ -228,5 +311,13 @@
     function closeModal() {
         document.getElementById('userDetailModal').style.display = 'none';
     }
+
+    // Tambahkan event listener untuk menutup modal jika klik di luar modal-content
+    document.getElementById('userDetailModal').addEventListener('click', function (event) {
+        const modalContent = document.querySelector('.modal-content');
+        if (!modalContent.contains(event.target)) {
+            closeModal();
+        }
+    });
 </script>
 @endsection
