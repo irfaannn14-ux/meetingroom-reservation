@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('ruangan_id')->constrained('ruangans')->onDelete('cascade');
-            $table->string('nama_opd');
-            $table->string('email');
-            $table->string('whatsapp')->nullable();
+            $table->string('nama_pengaju');
+            $table->string('judul_kegiatan');
             $table->string('kegiatan');
-            $table->date('tanggal');
+            $table->date('tanggal_mulai');
+            $table->date('tanggal_selesai');
             $table->time('jam_mulai');
             $table->time('jam_selesai');
             $table->integer('jml_peserta');

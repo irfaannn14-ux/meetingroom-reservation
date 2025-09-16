@@ -11,7 +11,6 @@
         padding: 0;
     }
     .main-content {
-        margin-left: 220px;
         padding: 2rem;
         min-height: 100vh;
         background-color: #C9DFF2;
@@ -19,7 +18,7 @@
     }
     .content {
         width: 100%;
-        max-width: 1100px;
+        max-width: 2000px;
         margin: 0 auto;
     }
     .ruangan-table-container {
@@ -117,25 +116,27 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>001</td>
-                        <td>Dinas Kominfo</td>
-                        <td>Work Shop</td>
-                        <td>Jabung 1</td>
-                        <td>2024-10-26 09:00:00</td>
-                        <td>2024-10-26 15:00:00</td>
-                        <td>50</td>
-                        <td>
-                            <div class="d-flex gap-2">
-                                <a href="#" class="btn btn-success btn-sm btn-action nav-icon bi bi-pencil-square" title="Edit"></a>
-                                <form action="" method="POST" style="display: inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm btn-action bi bi-trash" onclick="return confirm('Yakin ingin menghapus data?')" title="Hapus"></button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
+                    @foreach($pengajuans as $pengajuan)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $pengajuan->nama_pengaju }}</td>
+                            <td>{{ $pengajuan->judul_kegiatan }}</td>
+                            <td>{{ $pengajuan->ruangan->nama_ruangan }}</td>
+                            <td>{{ $pengajuan->tanggal_mulai }} {{ $pengajuan->jam_mulai }}</td>
+                            <td>{{ $pengajuan->tanggal_selesai }} {{ $pengajuan->jam_selesai }}</td>
+                            <td>{{ $pengajuan->jml_peserta }}</td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a href="{{ route('pengajuan.edit', $pengajuan->id) }}" class="btn btn-success btn-sm btn-action nav-icon bi bi-pencil-square" title="Edit"></a>
+                                    <form action="{{ route('pengajuan.destroy', $pengajuan->id) }}" method="POST" style="display: inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm btn-action bi bi-trash" onclick="return confirm('Yakin ingin menghapus data?')" title="Hapus"></button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
