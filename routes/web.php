@@ -41,9 +41,10 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('ruangan/tambah', function(){return view('ruangan.tambah');});
 
     //pengajuan
-    Route::get('/index', function(){return view('pengajuan.index');});
-    Route::get('pengajuan/index', function(){return view('pengajuan.index');});
-    Route::get('pengajuan/tambah', function(){return view('pengajuan.tambah');});
+    Route::get('/index', [PengajuanController::class, 'index'])->name('pengajuan.index');
+    Route::get('pengajuan/tambah', [PengajuanController::class, 'tambah'])->name('pengajuan.tambah');
+    Route::post('pengajuan/store', [PengajuanController::class, 'store'])->name('pengajuan.store');
+
 
     //manajemen user
     Route::get('user/',[UserController::class, 'index'])->name('user.index');
