@@ -56,9 +56,9 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         display: flex;
         flex-direction: column;
-        overflow: hidden; /* Penting agar gambar tidak keluar dari sudut kartu */
+        overflow: hidden;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
-        /* Animasi hover seperti dashboard */
+        cursor: pointer; /* Tambahkan cursor pointer untuk menunjukkan bahwa elemen ini dapat diklik */
     }
     .user-card:hover {
         transform: translateY(-5px);
@@ -66,7 +66,7 @@
     }
     .card-image {
         width: 100%;
-        height: 180px; /* Tinggi gambar statis */
+        height: 180px;
         overflow: hidden;
     }
     .user-photo {
@@ -107,7 +107,7 @@
         align-items: center;
         justify-content: center;
         transition: background-color 0.2s, color 0.2s;
-        text-decoration: none; /* Hilangkan garis bawah pada link */
+        text-decoration: none;
     }
     .action-button:hover {
         background-color: var(--color-dark);
@@ -120,17 +120,15 @@
         background-color: rgba(0, 0, 0, 0.5);
         display: flex;
         justify-content: center;
-        align-items: center; /* Pastikan modal berada di tengah secara vertikal */
-        z-index: 1000; /* Pastikan modal berada di atas elemen lain */
-        padding-left: 35%;
-        padding-top: 5%;
-        box-sizing: border-box; /* Pastikan padding tidak memengaruhi ukuran modal */
+        align-items: center;
+        z-index: 1000;
+        box-sizing: border-box;
     }
     .modal-content {
         background-color: white;
         padding: 20px;
         border-radius: 8px;
-        width: 600px; /* Perbesar lebar modal */
+        width: 600px;
         text-align: center;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         animation: fadeIn 0.3s ease;
@@ -139,44 +137,38 @@
         flex-direction: column;
         align-items: center;
     }
-
     .modal-body {
         display: flex;
-        gap: 20px; /* Jarak antara sisi kiri dan kanan */
+        gap: 20px;
         margin-top: 20px;
     }
-
     .modal-left {
-        flex: 1; /* Sisi kiri mengambil 1 bagian */
+        flex: 1;
         display: flex;
         justify-content: center;
         align-items: center;
     }
-
     .modal-left img {
-        max-height: 200px; /* Maksimal tinggi 200px */
-        width: auto; /* Lebar menyesuaikan */
-        border-radius: 8px; /* Opsional: tambahkan sudut melengkung */
+        max-height: 200px;
+        width: auto;
+        border-radius: 8px;
+        border: 2px solid var(--color-dark);
     }
-
     .modal-right {
-        flex: 2; /* Sisi kanan mengambil 2 bagian */
+        flex: 2;
         text-align: left;
     }
-
     .close-button {
         position: absolute;
         top: 15px;
         right: 15px;
-        font-size: 24px; /* Perbesar ukuran tombol close */
+        font-size: 24px;
         cursor: pointer;
         background: none;
         border: none;
         color: #333;
         font-weight: bold;
     }
-
-    /* Tambahkan animasi opsional untuk efek muncul */
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -196,11 +188,11 @@
         cursor: pointer;
     }
     #modalFotoProfil {
-        max-width: 350px; /* Lebar maksimal 350px */
-        height: auto; /* Tinggi menyesuaikan rasio asli */
-        display: block; /* Pastikan gambar ditampilkan sebagai blok */
-        margin: 20px auto; /* Beri jarak dan posisikan di tengah */
-        border-radius: 8px; /* Opsional: tambahkan sudut melengkung */
+        max-width: 350px;
+        height: auto;
+        display: block;
+        margin: 20px auto;
+        border-radius: 8px;
     }
 </style>
 
@@ -223,7 +215,7 @@
     {{-- Grid pengguna --}}
     <div class="user-grid">
         @foreach ($all as $user)
-            <div class="user-card">
+            <div class="user-card" onclick="openModal({{ json_encode($user) }})">
                 <div class="card-image">
                     @if($user->foto_profil)
                         <img src="{{ asset('storage/' . $user->foto_profil) }}" alt="Foto Profil" class="user-photo">
@@ -235,21 +227,6 @@
                     <h3 class="user-name">{{ $user->nama }}</h3>
                     <p class="user-role">{{ $user->role }}</p>
                     <div class="card-actions">
-                        <a href="#" class="action-button" title="Lihat Detail" 
-                           onclick="openModal({{ json_encode([
-                               'id' => $user->id,
-                               'nama' => $user->nama,
-                               'email' => $user->email,
-                               'username' => $user->username,
-                               'role' => $user->role,
-                               'no_wa' => $user->no_wa,
-                               'foto_profil' => $user->foto_profil
-                           ]) }})">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye">
-                                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-                                <circle cx="12" cy="12" r="3"/>
-                            </svg>
-                        </a>
                         <a href="https://wa.me/62{{ ltrim($user->no_wa, '0') }}" target="_blank" class="action-button" title="Chat WhatsApp">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>
                         </a>
@@ -281,22 +258,10 @@
 </div>
 
 <script>
-    function handleOpenModal(element) {
-        console.log('handleOpenModal called with element:', element); // Debugging
-        const user = {
-            nama: element.getAttribute('data-nama'),
-            role: element.getAttribute('data-role'),
-            no_wa: element.getAttribute('data-no_wa'),
-            id: element.getAttribute('data-id')
-        };
-        console.log('User data:', user); // Debugging
-        openModal(user);
-    }
-
     function openModal(user) {
-        document.getElementById('modalFotoProfil').src = user.foto_profil 
-            ? `/storage/${user.foto_profil}` 
-            : '/images/dummyperson.jpg'; // Default foto jika tidak ada
+        document.getElementById('modalFotoProfil').src = user.foto_profil
+            ? `/storage/${user.foto_profil}`
+            : '/images/dummyperson.jpg';
         document.getElementById('modalNama').innerText = user.nama;
         document.getElementById('modalEmail').innerText = user.email || 'N/A';
         document.getElementById('modalUsername').innerText = user.username || 'N/A';
@@ -305,7 +270,7 @@
         document.getElementById('editButton').onclick = function () {
             window.location.href = `/user/tambah?id=${user.id}`;
         };
-        document.getElementById('userDetailModal').style.display = 'block';
+        document.getElementById('userDetailModal').style.display = 'flex';
     }
 
     function closeModal() {
