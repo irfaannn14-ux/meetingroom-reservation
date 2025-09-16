@@ -64,7 +64,7 @@
     }
 </style>
     <div class="main-content">
-        <div class="container d-flex justify-content-center mt-4">
+        <div class="container d-flex justify-content-center">
         <div class="card shadow p-4" style="max-width: 500px; width: 100%; border-radius: 12px;">
             <h4 class="text-left mb-4 fw-bold">Form Pengajuan Peminjaman Ruangan</h4>
 
@@ -73,12 +73,12 @@
 
             <div class="mb-3">
                 <label for="judul_kegiatan" class="form-label">Judul Kegiatan</label>
-                <input type="text" name="judul_kegiatan" id="judul_kegiatan" class="form-control" required>
+                <input type="text" name="judul_kegiatan" id="judul_kegiatan" class="form-control" placeholder="Judul Singkat Kegiatan" required>
             </div>
 
             <div class="mb-3">
                 <label for="kegiatan" class="form-label">Kegiatan</label>
-                <textarea name="kegiatan" id="kegiatan" class="form-control" rows="2" required></textarea>
+                <textarea name="kegiatan" id="kegiatan" class="form-control" rows="2" placeholder="Deskripsi Lengkap Kegiatan" required></textarea>
             </div>
 
             <div class="row mb-3">
@@ -88,17 +88,21 @@
                     <div class="custom-dropdown-container">
                         <div class="custom-dropdown-button form-control" onclick="toggleDropdown()">
                             <span id="selected-ruangan">Pilih Ruangan</span>
+                            <span>&#9660;</span>
                         </div>
                         <div id="ruangan-dropdown-content" class="custom-dropdown-content">
                             <input type="text" class="custom-dropdown-input" onkeyup="filterRuangan()" placeholder="Cari Ruangan...">
-                            <option>Ruangan A</option>
-                            
+                            <a href="#" data-value="1" data-nama="Ruangan A">Ruangan A</a>
+                            <a href="#" data-value="2" data-nama="Ruangan B">Ruangan B</a>
+                            <a href="#" data-value="3" data-nama="Ruangan C">Ruangan C</a>
+                            <a href="#" data-value="4" data-nama="Ruangan D">Ruangan D</a>
+                            <a href="#" data-value="5" data-nama="Ruangan E">Ruangan E</a>
                         </div>
                     </div>
                 </div>
                 <div class="col">
                     <label for="jml_peserta" class="form-label">Jumlah Peserta</label>
-                    <input type="number" name="jml_peserta" id="jml_peserta" class="form-control" required>
+                    <input type="number" name="jml_peserta" id="jml_peserta" class="form-control" placeholder="Jumlah Peserta Kegiatan" required>
                 </div>
             </div>
 
