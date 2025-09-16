@@ -232,7 +232,7 @@ be a descendant of the grid when it is being dragged.
 }
 
 .fc-time-grid-event.fc-short .fc-time:after {
-  content: " - ";
+  content: " - ";
   /* seperate with a dash, wrapped in nbsp's */
 }
 

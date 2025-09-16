@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('ruangan_id')->constrained('ruangans')->onDelete('cascade');
-            $table->string('nama_apd');
+            $table->string('nama_opd');
             $table->string('email');
             $table->string('whatsapp')->nullable();
             $table->string('kegiatan');

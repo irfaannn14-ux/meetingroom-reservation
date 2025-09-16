@@ -23,7 +23,7 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-        $roles = ['APD', 'Admin', 'Super Admin'];
+        $roles = ['OPD', 'Admin', 'Super Admin'];
         $role = fake()->randomElement($roles);
         
         return [

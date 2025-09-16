@@ -10,25 +10,31 @@ use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
-    public function index(){
-        $all = DB::table('users')->get();
+    /**
+     * Tampilkan daftar semua pengguna, termasuk relasi organisasi.
+     */
+    public function index()
+    {
+        // Memuat semua pengguna dengan relasi 'organization' menggunakan Eager Loading.
+        // Ini akan mengambil data pengguna dan data organisasi terkait dalam satu query yang efisien.
+        $all = User::with('organization')->get();
         return view('user.index', ['all' => $all]);
     }
 
-    public function store(Request $request){
+    /**
+     * Simpan pengguna baru.
+     */
+    public function store(Request $request)
+    {
         $request->validate([
             'nama' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
             'no_wa' => 'required|string|max:20',
             'password' => 'required|string',
-            'role' => 'required|string|in:APD,Admin,Super Admin',
+            'organization_id' => 'required|string|max:255',
             'foto_profil' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
-
-        // Set admin dan superadmin berdasarkan role
-        $admin = $request->role === 'Admin' || $request->role === 'Super Admin';
-        $superadmin = $request->role === 'Super Admin';
 
         // Handle upload foto profil
         $foto_profil = null;
@@ -42,10 +48,9 @@ class UserController extends Controller
             'email' => $request->email,
             'no_wa' => $request->no_wa,
             'password' => Hash::make($request->password),
-            'role' => $request->role,
+            'organization_id' => $request->organization_id, // Menyimpan bkd_organization_id
+            'role' => 'OPD', // Nilai default, Anda bisa mengubahnya jika ada logika role lain
             'foto_profil' => $foto_profil,
-            'admin' => $admin,
-            'superadmin' => $superadmin,
         ];
 
         DB::table('users')->insert($save);
@@ -55,12 +60,19 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Tampilkan formulir edit untuk pengguna tertentu.
+     */
     public function edit($id)
     {
         $user = User::findOrFail($id);
-        return view('user.tambah', compact('user'));
+        $organizations = DB::table('organization')->get();
+        return view('user.tambah', compact('user', 'organizations'));
     }
 
+    /**
+     * Perbarui pengguna yang ada.
+     */
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
@@ -72,7 +84,7 @@ class UserController extends Controller
             'no_wa' => 'required|string|max:15',
             'username' => 'required|string|max:255',
             'password' => 'nullable|string|min:8', // Password bisa nullable
-            'role' => 'required|string',
+            'organization_id' => 'required|string',
         ]);
 
         // Periksa apakah password diisi
@@ -91,17 +103,24 @@ class UserController extends Controller
         ]);
     }
 
-    public function destroy($id){
-        // DELETE FROM mahasiswa where id;
-        DB::table('users')->where('id',$id)->delete();
+    /**
+     * Hapus pengguna dari database.
+     */
+    public function destroy($id)
+    {
+        DB::table('users')->where('id', $id)->delete();
         return redirect()->route('user.index');
     }
 
+    /**
+     * Tampilkan formulir untuk membuat atau mengedit pengguna.
+     */
     public function create(Request $request)
     {
         // Jika ada parameter 'id', ambil data pengguna untuk edit
         $user = $request->has('id') ? User::find($request->id) : null;
+        $organizations = DB::table('organization')->get();
 
-        return view('user.tambah', compact('user'));
+        return view('user.tambah', compact('user', 'organizations'));
     }
 }

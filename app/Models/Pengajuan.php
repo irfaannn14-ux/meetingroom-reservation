@@ -14,7 +14,7 @@ class Pengajuan extends Model
     protected $fillable = [
         'user_id',
         'ruangan_id',
-        'nama_apd',
+        'nama_opd',
         'email',
         'whatsapp',
         'kegiatan',

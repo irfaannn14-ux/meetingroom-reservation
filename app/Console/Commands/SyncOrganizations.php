@@ -14,7 +14,7 @@ class SyncOrganizations extends Command
 
     public function handle()
     {
-        $apiUrl = 'https://siap-bkpsdm.probolinggokab.go.id/index.php/api/getPegawaiaktif';
+        $apiUrl = 'http://siap-bkpsdm.probolinggokab.go.id/index.php/api/getPegawaiaktif';
 
         $this->info('Fetching data from API...');
         $response = Http::timeout(60)->get($apiUrl);

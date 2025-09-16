@@ -16,7 +16,7 @@ class PengajuanController extends Controller
         ->leftJoin('ruangans','ruangans.id','=','pengajuans.ruangan_id')
         ->select([
             'pengajuans.*',
-            'users.nama_apd as nama_apd',
+            'users.nama_opd as nama_opd',
             'ruangans.nama_ruangan as ruangan',
         ])
     ->get();
@@ -41,7 +41,7 @@ class PengajuanController extends Controller
             'jam_selesai' => 'required',
             'jml_peserta' => 'required|integer',
             'whatsapp' => 'required',
-            'nama_apd' => 'required|string|max:255',
+            'nama_opd' => 'required|string|max:255',
         ]);
 
         Pengajuan::create([
@@ -54,7 +54,7 @@ class PengajuanController extends Controller
             'jml_peserta' => $request->jml_peserta,
             'whatsapp' => $request->whatsapp,
             'status' => 'pending',
-            'nama_apd' => $request->nama_apd,
+            'nama_opd' => $request->nama_opd,
         ]);
 
         return redirect()->route('pengajuan.index')->with('success','Pengajuan berhasil disimpan');

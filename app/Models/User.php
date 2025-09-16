@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+// Import class BelongsTo untuk relasi
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\organization;
 
 class User extends Authenticatable
 {
@@ -25,6 +28,7 @@ class User extends Authenticatable
         'foto_profil',
         'admin',
         'superadmin',
+        'organization_id', // Pastikan kolom ini ada di fillable
     ];
 
     /**
@@ -59,5 +63,16 @@ class User extends Authenticatable
     {
         return $this->hasMany(Komentar::class);
     }
-
+    
+    /**
+     * Definisikan relasi "belongs to" ke tabel organizations.
+     *
+     * @return BelongsTo
+     */
+    public function organization(): BelongsTo
+    {
+        // Menghubungkan User dengan Organization melalui foreign key 'organization_id'
+        // di tabel 'users'
+        return $this->belongsTo(Organization::class, 'organization_id');
+    }
 }

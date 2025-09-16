@@ -2848,11 +2848,11 @@ Docs & License: https://fullcalendar.io/
     }
 
     function htmlEscape(s) {
-        return (s + '').replace(/&/g, '&amp;')
+        return (s + '').replace(/&/g, '&')
             .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
+            .replace(/>/g, '>')
             .replace(/'/g, '&#039;')
-            .replace(/"/g, '&quot;')
+            .replace(/"/g, '"')
             .replace(/\n/g, '<br />');
     }
     // Given a hash of CSS properties, returns a string of CSS.

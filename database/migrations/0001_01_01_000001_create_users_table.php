@@ -17,14 +17,17 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('organization_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
-        });
-
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
-            $table->string('token');
-            $table->timestamp('created_at')->nullable();
+            
+            // Menambahkan foreign key constraint.
+            // Kolom 'organization_id' merujuk ke 'bkd_organization_id' di tabel 'organization'.
+            // Menggunakan onDelete('set null') agar data user tidak terhapus jika data organisasinya dihapus.
+            $table->foreign('organization_id')
+                  ->references('organization_id')
+                  ->on('organization')
+                  ->onDelete('set null');
         });
 
         Schema::create('sessions', function (Blueprint $table) {
@@ -43,7 +46,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }
 };

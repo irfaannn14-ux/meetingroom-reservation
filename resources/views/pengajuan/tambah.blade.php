@@ -25,10 +25,10 @@
                     <select name="user_id" id="user_id" class="form-control" required>
                         <option value="">-- Pilih User --</option>
                         @foreach($user as $u)
-                            <option value="{{ $u->id }}">{{ $u->nama_apd }}</option>
+                            <option value="{{ $u->id }}">{{ $u->nama_opd }}</option>
                         @endforeach
                     </select>
-                    <input type="text" name="nama_apd" id="nama_apd" class="form-control" hidden required>
+                    <input type="text" name="nama_opd" id="nama_opd" class="form-control" hidden required>
 
                 </div>
                 <div class="col">
@@ -91,7 +91,7 @@
     document.getElementById('user_id').addEventListener('change', function() {
         let selectedOption = this.options[this.selectedIndex];
         let namaApd = selectedOption.getAttribute('data-nama');
-        document.getElementById('nama_apd').value = namaApd;
+        document.getElementById('nama_opd').value = namaApd;
     });
 </script>
 
