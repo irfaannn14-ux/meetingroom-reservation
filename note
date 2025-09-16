@@ -1,3 +1,8 @@
 - Add table organization (list OPD)
     -> php artisan migrate
     -> php artisan sync:organization
+
+Todo :
+- Feat remove user
+- Add organization on user table
+- 
