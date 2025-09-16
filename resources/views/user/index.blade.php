@@ -58,7 +58,7 @@
         flex-direction: column;
         overflow: hidden;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
-        cursor: pointer; /* Tambahkan cursor pointer untuk menunjukkan bahwa elemen ini dapat diklik */
+        cursor: pointer;
     }
     .user-card:hover {
         transform: translateY(-5px);
@@ -152,7 +152,6 @@
         max-height: 200px;
         width: auto;
         border-radius: 8px;
-        border: 2px solid var(--color-dark);
     }
     .modal-right {
         flex: 2;
@@ -179,13 +178,17 @@
             transform: scale(1);
         }
     }
-    .edit-button {
+    .edit-button, .delete-button {
         background-color: var(--color-dark);
         color: var(--color-light);
         border: none;
         padding: 10px 20px;
         border-radius: 8px;
         cursor: pointer;
+    }
+    .delete-button {
+        background-color: #dc3545;
+        margin-left: 10px;
     }
     #modalFotoProfil {
         max-width: 350px;
@@ -251,11 +254,20 @@
                 <p><strong>Username:</strong> <span id="modalUsername"></span></p>
                 <p><strong>Role:</strong> <span id="modalRole"></span></p>
                 <p><strong>No. WhatsApp:</strong> <span id="modalNoWa"></span></p>
-                <button id="editButton" class="edit-button">Edit</button>
+                <div style="margin-top: 20px;">
+                    <button id="editButton" class="edit-button">Edit</button>
+                    <button id="deleteButton" class="delete-button">Hapus</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+{{-- Formulir tersembunyi untuk mengirim permintaan DELETE --}}
+<form id="deleteForm" method="POST" style="display: none;">
+    @csrf
+    @method('DELETE')
+</form>
 
 <script>
     function openModal(user) {
@@ -267,14 +279,35 @@
         document.getElementById('modalUsername').innerText = user.username || 'N/A';
         document.getElementById('modalRole').innerText = user.role || 'N/A';
         document.getElementById('modalNoWa').innerText = user.no_wa || 'N/A';
+
         document.getElementById('editButton').onclick = function () {
             window.location.href = `/user/tambah?id=${user.id}`;
         };
+
+        // Tambahkan event listener untuk tombol hapus
+        document.getElementById('deleteButton').onclick = function () {
+            deleteUser(user.id);
+        };
+
         document.getElementById('userDetailModal').style.display = 'flex';
     }
 
     function closeModal() {
         document.getElementById('userDetailModal').style.display = 'none';
+    }
+
+    // Fungsi untuk menghapus pengguna dengan konfirmasi
+    function deleteUser(userId) {
+        if (confirm("Apakah Anda yakin ingin menghapus pengguna ini?")) {
+            // Dapatkan formulir penghapusan
+            const deleteForm = document.getElementById('deleteForm');
+
+            // Atur URL aksi formulir ke rute penghapusan di backend Laravel
+            deleteForm.action = `/user/${userId}`;
+
+            // Kirim formulir untuk melakukan permintaan DELETE
+            deleteForm.submit();
+        }
     }
 
     // Tambahkan event listener untuk menutup modal jika klik di luar modal-content
