@@ -21,14 +21,6 @@ return new class extends Migration
             $table->string('organization_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
-            
-            // Menambahkan foreign key constraint.
-            // Kolom 'organization_id' merujuk ke 'bkd_organization_id' di tabel 'organization'.
-            // Menggunakan onDelete('set null') agar data user tidak terhapus jika data organisasinya dihapus.
-            $table->foreign('organization_id')
-                  ->references('organization_id')
-                  ->on('organization')
-                  ->onDelete('set null');
         });
 
         Schema::create('sessions', function (Blueprint $table) {
