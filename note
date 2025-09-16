@@ -1,0 +1,3 @@
+- Add table organization (list OPD)
+    -> php artisan migrate
+    -> php artisan sync:organization
