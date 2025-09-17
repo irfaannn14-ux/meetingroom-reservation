@@ -1,9 +1,19 @@
-<?php ?>
+<?php
+$isEdit = isset($pengajuan) && $pengajuan->id;
+$selectedRuanganId = old('ruangan_id', $pengajuan->ruangan_id ?? null);
+$selectedRuanganName = 'Pilih Ruangan';
+if ($selectedRuanganId) {
+    $selectedRuangan = $ruangans->firstWhere('id', $selectedRuanganId);
+    if ($selectedRuangan) {
+        $selectedRuanganName = $selectedRuangan->nama_ruangan;
+    }
+}
+?>
 @extends('layout.main')
-@section('title', 'Form Pengajuan Peminjaman Ruangan')
+@section('title', $isEdit ? 'Edit Pengajuan' : 'Form Pengajuan Peminjaman Ruangan')
 @section('content')
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+    @import url('https://fonts.com/css2?family=Montserrat:wght@400;700&display=swap');
     body {
         font-family: 'Montserrat', sans-serif;
         background-color: #C9DFF2;
@@ -81,9 +91,8 @@
     <div class="main-content">
         <div class="container d-flex justify-content-center">
             <div class="card shadow p-4" style="max-width: 500px; width: 100%; border-radius: 12px;">
-                <h4 class="text-left mb-4 fw-bold">Form Pengajuan Peminjaman Ruangan</h4>
+                <h4 class="text-left mb-4 fw-bold">{{ $isEdit ? 'Edit Pengajuan' : 'Form Pengajuan Peminjaman Ruangan' }}</h4>
 
-                {{-- Bagian ini akan menampilkan pesan error validasi --}}
                 @if ($errors->any())
                     <div class="alert alert-danger">
                         <ul class="mb-0">
@@ -94,48 +103,41 @@
                     </div>
                 @endif
 
-                {{-- Bagian ini akan menampilkan pesan error dari controller (misal: 'Anda harus login') --}}
                 @if (session('error'))
                     <div class="alert alert-danger">
                         {{ session('error') }}
                     </div>
                 @endif
 
-                <form action="{{ route('pengajuan.store') }}" method="POST">
+                <form action="{{ $isEdit ? route('pengajuan.update', $pengajuan->id) : route('pengajuan.store') }}" method="POST">
                     @csrf
+                    @if($isEdit)
+                        @method('PUT')
+                    @endif
 
                     <div class="mb-3">
                         <label for="judul_kegiatan" class="form-label">Judul Kegiatan</label>
-                        <input type="text" name="judul_kegiatan" id="judul_kegiatan" class="form-control" placeholder="Judul Singkat Kegiatan" value="{{ old('judul_kegiatan') }}" required>
+                        <input type="text" name="judul_kegiatan" id="judul_kegiatan" class="form-control" placeholder="Judul Singkat Kegiatan" value="{{ old('judul_kegiatan', $pengajuan->judul_kegiatan ?? '') }}" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="kegiatan" class="form-label">Kegiatan</label>
-                        <textarea name="kegiatan" id="kegiatan" class="form-control" rows="2" placeholder="Deskripsi Lengkap Kegiatan" required>{{ old('kegiatan') }}</textarea>
+                        <textarea name="kegiatan" id="kegiatan" class="form-control" rows="2" placeholder="Deskripsi Lengkap Kegiatan" required>{{ old('kegiatan', $pengajuan->kegiatan ?? '') }}</textarea>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col">
                             <label for="ruangan_id" class="form-label">Ruangan</label>
-                            <input type="hidden" name="ruangan_id" id="ruangan-id-input" value="{{ old('ruangan_id') }}" required>
+                            <input type="hidden" name="ruangan_id" id="ruangan-id-input" value="{{ old('ruangan_id', $pengajuan->ruangan_id ?? '') }}" required>
                             <div class="custom-dropdown-container">
                                 <div class="custom-dropdown-button form-control" onclick="toggleDropdown()">
                                     <span id="selected-ruangan">
-                                        @if(old('ruangan_id'))
-                                            @php
-                                                $oldRuangan = App\Models\Ruangan::find(old('ruangan_id'));
-                                            @endphp
-                                            {{ $oldRuangan ? $oldRuangan->nama_ruangan : 'Pilih Ruangan' }}
-                                        @else
-                                            Pilih Ruangan
-                                        @endif
+                                        {{ $selectedRuanganName }}
                                     </span>
                                     <span>&#9660;</span>
                                 </div>
                                 <div id="ruangan-dropdown-content" class="custom-dropdown-content">
                                     <input type="text" class="custom-dropdown-input" onkeyup="filterRuangan()" placeholder="Cari Ruangan...">
-                                    
-                                    {{-- Mengulang data ruangan dari controller --}}
                                     @foreach($ruangans as $ruangan)
                                         <a href="#" data-value="{{ $ruangan->id }}" data-nama="{{ $ruangan->nama_ruangan }}">{{ $ruangan->nama_ruangan }}</a>
                                     @endforeach
@@ -144,35 +146,35 @@
                         </div>
                         <div class="col">
                             <label for="jml_peserta" class="form-label">Jumlah Peserta</label>
-                            <input type="number" name="jml_peserta" id="jml_peserta" class="form-control" placeholder="Jumlah Peserta Kegiatan" value="{{ old('jml_peserta') }}" required>
+                            <input type="number" name="jml_peserta" id="jml_peserta" class="form-control" placeholder="Jumlah Peserta Kegiatan" value="{{ old('jml_peserta', $pengajuan->jml_peserta ?? '') }}" required>
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col">
                             <label for="tanggal_pinjam" class="form-label">Tanggal Pinjam</label>
-                            <input type="date" name="tanggal_pinjam" id="tanggal_pinjam" class="form-control" value="{{ old('tanggal_pinjam') }}" required>
+                            <input type="date" name="tanggal_pinjam" id="tanggal_pinjam" class="form-control" value="{{ old('tanggal_pinjam', $isEdit ? \Carbon\Carbon::parse($pengajuan->tanggal_mulai)->format('Y-m-d') : '') }}" required>
                         </div>
                         <div class="col">
                             <label for="tanggal_kembali" class="form-label">Tanggal Kembali</label>
-                            <input type="date" name="tanggal_kembali" id="tanggal_kembali" class="form-control" value="{{ old('tanggal_kembali') }}" required>
+                            <input type="date" name="tanggal_kembali" id="tanggal_kembali" class="form-control" value="{{ old('tanggal_kembali', $isEdit ? \Carbon\Carbon::parse($pengajuan->tanggal_selesai)->format('Y-m-d') : '') }}" required>
                         </div>
                     </div>
 
                     <div class="row mb-4">
                         <div class="col">
                             <label for="waktu_pinjam" class="form-label">Waktu Pinjam</label>
-                            <input type="time" name="waktu_pinjam" id="waktu_pinjam" class="form-control" value="{{ old('waktu_pinjam') }}" required>
+                            <input type="time" name="waktu_pinjam" id="waktu_pinjam" class="form-control" value="{{ old('waktu_pinjam', $isEdit ? \Carbon\Carbon::parse($pengajuan->tanggal_mulai)->format('H:i') : '') }}" required>
                         </div>
                         <div class="col">
                             <label for="waktu_kembali" class="form-label">Waktu Kembali</label>
-                            <input type="time" name="waktu_kembali" id="waktu_kembali" class="form-control" value="{{ old('waktu_kembali') }}" required>
+                            <input type="time" name="waktu_kembali" id="waktu_kembali" class="form-control" value="{{ old('waktu_kembali', $isEdit ? \Carbon\Carbon::parse($pengajuan->tanggal_selesai)->format('H:i') : '') }}" required>
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-between">
                         <a href="{{ route('pengajuan.index') }}" class="btn btn-outline-dark px-4">Cancel</a>
-                        <button type="submit" class="btn btn-dark px-4"><i class="bi bi-floppy"></i>Submit</button>
+                        <button type="submit" class="btn btn-dark px-4"><i class="bi bi-floppy"></i>{{ $isEdit ? 'Update' : 'Submit' }}</button>
                     </div>
                 </form>
 

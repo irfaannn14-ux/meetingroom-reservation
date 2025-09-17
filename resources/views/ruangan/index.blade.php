@@ -1,3 +1,4 @@
+<?php ?>
 @extends('layout.main')
 @section('title', 'Ruangan')
 @section('content')
@@ -18,7 +19,7 @@
         }
         .content {
             width: 100%;
-            max-width: 2000px;
+            max-width: 1150px;
             margin: 0 auto;
         }
         .ruangan-table-container {
@@ -95,7 +96,7 @@
             height: auto;
             border-radius: 4px;
         }
-
+        
         /* New styles for delete confirmation modal */
         .modal {
             position: fixed;
@@ -194,8 +195,10 @@
                             <td>{{ $ruangan->jml_peserta }}</td>
                             <td>{{ $ruangan->fasilitas }}</td>
                             <td>
-                                <a href="{{ route('ruangan.edit', $ruangan->id) }}" class="btn btn-success btn-sm btn-action nav-icon bi bi-pencil-square" title="Edit"></a>
-                                <button type="button" class="btn btn-danger btn-sm btn-action bi bi-trash" onclick="openDeleteModal({{ $ruangan->id }})" title="Hapus"></button>
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <a href="{{ route('ruangan.edit', $ruangan->id) }}" class="btn btn-success btn-sm btn-action nav-icon bi bi-pencil-square" title="Edit"></a>
+                                    <button type="button" class="btn btn-danger btn-sm btn-action bi bi-trash" onclick="openDeleteModal({{ $ruangan->id }})" title="Hapus"></button>
+                                </div>
                             </td>
                         </tr>
                         @endforeach

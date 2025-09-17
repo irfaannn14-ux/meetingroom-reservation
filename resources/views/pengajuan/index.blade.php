@@ -90,6 +90,65 @@
             margin-bottom: 0.8rem;
         }
     }
+    /* New styles for delete confirmation modal */
+    .modal {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        box-sizing: border-box;
+    }
+    .modal-content {
+        background-color: white;
+        padding: 30px;
+        border-radius: 8px;
+        max-width: 400px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        animation: fadeIn 0.3s ease;
+    }
+    .modal-content h3 {
+        margin-bottom: 15px;
+        color: #dc3545;
+    }
+    .modal-content p {
+        margin-bottom: 25px;
+    }
+    .modal-actions {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+    .btn {
+        padding: 10px 25px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        border: none;
+    }
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
 </style>
 
 <div class="main-content">
@@ -122,17 +181,13 @@
                             <td>{{ $pengajuan->nama_pengaju }}</td>
                             <td>{{ $pengajuan->judul_kegiatan }}</td>
                             <td>{{ $pengajuan->ruangan->nama_ruangan }}</td>
-                            <td>{{ \Carbon\Carbon::parse($pengajuan->tanggal_mulai)->format('d-m-Y H:i') }}</td>
-                            <td>{{ \Carbon\Carbon::parse($pengajuan->tanggal_selesai)->format('d-m-Y H:i') }}</td>
+                            <td>{{ \Carbon\Carbon::parse($pengajuan->tanggal_mulai)->format('d-m-Y H:i') }} WIB</td>
+                            <td>{{ \Carbon\Carbon::parse($pengajuan->tanggal_selesai)->format('d-m-Y H:i') }} WIB</td>
                             <td>{{ $pengajuan->jml_peserta }}</td>
                             <td>
-                                <div class="d-flex gap-2">
+                                <div class="d-flex gap-2 justify-content-center">
                                     <a href="{{ route('pengajuan.edit', $pengajuan->id) }}" class="btn btn-success btn-sm btn-action nav-icon bi bi-pencil-square" title="Edit"></a>
-                                    <form action="{{ route('pengajuan.destroy', $pengajuan->id) }}" method="POST" style="display: inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm btn-action bi bi-trash" onclick="return confirm('Yakin ingin menghapus data?')" title="Hapus"></button>
-                                    </form>
+                                    <button type="button" class="btn btn-danger btn-sm btn-action bi bi-trash" onclick="openDeleteModal({{ $pengajuan->id }})" title="Hapus"></button>
                                 </div>
                             </td>
                         </tr>
@@ -142,4 +197,52 @@
         </div>
     </div>
 </div>
+
+{{-- Modal Konfirmasi Hapus --}}
+<div id="deleteConfirmModal" class="modal">
+    <div class="modal-content">
+        <h3>Konfirmasi Hapus Pengajuan</h3>
+        <p>Apakah Anda yakin ingin menghapus pengajuan ini?</p>
+        <div class="modal-actions">
+            <button class="btn btn-danger" onclick="executeDelete()">Ya, Hapus</button>
+            <button class="btn btn-secondary" onclick="closeModal('deleteConfirmModal')">Batal</button>
+        </div>
+    </div>
+</div>
+
+{{-- Formulir tersembunyi untuk mengirim permintaan DELETE --}}
+<form id="deleteForm" method="POST" style="display: none;">
+    @csrf
+    @method('DELETE')
+</form>
+
+<script>
+    // Variable untuk menyimpan ID ruangan yang akan dihapus
+    let pengajuanIdToDelete = null;
+
+    function openDeleteModal(id) {
+        pengajuanIdToDelete = id;
+        document.getElementById('deleteConfirmModal').style.display = 'flex';
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    function executeDelete() {
+        if (pengajuanIdToDelete) {
+            const deleteForm = document.getElementById('deleteForm');
+            deleteForm.action = `/pengajuan/${pengajuanIdToDelete}`;
+            deleteForm.submit();
+        }
+    }
+
+    // Menutup modal jika klik di luar modal-content
+    document.getElementById('deleteConfirmModal').addEventListener('click', function (event) {
+        const modalContent = document.querySelector('#deleteConfirmModal .modal-content');
+        if (!modalContent.contains(event.target)) {
+            closeModal('deleteConfirmModal');
+        }
+    });
+</script>
 @endsection
