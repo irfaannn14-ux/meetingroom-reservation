@@ -4,7 +4,22 @@
 @section('content')
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
-    .main-content { padding: 80px 20px 20px; }
+    body {
+        font-family: 'Montserrat', sans-serif;
+        background-color: #C9DFF2;
+    }
+    .main-content {
+        padding: 80px 20px 20px;
+    }
+    .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    .form-control:focus {
+        border-color: #000;
+        box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.1);
+    }
     .btn i {
         margin-right: 6px;
         font-size: 13px;
@@ -32,7 +47,7 @@
     .custom-dropdown-content {
         display: none;
         position: absolute;
-        background-color: #f6f6f6;
+        background-color: #fff;
         min-width: 100%;
         box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
         z-index: 100;
@@ -49,7 +64,7 @@
         display: block;
     }
     .custom-dropdown-content a:hover {
-        background-color: #ddd;
+        background-color: #f0f2f5;
     }
     .custom-dropdown-input {
         box-sizing: border-box;
@@ -65,77 +80,104 @@
 </style>
     <div class="main-content">
         <div class="container d-flex justify-content-center">
-        <div class="card shadow p-4" style="max-width: 500px; width: 100%; border-radius: 12px;">
-            <h4 class="text-left mb-4 fw-bold">Form Pengajuan Peminjaman Ruangan</h4>
+            <div class="card shadow p-4" style="max-width: 500px; width: 100%; border-radius: 12px;">
+                <h4 class="text-left mb-4 fw-bold">Form Pengajuan Peminjaman Ruangan</h4>
 
-            <form action="{{ route('pengajuan.store') }}" method="POST">
-            @csrf
+                {{-- Bagian ini akan menampilkan pesan error validasi --}}
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
-            <div class="mb-3">
-                <label for="judul_kegiatan" class="form-label">Judul Kegiatan</label>
-                <input type="text" name="judul_kegiatan" id="judul_kegiatan" class="form-control" placeholder="Judul Singkat Kegiatan" required>
-            </div>
+                {{-- Bagian ini akan menampilkan pesan error dari controller (misal: 'Anda harus login') --}}
+                @if (session('error'))
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
+                @endif
 
-            <div class="mb-3">
-                <label for="kegiatan" class="form-label">Kegiatan</label>
-                <textarea name="kegiatan" id="kegiatan" class="form-control" rows="2" placeholder="Deskripsi Lengkap Kegiatan" required></textarea>
-            </div>
+                <form action="{{ route('pengajuan.store') }}" method="POST">
+                    @csrf
 
-            <div class="row mb-3">
-                <div class="col">
-                    <label for="ruangan_id" class="form-label">Ruangan</label>
-                    <input type="hidden" name="ruangan_id" id="ruangan-id-input" required>
-                    <div class="custom-dropdown-container">
-                        <div class="custom-dropdown-button form-control" onclick="toggleDropdown()">
-                            <span id="selected-ruangan">Pilih Ruangan</span>
-                            <span>&#9660;</span>
+                    <div class="mb-3">
+                        <label for="judul_kegiatan" class="form-label">Judul Kegiatan</label>
+                        <input type="text" name="judul_kegiatan" id="judul_kegiatan" class="form-control" placeholder="Judul Singkat Kegiatan" value="{{ old('judul_kegiatan') }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="kegiatan" class="form-label">Kegiatan</label>
+                        <textarea name="kegiatan" id="kegiatan" class="form-control" rows="2" placeholder="Deskripsi Lengkap Kegiatan" required>{{ old('kegiatan') }}</textarea>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="ruangan_id" class="form-label">Ruangan</label>
+                            <input type="hidden" name="ruangan_id" id="ruangan-id-input" value="{{ old('ruangan_id') }}" required>
+                            <div class="custom-dropdown-container">
+                                <div class="custom-dropdown-button form-control" onclick="toggleDropdown()">
+                                    <span id="selected-ruangan">
+                                        @if(old('ruangan_id'))
+                                            @php
+                                                $oldRuangan = App\Models\Ruangan::find(old('ruangan_id'));
+                                            @endphp
+                                            {{ $oldRuangan ? $oldRuangan->nama_ruangan : 'Pilih Ruangan' }}
+                                        @else
+                                            Pilih Ruangan
+                                        @endif
+                                    </span>
+                                    <span>&#9660;</span>
+                                </div>
+                                <div id="ruangan-dropdown-content" class="custom-dropdown-content">
+                                    <input type="text" class="custom-dropdown-input" onkeyup="filterRuangan()" placeholder="Cari Ruangan...">
+                                    
+                                    {{-- Mengulang data ruangan dari controller --}}
+                                    @foreach($ruangans as $ruangan)
+                                        <a href="#" data-value="{{ $ruangan->id }}" data-nama="{{ $ruangan->nama_ruangan }}">{{ $ruangan->nama_ruangan }}</a>
+                                    @endforeach
+                                </div>
+                            </div>
                         </div>
-                        <div id="ruangan-dropdown-content" class="custom-dropdown-content">
-                            <input type="text" class="custom-dropdown-input" onkeyup="filterRuangan()" placeholder="Cari Ruangan...">
-                            <a href="#" data-value="1" data-nama="Ruangan A">Ruangan A</a>
-                            <a href="#" data-value="2" data-nama="Ruangan B">Ruangan B</a>
-                            <a href="#" data-value="3" data-nama="Ruangan C">Ruangan C</a>
-                            <a href="#" data-value="4" data-nama="Ruangan D">Ruangan D</a>
-                            <a href="#" data-value="5" data-nama="Ruangan E">Ruangan E</a>
+                        <div class="col">
+                            <label for="jml_peserta" class="form-label">Jumlah Peserta</label>
+                            <input type="number" name="jml_peserta" id="jml_peserta" class="form-control" placeholder="Jumlah Peserta Kegiatan" value="{{ old('jml_peserta') }}" required>
                         </div>
                     </div>
-                </div>
-                <div class="col">
-                    <label for="jml_peserta" class="form-label">Jumlah Peserta</label>
-                    <input type="number" name="jml_peserta" id="jml_peserta" class="form-control" placeholder="Jumlah Peserta Kegiatan" required>
-                </div>
-            </div>
 
-            <div class="row mb-3">
-                <div class="col">
-                    <label for="tanggal_pinjam" class="form-label">Tanggal Pinjam</label>
-                    <input type="date" name="tanggal_pinjam" id="tanggal_pinjam" class="form-control" required>
-                </div>
-                <div class="col">
-                    <label for="tanggal_kembali" class="form-label">Tanggal Kembali</label>
-                    <input type="date" name="tanggal_kembali" id="tanggal_kembali" class="form-control" required>
-                </div>
-            </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="tanggal_pinjam" class="form-label">Tanggal Pinjam</label>
+                            <input type="date" name="tanggal_pinjam" id="tanggal_pinjam" class="form-control" value="{{ old('tanggal_pinjam') }}" required>
+                        </div>
+                        <div class="col">
+                            <label for="tanggal_kembali" class="form-label">Tanggal Kembali</label>
+                            <input type="date" name="tanggal_kembali" id="tanggal_kembali" class="form-control" value="{{ old('tanggal_kembali') }}" required>
+                        </div>
+                    </div>
 
-            <div class="row mb-4">
-                <div class="col">
-                    <label for="waktu_pinjam" class="form-label">Waktu Pinjam</label>
-                    <input type="time" name="waktu_pinjam" id="waktu_pinjam" class="form-control" required>
-                </div>
-                <div class="col">
-                    <label for="waktu_kembali" class="form-label">Waktu Kembali</label>
-                    <input type="time" name="waktu_kembali" id="waktu_kembali" class="form-control" required>
-                </div>
-            </div>
+                    <div class="row mb-4">
+                        <div class="col">
+                            <label for="waktu_pinjam" class="form-label">Waktu Pinjam</label>
+                            <input type="time" name="waktu_pinjam" id="waktu_pinjam" class="form-control" value="{{ old('waktu_pinjam') }}" required>
+                        </div>
+                        <div class="col">
+                            <label for="waktu_kembali" class="form-label">Waktu Kembali</label>
+                            <input type="time" name="waktu_kembali" id="waktu_kembali" class="form-control" value="{{ old('waktu_kembali') }}" required>
+                        </div>
+                    </div>
 
-            <div class="d-flex justify-content-between">
-                <a href="{{ route('pengajuan.index') }}" class="btn btn-outline-dark px-4">Cancel</a>
-                <button type="submit" class="btn btn-dark px-4"><i class="bi bi-floppy"></i>Submit</button>
-            </div>
-        </form>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ route('pengajuan.index') }}" class="btn btn-outline-dark px-4">Cancel</a>
+                        <button type="submit" class="btn btn-dark px-4"><i class="bi bi-floppy"></i>Submit</button>
+                    </div>
+                </form>
 
+            </div>
         </div>
-    </div>
     </div>
 <script>
     function toggleDropdown() {

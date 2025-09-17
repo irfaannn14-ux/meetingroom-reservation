@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('ruangans', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_ruangan',100);
+            $table->string('nama_ruangan', 100);
             $table->text('fasilitas')->nullable();
             $table->integer('jml_peserta');
+            $table->string('foto_ruangan'); 
             $table->timestamps();
         });
     }

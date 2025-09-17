@@ -96,7 +96,7 @@
     <div class="content">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 ms-auto">
             <h1 class="dashboard-title">List Data Pengajuan</h1>
-            <a href="/pengajuan/tambah" class="btn btn-primary">
+            <a href="{{ route('pengajuan.tambah') }}" class="btn btn-primary">
                 <i class="bi bi-person-plus-fill"></i> Buat Pengajuan
             </a>
         </div>
@@ -122,8 +122,8 @@
                             <td>{{ $pengajuan->nama_pengaju }}</td>
                             <td>{{ $pengajuan->judul_kegiatan }}</td>
                             <td>{{ $pengajuan->ruangan->nama_ruangan }}</td>
-                            <td>{{ $pengajuan->tanggal_mulai }} {{ $pengajuan->jam_mulai }}</td>
-                            <td>{{ $pengajuan->tanggal_selesai }} {{ $pengajuan->jam_selesai }}</td>
+                            <td>{{ \Carbon\Carbon::parse($pengajuan->tanggal_mulai)->format('d-m-Y H:i') }}</td>
+                            <td>{{ \Carbon\Carbon::parse($pengajuan->tanggal_selesai)->format('d-m-Y H:i') }}</td>
                             <td>{{ $pengajuan->jml_peserta }}</td>
                             <td>
                                 <div class="d-flex gap-2">

@@ -18,10 +18,8 @@ return new class extends Migration
             $table->string('nama_pengaju');
             $table->string('judul_kegiatan');
             $table->string('kegiatan');
-            $table->date('tanggal_mulai');
-            $table->date('tanggal_selesai');
-            $table->time('jam_mulai');
-            $table->time('jam_selesai');
+            $table->dateTime('tanggal_mulai');
+            $table->dateTime('tanggal_selesai');
             $table->integer('jml_peserta');
             $table->enum('status', ['pending', 'disetujui', 'ditolak'])->default('pending');
             $table->timestamps();

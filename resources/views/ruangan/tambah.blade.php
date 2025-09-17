@@ -16,7 +16,8 @@
         <div class="card shadow p-4" style="max-width: 500px; width: 100%; border-radius: 12px;">
             <h4 class="text-left mb-4 fw-bold">Form Ruangan</h4>
 
-            <form action="#" method="POST">
+            {{-- Menambahkan 'enctype' untuk unggahan file --}}
+            <form action="#" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <div class="row mb-3">
@@ -25,9 +26,15 @@
                         <input type="text" name="nama_ruangan" id="nama_ruangan" class="form-control" required>
                     </div>
                     <div class="col">
-                        <label for="jml_peserta" class="form-label">Jumlah Peserta</label>
+                        <label for="jml_peserta" class="form-label">Jumlah Maksimal Peserta</label>
                         <input type="number" name="jml_peserta" id="jml_peserta" class="form-control" required>
                     </div>
+                </div>
+
+                {{-- Menambahkan input untuk unggahan foto ruangan --}}
+                <div class="mb-3">
+                    <label for="foto_ruangan" class="form-label">Foto Ruangan</label>
+                    <input type="file" name="foto_ruangan" id="foto_ruangan" class="form-control" accept="image/*" required>
                 </div>
 
                 <div class="mb-3">
