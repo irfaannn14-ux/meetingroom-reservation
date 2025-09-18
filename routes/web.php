@@ -33,16 +33,13 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/navbar', function () {return view('navbar.navbar');});
     Route::get('/main', function () {return view('layout.main');});
 
-    //dashboard
-    // Route::get('/dashboard', function () {return view('dashboard');});
-
     //ruangan
     Route::get('ruangan/index', [RuanganController::class, 'index'])->name('ruangan.index');
     Route::get('ruangan/tambah', [RuanganController::class, 'tambah'])->name('ruangan.tambah');
     Route::post('ruangan/tambah', [RuanganController::class, 'store'])->name('ruangan.store');
-    Route::get('ruangan/{id}/edit', [RuanganController::class, 'edit'])->name('ruangan.edit');
-    Route::put('ruangan/{id}', [RuanganController::class, 'update'])->name('ruangan.update');
-    Route::delete('ruangan/{id}', [RuanganController::class, 'destroy'])->name('ruangan.destroy'); // Rute untuk menghapus
+    Route::get('ruangan/{ruangan}/edit', [RuanganController::class, 'edit'])->name('ruangan.edit');
+    Route::put('ruangan/{ruangan}', [RuanganController::class, 'update'])->name('ruangan.update');
+    Route::delete('ruangan/{ruangan}', [RuanganController::class, 'destroy'])->name('ruangan.destroy');
 
     // pengajuan
     Route::get('/index', [PengajuanController::class, 'index'])->name('pengajuan.index');
@@ -63,3 +60,4 @@ Route::middleware(['auth.custom'])->group(function () {
     //history
     Route::get('/history', function () {return view('history');});
 });
+
