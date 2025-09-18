@@ -32,7 +32,7 @@ class Organization extends Model
     protected $fillable = [
         'bkd_organization_id',
         'organization_name',
-        'is_active',
+        'active',
         'created_at',
         'updated_at',
     ];

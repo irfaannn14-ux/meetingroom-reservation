@@ -208,10 +208,19 @@ $isEdit = isset($user);
                     </div>
                     <div id="option-dropdown-content" class="custom-dropdown-content">
                         <input type="text" class="custom-dropdown-input" onkeyup="filterOptions()" placeholder="Cari Opsi...">
-                        <a href="#" data-value="Admin" data-type="role">Admin</a>
-                        <a href="#" data-value="Super Admin" data-type="role">Super Admin</a>
+                        {{-- PERBAIKAN: Loop tunggal untuk semua organisasi --}}
                         @foreach($organizations as $org)
-                            <a href="#" data-value="{{ $org->bkd_organization_id }}" data-type="organization">OPD - {{ $org->organization_name }}</a>
+                            @php
+                                $isRole = in_array($org->organization_name, ['ADMIN', 'SUPER ADMIN']);
+                                $displayText = $isRole ? ($org->organization_name == 'ADMIN' ? 'Admin' : 'Super Admin') : 'OPD - ' . $org->organization_name;
+                                $role = $isRole ? ($org->organization_name == 'ADMIN' ? 'Admin' : 'Super Admin') : 'OPD';
+                            @endphp
+                            <a href="#" 
+                               data-value="{{ $org->bkd_organization_id }}" 
+                               data-role="{{ $role }}"
+                               data-text="{{ $displayText }}">
+                               {{ $displayText }}
+                            </a>
                         @endforeach
                     </div>
                 </div>
@@ -254,27 +263,27 @@ function filterOptions() {
 
 document.getElementById("option-dropdown-content").addEventListener('click', function(event) {
     if (event.target.tagName === 'A') {
-        const selectedValue = event.target.getAttribute('data-value');
-        const selectedText = event.target.textContent;
-        const selectedType = event.target.getAttribute('data-type');
+        event.preventDefault(); // Mencegah aksi default link
 
-        if (selectedType === 'role') {
-            document.getElementById("role-input").value = selectedValue;
-            document.getElementById("organization-id-input").value = '';
-        } else if (selectedType === 'organization') {
-            document.getElementById("role-input").value = 'OPD';
-            document.getElementById("organization-id-input").value = selectedValue;
-        }
+        // PERBAIKAN: Logika disederhanakan untuk menangani semua opsi dari organisasi
+        const selectedOrgId = event.target.getAttribute('data-value');
+        const selectedRole = event.target.getAttribute('data-role');
+        const selectedText = event.target.getAttribute('data-text');
 
+        // Set nilai untuk input hidden
+        document.getElementById("organization-id-input").value = selectedOrgId;
+        document.getElementById("role-input").value = selectedRole;
+
+        // Update teks yang ditampilkan di tombol dropdown
         document.getElementById("selected-option").textContent = selectedText;
+        
+        // Tutup dropdown
         document.getElementById("option-dropdown-content").classList.remove("show-dropdown");
-
-        event.preventDefault();
     }
 });
 
 window.onclick = function(event) {
-    if (!event.target.matches('.custom-dropdown-button') && !event.target.matches('.custom-dropdown-input')) {
+    if (!event.target.matches('.custom-dropdown-button') && !event.target.matches('.custom-dropdown-input') && !event.target.closest('.custom-dropdown-button')) {
         const dropdown = document.getElementById("option-dropdown-content");
         if (dropdown.classList.contains('show-dropdown')) {
             dropdown.classList.remove('show-dropdown');
