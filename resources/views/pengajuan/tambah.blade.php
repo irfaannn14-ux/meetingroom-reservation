@@ -13,7 +13,7 @@ if ($selectedRuanganId) {
 @section('title', $isEdit ? 'Edit Pengajuan' : 'Form Pengajuan Peminjaman Ruangan')
 @section('content')
 <style>
-    @import url('https://fonts.com/css2?family=Montserrat:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
     body {
         font-family: 'Montserrat', sans-serif;
         background-color: #C9DFF2;
@@ -153,22 +153,22 @@ if ($selectedRuanganId) {
                     <div class="row mb-3">
                         <div class="col">
                             <label for="tanggal_pinjam" class="form-label">Tanggal Pinjam</label>
-                            <input type="date" name="tanggal_pinjam" id="tanggal_pinjam" class="form-control" value="{{ old('tanggal_pinjam', $isEdit ? \Carbon\Carbon::parse($pengajuan->tanggal_mulai)->format('Y-m-d') : '') }}" required>
+                            <input type="date" name="tanggal_pinjam" id="tanggal_pinjam" class="form-control" value="{{ old('tanggal_pinjam', ($pengajuan->tanggal_mulai ?? null) ? \Carbon\Carbon::parse($pengajuan->tanggal_mulai)->format('Y-m-d') : '') }}" required>
                         </div>
                         <div class="col">
                             <label for="tanggal_kembali" class="form-label">Tanggal Kembali</label>
-                            <input type="date" name="tanggal_kembali" id="tanggal_kembali" class="form-control" value="{{ old('tanggal_kembali', $isEdit ? \Carbon\Carbon::parse($pengajuan->tanggal_selesai)->format('Y-m-d') : '') }}" required>
+                            <input type="date" name="tanggal_kembali" id="tanggal_kembali" class="form-control" value="{{ old('tanggal_kembali', ($pengajuan->tanggal_selesai ?? null) ? \Carbon\Carbon::parse($pengajuan->tanggal_selesai)->format('Y-m-d') : '') }}" required>
                         </div>
                     </div>
 
                     <div class="row mb-4">
                         <div class="col">
                             <label for="waktu_pinjam" class="form-label">Waktu Pinjam</label>
-                            <input type="time" name="waktu_pinjam" id="waktu_pinjam" class="form-control" value="{{ old('waktu_pinjam', $isEdit ? \Carbon\Carbon::parse($pengajuan->tanggal_mulai)->format('H:i') : '') }}" required>
+                            <input type="time" name="waktu_pinjam" id="waktu_pinjam" class="form-control" value="{{ old('waktu_pinjam', ($pengajuan->tanggal_mulai ?? null) ? \Carbon\Carbon::parse($pengajuan->tanggal_mulai)->format('H:i') : '') }}" required>
                         </div>
                         <div class="col">
                             <label for="waktu_kembali" class="form-label">Waktu Kembali</label>
-                            <input type="time" name="waktu_kembali" id="waktu_kembali" class="form-control" value="{{ old('waktu_kembali', $isEdit ? \Carbon\Carbon::parse($pengajuan->tanggal_selesai)->format('H:i') : '') }}" required>
+                            <input type="time" name="waktu_kembali" id="waktu_kembali" class="form-control" value="{{ old('waktu_kembali', ($pengajuan->tanggal_selesai ?? null) ? \Carbon\Carbon::parse($pengajuan->tanggal_selesai)->format('H:i') : '') }}" required>
                         </div>
                     </div>
 

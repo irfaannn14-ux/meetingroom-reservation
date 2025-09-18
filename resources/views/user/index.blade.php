@@ -343,7 +343,7 @@ body {
 
         // Atur URL untuk tombol Edit
         document.getElementById('editButton').onclick = function () {
-            window.location.href = `/user/tambah?id=${user.id}`;
+            window.location.href = `/user/${user.id}/edit`;
         };
 
         // Atur tombol Hapus untuk membuka modal konfirmasi

@@ -30,5 +30,23 @@ class DatabaseSeeder extends Seeder
             'role' => 'superadmin', // Tambahkan role jika ada
             'password' => Hash::make('admin'), // Password 5 karakter
         ]);
+
+        Organization::create([
+            'organization_id' => 'ORG001',
+            'organization_name' => 'ADMIN',
+            'bkd_organization_id' => '1',
+            'active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        Organization::create([
+            'organization_id' => 'ORG002',
+            'organization_name' => 'SUPER ADMIN',
+            'bkd_organization_id' => '2',
+            'active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 }

@@ -63,9 +63,8 @@ class UserController extends Controller
     /**
      * Tampilkan formulir edit untuk pengguna tertentu.
      */
-    public function edit($id)
+    public function edit(User $user) // Menggunakan Route Model Binding
     {
-        $user = User::findOrFail($id);
         $organizations = DB::table('organization')->get();
         return view('user.tambah', compact('user', 'organizations'));
     }
@@ -73,10 +72,8 @@ class UserController extends Controller
     /**
      * Perbarui pengguna yang ada.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, User $user)
     {
-        $user = User::findOrFail($id);
-
         // Validasi data
         $validatedData = $request->validate([
             'nama' => 'required|string|max:255',
@@ -106,21 +103,22 @@ class UserController extends Controller
     /**
      * Hapus pengguna dari database.
      */
-    public function destroy($id)
-    {
-        DB::table('users')->where('id', $id)->delete();
-        return redirect()->route('user.index');
-    }
+        public function destroy(User $user) // Menggunakan Route Model Binding
+        {
+            // Hapus foto profil jika ada
+            if ($user->foto_profil) {
+                Storage::disk('public')->delete($user->foto_profil);
+            }
+            $user->delete();
+            return redirect()->route('user.index')->with('success', 'User berhasil dihapus!');
+        }
 
     /**
      * Tampilkan formulir untuk membuat atau mengedit pengguna.
      */
-    public function create(Request $request)
-    {
-        // Jika ada parameter 'id', ambil data pengguna untuk edit
-        $user = $request->has('id') ? User::find($request->id) : null;
-        $organizations = DB::table('organization')->get();
-
-        return view('user.tambah', compact('user', 'organizations'));
-    }
+        public function create() // Disederhanakan, hanya untuk 'tambah'
+        {
+            $organizations = DB::table('organization')->get();
+            return view('user.tambah', compact('organizations'));
+        }
 }
