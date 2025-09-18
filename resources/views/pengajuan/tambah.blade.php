@@ -109,7 +109,7 @@ if ($selectedRuanganId) {
                     </div>
                 @endif
 
-                <form action="{{ $isEdit ? route('pengajuan.update', $pengajuan->id) : route('pengajuan.store') }}" method="POST">
+                <form action="{{ $isEdit ? route('pengajuan.update', $pengajuan) : route('pengajuan.store') }}" method="POST">
                     @csrf
                     @if($isEdit)
                         @method('PUT')
@@ -182,6 +182,9 @@ if ($selectedRuanganId) {
         </div>
     </div>
 <script>
+    // Menyimpan data ruangan dari PHP ke variabel JavaScript untuk akses mudah
+    const ruangansData = @json($ruangans->keyBy('id'));
+
     function toggleDropdown() {
         document.getElementById("ruangan-dropdown-content").classList.toggle("show-dropdown");
     }
@@ -201,6 +204,20 @@ if ($selectedRuanganId) {
         }
     }
 
+    // Fungsi baru untuk memperbarui placeholder jumlah peserta
+    function updatePesertaPlaceholder(ruanganId) {
+        const jmlPesertaInput = document.getElementById('jml_peserta');
+        const selectedRuangan = ruangansData[ruanganId];
+
+        if (selectedRuangan) {
+            // Jika ruangan ditemukan, set placeholder dengan kapasitasnya
+            jmlPesertaInput.placeholder = 'Maksimal: ' + selectedRuangan.jml_peserta + ' orang';
+        } else {
+            // Jika tidak, kembalikan ke default
+            jmlPesertaInput.placeholder = 'Jumlah Peserta Kegiatan';
+        }
+    }
+
     document.getElementById("ruangan-dropdown-content").addEventListener('click', function(event) {
         if (event.target.tagName === 'A') {
             const selectedValue = event.target.getAttribute('data-value');
@@ -208,6 +225,10 @@ if ($selectedRuanganId) {
 
             document.getElementById("ruangan-id-input").value = selectedValue;
             document.getElementById("selected-ruangan").textContent = selectedNama;
+            
+            // Panggil fungsi untuk memperbarui placeholder setiap kali ruangan dipilih
+            updatePesertaPlaceholder(selectedValue);
+            
             document.getElementById("ruangan-dropdown-content").classList.remove("show-dropdown");
             event.preventDefault();
         }
@@ -221,5 +242,14 @@ if ($selectedRuanganId) {
             }
         }
     }
+
+    // Jalankan saat halaman dimuat untuk mengatur placeholder awal jika dalam mode edit atau ada error validasi
+    document.addEventListener('DOMContentLoaded', function() {
+        const initialRuanganId = document.getElementById('ruangan-id-input').value;
+        if (initialRuanganId) {
+            updatePesertaPlaceholder(initialRuanganId);
+        }
+    });
 </script>
 @endsection
+

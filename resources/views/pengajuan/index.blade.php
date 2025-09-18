@@ -149,6 +149,16 @@
             transform: scale(1);
         }
     }
+
+    .status-pending {
+            color: #fff;
+            background:rgb(245, 147, 19);
+            padding: 0.35em 1.1em;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 0.98em;
+            display: inline-block;
+        }
 </style>
 
 <div class="main-content">
@@ -171,6 +181,7 @@
                         <th>Waktu Pinjam</th>
                         <th>Waktu Kembali</th>
                         <th>Jumlah Peserta</th>
+                        <th>Status</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -184,6 +195,7 @@
                             <td>{{ \Carbon\Carbon::parse($pengajuan->tanggal_mulai)->format('d-m-Y H:i') }} WIB</td>
                             <td>{{ \Carbon\Carbon::parse($pengajuan->tanggal_selesai)->format('d-m-Y H:i') }} WIB</td>
                             <td>{{ $pengajuan->jml_peserta }}</td>
+                            <td><span class="status-pending"> {{ $pengajuan->status }} </span></td>
                             <td>
                                 <div class="d-flex gap-2 justify-content-center">
                                     <a href="{{ route('pengajuan.edit', $pengajuan->id) }}" class="btn btn-success btn-sm btn-action nav-icon bi bi-pencil-square" title="Edit"></a>

@@ -1,8 +1,4 @@
-- Add table organization (list OPD)
-    -> php artisan migrate
-    -> php artisan sync:organization
-
-Todo :
-- Feat remove user
-- Add organization on user table
-- 
+To Do:
+- halaman pengajuan ditambahkan kolom status
+- form pengajuan textfield peserta tidak boleh lebih dari kapasitas ruangan
+- index pengajuan terdapat aksi untuk approval dan denial pengajuan

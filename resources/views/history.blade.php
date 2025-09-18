@@ -93,6 +93,16 @@
             display: inline-block;
         }
 
+        .status-pending {
+            color: #fff;
+            background:rgb(245, 147, 19);
+            padding: 0.35em 1.1em;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 0.98em;
+            display: inline-block;
+        }
+
         @media (max-width: 900px) {
             .main-content {
                 margin-left: 0;
