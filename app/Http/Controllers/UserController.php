@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -15,8 +17,6 @@ class UserController extends Controller
      */
     public function index()
     {
-        // Memuat semua pengguna dengan relasi 'organization' menggunakan Eager Loading.
-        // Ini akan mengambil data pengguna dan data organisasi terkait dalam satu query yang efisien.
         $all = User::with('organization')->get();
         return view('user.index', ['all' => $all]);
     }
@@ -26,46 +26,50 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'nama' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
             'no_wa' => 'required|string|max:20',
-            'password' => 'required|string',
-            'organization_id' => 'required|string|max:255',
+            'password' => 'required|string|min:8',
+            'organization_id' => 'required|string|exists:organization,bkd_organization_id',
             'foto_profil' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
-        // Handle upload foto profil
-        $foto_profil = null;
-        if ($request->hasFile('foto_profil')) {
-            $foto_profil = $request->file('foto_profil')->store('foto_profil', 'public');
+        // Tentukan role berdasarkan organization_id
+        $organization = Organization::where('bkd_organization_id', $request->organization_id)->first();
+        $role = 'OPD'; // Default role
+        if ($organization) {
+            if ($organization->organization_name === 'ADMIN') {
+                $role = 'Admin';
+            } elseif ($organization->organization_name === 'SUPER ADMIN') {
+                $role = 'Super Admin';
+            }
         }
 
-        $save = [
-            'nama' => $request->nama,
-            'username' => $request->username,
-            'email' => $request->email,
-            'no_wa' => $request->no_wa,
-            'password' => Hash::make($request->password),
-            'organization_id' => $request->organization_id, // Menyimpan bkd_organization_id
-            'role' => 'OPD', // Nilai default, Anda bisa mengubahnya jika ada logika role lain
-            'foto_profil' => $foto_profil,
-        ];
+        // Handle upload foto profil
+        $path = $request->file('foto_profil')->store('foto_profil', 'public');
 
-        DB::table('users')->insert($save);
-        return redirect()->route('user.index')->with([
-            'success' => 'User berhasil ditambahkan!',
-            'alert_dismissible' => true
+        User::create([
+            'nama' => $validatedData['nama'],
+            'username' => $validatedData['username'],
+            'email' => $validatedData['email'],
+            'no_wa' => $validatedData['no_wa'],
+            'password' => Hash::make($validatedData['password']),
+            'organization_id' => $validatedData['organization_id'],
+            'role' => $role,
+            'foto_profil' => $path,
         ]);
+
+        return redirect()->route('user.index')->with('success', 'User berhasil ditambahkan!');
     }
 
     /**
      * Tampilkan formulir edit untuk pengguna tertentu.
      */
-    public function edit(User $user) // Menggunakan Route Model Binding
+    public function edit(User $user)
     {
-        $organizations = DB::table('organization')->get();
+        $organizations = Organization::all();
         return view('user.tambah', compact('user', 'organizations'));
     }
 
@@ -74,51 +78,70 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        // Validasi data
         $validatedData = $request->validate([
             'nama' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
+            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'no_wa' => 'required|string|max:15',
-            'username' => 'required|string|max:255',
-            'password' => 'nullable|string|min:8', // Password bisa nullable
-            'organization_id' => 'required|string',
+            'username' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'password' => 'nullable|string|min:8',
+            'organization_id' => 'required|string|exists:organization,bkd_organization_id',
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        // Tentukan role baru berdasarkan organization_id
+        $organization = Organization::where('bkd_organization_id', $request->organization_id)->first();
+        $role = 'OPD'; // Default role
+        if ($organization) {
+            if ($organization->organization_name === 'ADMIN') {
+                $role = 'Admin';
+            } elseif ($organization->organization_name === 'SUPER ADMIN') {
+                $role = 'Super Admin';
+            }
+        }
+        $validatedData['role'] = $role;
 
         // Periksa apakah password diisi
         if ($request->filled('password')) {
-            $validatedData['password'] = bcrypt($request->password); // Hash password baru
+            $validatedData['password'] = Hash::make($request->password);
         } else {
-            unset($validatedData['password']); // Jangan ubah password jika kosong
+            unset($validatedData['password']);
         }
 
-        // Update data pengguna
+        // Handle update foto profil
+        if ($request->hasFile('foto_profil')) {
+            // Hapus foto lama jika ada
+            if ($user->foto_profil) {
+                Storage::disk('public')->delete($user->foto_profil);
+            }
+            // Simpan foto baru
+            $validatedData['foto_profil'] = $request->file('foto_profil')->store('foto_profil', 'public');
+        }
+
         $user->update($validatedData);
 
-        return redirect()->route('user.index')->with([
-            'success' => 'User berhasil diperbarui!',
-            'alert_dismissible' => true
-        ]);
+        return redirect()->route('user.index')->with('success', 'User berhasil diperbarui!');
     }
 
     /**
      * Hapus pengguna dari database.
      */
-        public function destroy(User $user) // Menggunakan Route Model Binding
-        {
-            // Hapus foto profil jika ada
-            if ($user->foto_profil) {
-                Storage::disk('public')->delete($user->foto_profil);
-            }
-            $user->delete();
-            return redirect()->route('user.index')->with('success', 'User berhasil dihapus!');
+    public function destroy(User $user)
+    {
+        // Hapus foto profil jika ada
+        if ($user->foto_profil) {
+            Storage::disk('public')->delete($user->foto_profil);
         }
+        $user->delete();
+        return redirect()->route('user.index')->with('success', 'User berhasil dihapus!');
+    }
 
     /**
-     * Tampilkan formulir untuk membuat atau mengedit pengguna.
+     * Tampilkan formulir untuk membuat pengguna baru.
      */
-        public function create() // Disederhanakan, hanya untuk 'tambah'
-        {
-            $organizations = DB::table('organization')->get();
-            return view('user.tambah', compact('organizations'));
-        }
+    public function create()
+    {
+        $organizations = Organization::all();
+        return view('user.tambah', compact('organizations'));
+    }
 }
+
