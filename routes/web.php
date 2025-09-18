@@ -48,6 +48,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('pengajuan/{pengajuan}/edit', [PengajuanController::class, 'edit'])->name('pengajuan.edit');
     Route::put('pengajuan/{pengajuan}', [PengajuanController::class, 'update'])->name('pengajuan.update');
     Route::delete('pengajuan/{pengajuan}', [PengajuanController::class, 'destroy'])->name('pengajuan.destroy');
+    Route::post('pengajuan/{pengajuan}/status', [PengajuanController::class, 'updateStatus'])->name('pengajuan.updateStatus');
 
     //manajemen user
     Route::get('user/',[UserController::class, 'index'])->name('user.index');
@@ -58,6 +59,6 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::delete('user/{user}',[UserController::class, 'destroy'])->name('user.destroy');
 
     //history
-    Route::get('/history', function () {return view('history');});
+    Route::get('/history', [PengajuanController::class, 'history'])->name('history');
 });
 

@@ -13,12 +13,26 @@ use Illuminate\Support\Facades\DB;
 class PengajuanController extends Controller
 {
     /**
-     * Tampilkan daftar sumber daya.
+     * Tampilkan daftar pengajuan yang berstatus 'pending'.
      */
     public function index()
     {
-        $pengajuans = Pengajuan::with(['ruangan', 'user'])->get();
+        // Mengambil data pengajuan yang statusnya 'pending'
+        $pengajuans = Pengajuan::with(['ruangan', 'user'])
+                                ->where('status', 'pending')
+                                ->get();
         return view('pengajuan.index', compact('pengajuans'));
+    }
+
+    /**
+     * Tampilkan history pengajuan (disetujui dan ditolak).
+     */
+    public function history()
+    {
+        $pengajuans = Pengajuan::with(['ruangan', 'user'])
+                                ->where('status', '!=', 'pending')
+                                ->get();
+        return view('history', compact('pengajuans'));
     }
 
     /**
@@ -43,10 +57,9 @@ class PengajuanController extends Controller
             'tanggal_pinjam' => 'required|date',
             'tanggal_kembali' => 'required|date|after_or_equal:tanggal_pinjam',
             'waktu_pinjam' => 'required|date_format:H:i',
-            'waktu_kembali' => 'required|date_format:H:i', // Logika after divalidasi manual
+            'waktu_kembali' => 'required|date_format:H:i',
         ]);
 
-        // Pengecekan kapasitas ruangan
         $ruangan = Ruangan::find($validatedData['ruangan_id']);
         if ($validatedData['jml_peserta'] > $ruangan->jml_peserta) {
             return back()
@@ -57,13 +70,12 @@ class PengajuanController extends Controller
         $tanggal_mulai = Carbon::parse($validatedData['tanggal_pinjam'] . ' ' . $validatedData['waktu_pinjam']);
         $tanggal_selesai = Carbon::parse($validatedData['tanggal_kembali'] . ' ' . $validatedData['waktu_kembali']);
 
-        // Validasi waktu kembali harus setelah waktu pinjam
         if ($tanggal_selesai->lte($tanggal_mulai)) {
             return back()->withErrors(['waktu_kembali' => 'Waktu kembali harus setelah waktu pinjam.'])->withInput();
         }
 
-        // Memeriksa ketersediaan ruangan
         $isRuanganAvailable = Pengajuan::where('ruangan_id', $validatedData['ruangan_id'])
+            ->where('status', 'disetujui') // Hanya cek jadwal yang sudah disetujui
             ->where(function ($query) use ($tanggal_mulai, $tanggal_selesai) {
                 $query->where('tanggal_mulai', '<', $tanggal_selesai)
                       ->where('tanggal_selesai', '>', $tanggal_mulai);
@@ -73,7 +85,6 @@ class PengajuanController extends Controller
             return back()->withErrors(['ruangan_id' => 'Ruangan ini sudah dipesan untuk jadwal tersebut.'])->withInput();
         }
 
-        // Menyimpan data pengajuan baru ke database
         Pengajuan::create([
             'user_id' => session('user_id'),
             'ruangan_id' => $validatedData['ruangan_id'],
@@ -83,23 +94,40 @@ class PengajuanController extends Controller
             'tanggal_mulai' => $tanggal_mulai,
             'tanggal_selesai' => $tanggal_selesai,
             'jml_peserta' => $validatedData['jml_peserta'],
+            'status' => 'pending', // Status default saat dibuat
         ]);
 
         return redirect()->route('pengajuan.index')->with('success', 'Pengajuan berhasil dikirim!');
     }
 
+
     /**
-     * Tampilkan formulir untuk mengedit sumber daya yang ditentukan.
+     * Method baru untuk mengubah status pengajuan (Approve/Deny).
      */
+    public function updateStatus(Request $request, Pengajuan $pengajuan)
+    {
+        // Validasi input status
+        $request->validate([
+            'status' => ['required', Rule::in(['disetujui', 'ditolak'])],
+        ]);
+
+        // Update status pengajuan
+        $pengajuan->status = $request->status;
+        $pengajuan->save();
+
+        // Redirect kembali ke index dengan pesan sukses
+        return redirect()->route('pengajuan.index')->with('success', 'Status pengajuan berhasil diperbarui!');
+    }
+
+
+    // ... (method edit, update, dan destroy tidak berubah)
+
     public function edit(Pengajuan $pengajuan)
     {
         $ruangans = Ruangan::all();
         return view('pengajuan.tambah', compact('pengajuan', 'ruangans'));
     }
 
-    /**
-     * Perbarui sumber daya yang ditentukan di penyimpanan.
-     */
     public function update(Request $request, Pengajuan $pengajuan)
     {
         $validatedData = $request->validate([
@@ -113,7 +141,6 @@ class PengajuanController extends Controller
             'waktu_kembali' => 'required|date_format:H:i',
         ]);
         
-        // Pengecekan kapasitas ruangan
         $ruangan = Ruangan::find($validatedData['ruangan_id']);
         if ($validatedData['jml_peserta'] > $ruangan->jml_peserta) {
             return back()
@@ -129,6 +156,7 @@ class PengajuanController extends Controller
         }
 
         $isRuanganAvailable = Pengajuan::where('ruangan_id', $validatedData['ruangan_id'])
+            ->where('status', 'disetujui')
             ->where('id', '!=', $pengajuan->id)
             ->where(function ($query) use ($tanggal_mulai, $tanggal_selesai) {
                 $query->where('tanggal_mulai', '<', $tanggal_selesai)
@@ -151,12 +179,10 @@ class PengajuanController extends Controller
         return redirect()->route('pengajuan.index')->with('success', 'Pengajuan berhasil diperbarui!');
     }
 
-    /**
-     * Hapus sumber daya yang ditentukan dari penyimpanan.
-     */
     public function destroy(Pengajuan $pengajuan)
     {
         $pengajuan->delete();
         return redirect()->route('pengajuan.index')->with('success', 'Pengajuan berhasil dihapus!');
     }
 }
+

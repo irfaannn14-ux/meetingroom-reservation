@@ -44,6 +44,7 @@
     th, td {
         padding: 0.85rem 1rem;
         text-align: center;
+        vertical-align: middle;
     }
     th {
         background-color: #C9DFF2;
@@ -90,7 +91,7 @@
             margin-bottom: 0.8rem;
         }
     }
-    /* New styles for delete confirmation modal */
+    /* Modal styles */
     .modal {
         position: fixed;
         width: 100%;
@@ -106,15 +107,21 @@
         background-color: white;
         padding: 30px;
         border-radius: 8px;
-        max-width: 400px;
         width: 100%;
         text-align: center;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         animation: fadeIn 0.3s ease;
     }
+    #detailModal .modal-content {
+        max-width: 600px;
+        text-align: left;
+    }
+    #confirmStatusModal .modal-content, #deleteConfirmModal .modal-content {
+        max-width: 400px;
+    }
     .modal-content h3 {
         margin-bottom: 15px;
-        color: #dc3545;
+        color: #010D26;
     }
     .modal-content p {
         margin-bottom: 25px;
@@ -123,42 +130,42 @@
         display: flex;
         justify-content: center;
         gap: 15px;
+        margin-top: 20px;
     }
     .btn {
-        padding: 10px 25px;
+        padding: 10px 20px;
         border-radius: 8px;
         cursor: pointer;
         font-weight: bold;
         border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
-    .btn-danger {
-        background-color: #dc3545;
-        color: white;
+    .btn i {
+        margin-right: 8px;
     }
-    .btn-secondary {
-        background-color: #6c757d;
-        color: white;
-    }
+    .btn-success { background-color: #28a745; color: white; }
+    .btn-danger { background-color: #dc3545; color: white; }
+    .btn-secondary { background-color: #6c757d; color: white; }
+    
     @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: scale(0.9);
-        }
-        to {
-            opacity: 1;
-            transform: scale(1);
-        }
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
     }
 
-    .status-pending {
-            color: #fff;
-            background:rgb(245, 147, 19);
-            padding: 0.35em 1.1em;
-            border-radius: 16px;
-            font-weight: 600;
-            font-size: 0.98em;
-            display: inline-block;
-        }
+    .status-badge {
+        color: #fff;
+        padding: 0.35em 1.1em;
+        border-radius: 16px;
+        font-weight: 600;
+        font-size: 0.9em;
+        display: inline-block;
+    }
+    .status-pending { background: #fd7e14; }
+    .status-disetujui { background: #28a745; }
+    .status-ditolak { background: #dc3545; }
+
 </style>
 
 <div class="main-content">
@@ -166,9 +173,15 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 ms-auto">
             <h1 class="dashboard-title">List Data Pengajuan</h1>
             <a href="{{ route('pengajuan.tambah') }}" class="btn btn-primary">
-                <i class="bi bi-person-plus-fill"></i> Buat Pengajuan
+                <i class="bi bi-plus-circle-fill"></i> Buat Pengajuan
             </a>
         </div>
+        
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
 
         <div class="ruangan-table-container">
             <table>
@@ -186,31 +199,72 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($pengajuans as $pengajuan)
+                    @forelse($pengajuans as $pengajuan)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $pengajuan->nama_pengaju }}</td>
                             <td>{{ $pengajuan->judul_kegiatan }}</td>
-                            <td>{{ $pengajuan->ruangan->nama_ruangan }}</td>
+                            <td>{{ $pengajuan->ruangan->nama_ruangan ?? 'N/A' }}</td>
                             <td>{{ \Carbon\Carbon::parse($pengajuan->tanggal_mulai)->format('d-m-Y H:i') }} WIB</td>
                             <td>{{ \Carbon\Carbon::parse($pengajuan->tanggal_selesai)->format('d-m-Y H:i') }} WIB</td>
                             <td>{{ $pengajuan->jml_peserta }}</td>
-                            <td><span class="status-pending"> {{ $pengajuan->status }} </span></td>
+                            <td><span class="status-badge status-{{ strtolower($pengajuan->status) }}"> {{ ucfirst($pengajuan->status) }} </span></td>
                             <td>
                                 <div class="d-flex gap-2 justify-content-center">
-                                    <a href="{{ route('pengajuan.edit', $pengajuan->id) }}" class="btn btn-success btn-sm btn-action nav-icon bi bi-pencil-square" title="Edit"></a>
-                                    <button type="button" class="btn btn-danger btn-sm btn-action bi bi-trash" onclick="openDeleteModal({{ $pengajuan->id }})" title="Hapus"></button>
+                                    {{-- Ikon pada tombol aksi telah diperbarui --}}
+                                    <button type="button" class="btn btn-info btn-sm btn-action bi bi-search" onclick="openDetailModal({{ json_encode($pengajuan) }})" title="Lihat Detail"></button>
+                                    <a href="{{ route('pengajuan.edit', $pengajuan) }}" class="btn btn-success btn-sm btn-action nav-icon bi bi-pencil-fill" title="Edit"></a>
+                                    <button type="button" class="btn btn-danger btn-sm btn-action bi bi-trash-fill" onclick="openDeleteModal({{ $pengajuan->id }})" title="Hapus"></button>
                                 </div>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="9" class="text-center py-4">Tidak ada pengajuan yang menunggu persetujuan.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-{{-- Modal Konfirmasi Hapus --}}
+{{-- MODAL 1: Detail Pengajuan --}}
+<div id="detailModal" class="modal">
+    <div class="modal-content">
+        <h3>Detail Pengajuan</h3>
+        <table class="table table-bordered text-start">
+            <tr><th width="30%">ID Pengajuan</th><td id="modalId"></td></tr>
+            <tr><th>Nama Pengaju</th><td id="modalNamaPengaju"></td></tr>
+            <tr><th>Judul Kegiatan</th><td id="modalJudul"></td></tr>
+            <tr><th>Deskripsi Kegiatan</th><td id="modalDeskripsi"></td></tr>
+            <tr><th>Ruangan Dipesan</th><td id="modalRuangan"></td></tr>
+            <tr><th>Waktu Pinjam</th><td id="modalMulai"></td></tr>
+            <tr><th>Waktu Selesai</th><td id="modalSelesai"></td></tr>
+            <tr><th>Jumlah Peserta</th><td id="modalPeserta"></td></tr>
+            <tr><th>Status Saat Ini</th><td id="modalStatus"></td></tr>
+        </table>
+        {{-- Tombol diperbarui: posisi ditukar, ikon ditambahkan, tombol "Tutup" dihapus --}}
+        <div class="modal-actions">
+            <button class="btn btn-danger" onclick="openConfirmModal('ditolak')"><i class="bi bi-x-circle-fill"></i> Deny</button>
+            <button class="btn btn-success" onclick="openConfirmModal('disetujui')"><i class="bi bi-check-circle-fill"></i> Approve</button>
+        </div>
+    </div>
+</div>
+
+{{-- MODAL 2: Konfirmasi Ubah Status --}}
+<div id="confirmStatusModal" class="modal">
+    <div class="modal-content">
+        <h3>Konfirmasi Tindakan</h3>
+        <p id="confirmMessage">Apakah Anda yakin?</p>
+        <div class="modal-actions">
+            <button class="btn btn-primary" onclick="executeStatusUpdate()">Ya, Lanjutkan</button>
+            <button class="btn btn-secondary" onclick="closeModal('confirmStatusModal')">Batal</button>
+        </div>
+    </div>
+</div>
+
+{{-- MODAL 3: Konfirmasi Hapus --}}
 <div id="deleteConfirmModal" class="modal">
     <div class="modal-content">
         <h3>Konfirmasi Hapus Pengajuan</h3>
@@ -222,23 +276,69 @@
     </div>
 </div>
 
-{{-- Formulir tersembunyi untuk mengirim permintaan DELETE --}}
+{{-- Form tersembunyi untuk HAPUS --}}
 <form id="deleteForm" method="POST" style="display: none;">
     @csrf
     @method('DELETE')
 </form>
 
-<script>
-    // Variable untuk menyimpan ID ruangan yang akan dihapus
-    let pengajuanIdToDelete = null;
+{{-- Form tersembunyi untuk UPDATE STATUS --}}
+<form id="statusUpdateForm" method="POST" style="display: none;">
+    @csrf
+    <input type="hidden" name="status" id="newStatusInput">
+</form>
 
+<script>
+    // Variabel global untuk menyimpan konteks
+    let pengajuanIdToDelete = null;
+    let pengajuanToUpdate = null;
+    let newStatus = '';
+
+    // --- Fungsi untuk Modal Detail dan Update Status ---
+    function openDetailModal(pengajuan) {
+        pengajuanToUpdate = pengajuan; // Simpan seluruh objek pengajuan
+
+        // Format tanggal
+        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        const tglMulai = new Date(pengajuan.tanggal_mulai).toLocaleDateString('id-ID', options);
+        const tglSelesai = new Date(pengajuan.tanggal_selesai).toLocaleDateString('id-ID', options);
+
+        // Isi data ke modal
+        document.getElementById('modalId').innerText = pengajuan.id;
+        document.getElementById('modalNamaPengaju').innerText = pengajuan.nama_pengaju;
+        document.getElementById('modalJudul').innerText = pengajuan.judul_kegiatan;
+        document.getElementById('modalDeskripsi').innerText = pengajuan.kegiatan;
+        document.getElementById('modalRuangan').innerText = pengajuan.ruangan ? pengajuan.ruangan.nama_ruangan : 'N/A';
+        document.getElementById('modalMulai').innerText = tglMulai.replace(/\./g, ':') + ' WIB';
+        document.getElementById('modalSelesai').innerText = tglSelesai.replace(/\./g, ':') + ' WIB';
+        document.getElementById('modalPeserta').innerText = pengajuan.jml_peserta + ' orang';
+        document.getElementById('modalStatus').innerHTML = `<span class="status-badge status-${pengajuan.status.toLowerCase()}">${pengajuan.status.charAt(0).toUpperCase() + pengajuan.status.slice(1)}</span>`;
+        
+        document.getElementById('detailModal').style.display = 'flex';
+    }
+
+    function openConfirmModal(status) {
+        newStatus = status;
+        const actionText = status === 'disetujui' ? 'menyetujui' : 'menolak';
+        document.getElementById('confirmMessage').innerText = `Apakah Anda yakin ingin ${actionText} pengajuan ini?`;
+        
+        closeModal('detailModal');
+        document.getElementById('confirmStatusModal').style.display = 'flex';
+    }
+
+    function executeStatusUpdate() {
+        if (pengajuanToUpdate && newStatus) {
+            const statusForm = document.getElementById('statusUpdateForm');
+            document.getElementById('newStatusInput').value = newStatus;
+            statusForm.action = `/pengajuan/${pengajuanToUpdate.id}/status`;
+            statusForm.submit();
+        }
+    }
+
+    // --- Fungsi untuk Modal Hapus ---
     function openDeleteModal(id) {
         pengajuanIdToDelete = id;
         document.getElementById('deleteConfirmModal').style.display = 'flex';
-    }
-
-    function closeModal(modalId) {
-        document.getElementById(modalId).style.display = 'none';
     }
 
     function executeDelete() {
@@ -248,13 +348,19 @@
             deleteForm.submit();
         }
     }
+    
+    // --- Fungsi Helper ---
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
 
-    // Menutup modal jika klik di luar modal-content
-    document.getElementById('deleteConfirmModal').addEventListener('click', function (event) {
-        const modalContent = document.querySelector('#deleteConfirmModal .modal-content');
-        if (!modalContent.contains(event.target)) {
-            closeModal('deleteConfirmModal');
+    // Event listener untuk menutup modal saat klik di luar area konten
+    window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) {
+            closeModal(event.target.id);
         }
     });
+
 </script>
 @endsection
+
