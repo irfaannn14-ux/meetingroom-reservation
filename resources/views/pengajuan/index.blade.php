@@ -40,11 +40,22 @@
         border-collapse: collapse;
         font-size: 15px;
         background: #fff;
+        table-layout: fixed; /* Diperbarui: Mengatur layout tabel */
     }
     th, td {
         padding: 0.85rem 1rem;
         text-align: center;
         vertical-align: middle;
+        word-wrap: break-word;
+    }
+    th:first-child,
+    td:first-child {
+        width: 60px;
+    }
+    /* Diperbarui: Mengatur lebar kolom aksi */
+    th:last-child,
+    td:last-child {
+        width: 200px;
     }
     th {
         background-color: #C9DFF2;
@@ -64,6 +75,7 @@
     .btn-action {
         margin: 0 2px;
     }
+    
     .alert-success {
         background: #d4edda;
         color: #155724;
@@ -145,6 +157,8 @@
     .btn i {
         margin-right: 8px;
     }
+    /* Diperbarui: Menambahkan warna untuk tombol info */
+    .btn-info { background-color: #17a2b8; color: white; }
     .btn-success { background-color: #28a745; color: white; }
     .btn-danger { background-color: #dc3545; color: white; }
     .btn-secondary { background-color: #6c757d; color: white; }
@@ -189,7 +203,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Pengaju</th>
-                        <th>Kegiatan</th>
+                        <th>Judul Kegiatan</th>
                         <th>Ruangan</th>
                         <th>Waktu Pinjam</th>
                         <th>Waktu Kembali</th>
@@ -211,9 +225,9 @@
                             <td><span class="status-badge status-{{ strtolower($pengajuan->status) }}"> {{ ucfirst($pengajuan->status) }} </span></td>
                             <td>
                                 <div class="d-flex gap-2 justify-content-center">
-                                    {{-- Ikon pada tombol aksi telah diperbarui --}}
+                                    {{-- Tombol aksi telah diseragamkan --}}
                                     <button type="button" class="btn btn-info btn-sm btn-action bi bi-search" onclick="openDetailModal({{ json_encode($pengajuan) }})" title="Lihat Detail"></button>
-                                    <a href="{{ route('pengajuan.edit', $pengajuan) }}" class="btn btn-success btn-sm btn-action nav-icon bi bi-pencil-fill" title="Edit"></a>
+                                    <a href="{{ route('pengajuan.edit', $pengajuan) }}" class="btn btn-success btn-sm btn-action bi bi-pencil-fill" title="Edit"></a>
                                     <button type="button" class="btn btn-danger btn-sm btn-action bi bi-trash-fill" onclick="openDeleteModal({{ $pengajuan->id }})" title="Hapus"></button>
                                 </div>
                             </td>
@@ -244,7 +258,6 @@
             <tr><th>Jumlah Peserta</th><td id="modalPeserta"></td></tr>
             <tr><th>Status Saat Ini</th><td id="modalStatus"></td></tr>
         </table>
-        {{-- Tombol diperbarui: posisi ditukar, ikon ditambahkan, tombol "Tutup" dihapus --}}
         <div class="modal-actions">
             <button class="btn btn-danger" onclick="openConfirmModal('ditolak')"><i class="bi bi-x-circle-fill"></i> Deny</button>
             <button class="btn btn-success" onclick="openConfirmModal('disetujui')"><i class="bi bi-check-circle-fill"></i> Approve</button>

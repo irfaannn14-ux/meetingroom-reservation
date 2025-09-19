@@ -11,7 +11,7 @@
             padding: 0;
         }
         .main-content {
-            margin-left: 220px;
+            margin-left: 60px;
             padding: 2rem;
             min-height: 100vh;
             background-color: #C9DFF2;
@@ -41,10 +41,22 @@
             border-collapse: collapse;
             font-size: 15px;
             background: #fff;
+            table-layout: fixed;
         }
         th, td {
             padding: 0.85rem 1rem;
             text-align: center;
+            vertical-align: middle;
+            word-wrap: break-word;
+        }
+        th:first-child,
+        td:first-child {
+            width: 60px;
+        }
+        
+        th:last-child,
+        td:last-child {
+            width: 250px;
         }
         th {
             background-color: #C9DFF2;
@@ -64,6 +76,7 @@
         .btn-action {
             margin: 0 2px;
         }
+        
         .alert-success {
             background: #d4edda;
             color: #155724;
@@ -91,13 +104,8 @@
                 margin-bottom: 0.8rem;
             }
         }
-        .ruangan-foto {
-            max-width: 80px;
-            height: auto;
-            border-radius: 4px;
-        }
         
-        /* New styles for delete confirmation modal */
+        /* Modal styles */
         .modal {
             position: fixed;
             width: 100%;
@@ -113,15 +121,22 @@
             background-color: white;
             padding: 30px;
             border-radius: 8px;
-            max-width: 400px;
             width: 100%;
             text-align: center;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             animation: fadeIn 0.3s ease;
         }
+        #detailModal .modal-content {
+            max-width: 500px; /* Lebar modal detail */
+            text-align: left;
+        }
+        #deleteConfirmModal .modal-content {
+            max-width: 400px;
+        }
         .modal-content h3 {
-            margin-bottom: 15px;
-            color: #dc3545;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #010D26;
         }
         .modal-content p {
             margin-bottom: 25px;
@@ -130,6 +145,7 @@
             display: flex;
             justify-content: center;
             gap: 15px;
+            margin-top: 25px;
         }
         .btn {
             padding: 10px 25px;
@@ -146,27 +162,25 @@
             background-color: #6c757d;
             color: white;
         }
+        #modalFotoRuangan {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
     </style>
-
-    @include('sidebar.sidebar')
-    @include('navbar.navbar')
 
     <div class="main-content">
         <div class="content">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 ms-auto">
                 <h1 class="dashboard-title">List Ruangan</h1>
                 <a href="{{ route('ruangan.tambah') }}" class="btn btn-primary">
-                    <i class="bi bi-person-plus-fill"></i> Tambah Ruangan
+                    <i class="bi bi-plus-circle-fill"></i> Tambah Ruangan
                 </a>
             </div>
 
@@ -182,28 +196,50 @@
                         <tr>
                             <th>No</th>
                             <th>Nama Ruangan</th>
-                            <th>Jumlah Peserta</th>
+                            <th>Kapasitas</th>
                             <th>Fasilitas</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($ruangans as $ruangan)
+                        @forelse($ruangans as $ruangan)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $ruangan->nama_ruangan }}</td>
-                            <td>{{ $ruangan->jml_peserta }}</td>
+                            <td>{{ $ruangan->jml_peserta }} Orang</td>
                             <td>{{ $ruangan->fasilitas }}</td>
                             <td>
                                 <div class="d-flex gap-2 justify-content-center">
-                                    <a href="{{ route('ruangan.edit', $ruangan->id) }}" class="btn btn-success btn-sm btn-action nav-icon bi bi-pencil-square" title="Edit"></a>
-                                    <button type="button" class="btn btn-danger btn-sm btn-action bi bi-trash" onclick="openDeleteModal({{ $ruangan->id }})" title="Hapus"></button>
+                                    {{-- Tombol View baru ditambahkan --}}
+                                    <button type="button" class="btn btn-info btn-sm btn-action bi bi-search" onclick="openDetailModal({{ json_encode($ruangan) }})" title="Lihat Detail"></button>
+                                    <a href="{{ route('ruangan.edit', $ruangan) }}" class="btn btn-success btn-sm btn-action nav-icon bi bi-pencil-fill" title="Edit"></a>
+                                    <button type="button" class="btn btn-danger btn-sm btn-action bi bi-trash-fill" onclick="openDeleteModal({{ $ruangan->id }})" title="Hapus"></button>
                                 </div>
                             </td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="5" class="text-center py-4">Belum ada data ruangan.</td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+    
+    {{-- MODAL BARU: Detail Ruangan --}}
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <h3>Detail Ruangan</h3>
+            <img id="modalFotoRuangan" src="" alt="Foto Ruangan">
+            <table class="table table-bordered text-start">
+                <tr><th width="35%">Nama Ruangan</th><td id="modalNamaRuangan"></td></tr>
+                <tr><th>Kapasitas Maksimal</th><td id="modalKapasitas"></td></tr>
+                <tr><th>Fasilitas</th><td id="modalFasilitas"></td></tr>
+            </table>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('detailModal')">Tutup</button>
             </div>
         </div>
     </div>
@@ -227,8 +263,17 @@
     </form>
 
     <script>
-        // Variable untuk menyimpan ID ruangan yang akan dihapus
+        // Variabel untuk menyimpan ID ruangan yang akan dihapus
         let ruanganIdToDelete = null;
+
+        // FUNGSI BARU: untuk membuka modal detail
+        function openDetailModal(ruangan) {
+            document.getElementById('modalFotoRuangan').src = ruangan.foto_ruangan ? `/storage/${ruangan.foto_ruangan}` : 'https://placehold.co/600x400?text=No+Image';
+            document.getElementById('modalNamaRuangan').innerText = ruangan.nama_ruangan;
+            document.getElementById('modalKapasitas').innerText = ruangan.jml_peserta + ' orang';
+            document.getElementById('modalFasilitas').innerText = ruangan.fasilitas;
+            document.getElementById('detailModal').style.display = 'flex';
+        }
 
         function openDeleteModal(id) {
             ruanganIdToDelete = id;
@@ -242,16 +287,18 @@
         function executeDelete() {
             if (ruanganIdToDelete) {
                 const deleteForm = document.getElementById('deleteForm');
-                deleteForm.action = `/ruangan/${ruanganIdToDelete}`;
+                // Pastikan route 'ruangan.destroy' menerima objek atau ID
+                let url = "{{ route('ruangan.destroy', ':id') }}";
+                url = url.replace(':id', ruanganIdToDelete);
+                deleteForm.action = url;
                 deleteForm.submit();
             }
         }
 
         // Menutup modal jika klik di luar modal-content
-        document.getElementById('deleteConfirmModal').addEventListener('click', function (event) {
-            const modalContent = document.querySelector('#deleteConfirmModal .modal-content');
-            if (!modalContent.contains(event.target)) {
-                closeModal('deleteConfirmModal');
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                closeModal(event.target.id);
             }
         });
     </script>
