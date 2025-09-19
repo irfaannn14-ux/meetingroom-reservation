@@ -31,7 +31,7 @@ class PengajuanController extends Controller
             ->where('status', '!=', 'pending')
             ->get();
             
-        return view('pengajuan.history', compact('pengajuans'));
+        return view('history', compact('pengajuans'));
     }
 
     /**
