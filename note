@@ -1,4 +1,2 @@
 To Do:
-- halaman pengajuan ditambahkan kolom status
-- form pengajuan textfield peserta tidak boleh lebih dari kapasitas ruangan
-- index pengajuan terdapat aksi untuk approval dan denial pengajuan
+- modal detail pengajuan tidak perlu menampilkan ID, diganti dengan menampilkan organisasi pengaju

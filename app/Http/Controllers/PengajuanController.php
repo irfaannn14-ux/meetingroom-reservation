@@ -5,10 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Pengajuan;
 use App\Models\Ruangan;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class PengajuanController extends Controller
 {
@@ -17,26 +14,28 @@ class PengajuanController extends Controller
      */
     public function index()
     {
-        // Mengambil data pengajuan yang statusnya 'pending'
-        $pengajuans = Pengajuan::with(['ruangan', 'user'])
-                                ->where('status', 'pending')
-                                ->get();
+        // Memuat relasi ruangan dan juga relasi user beserta organisasinya
+        $pengajuans = Pengajuan::with(['ruangan', 'user.organization'])
+            ->where('status', 'pending')
+            ->get();
+            
         return view('pengajuan.index', compact('pengajuans'));
     }
 
     /**
-     * Tampilkan history pengajuan (disetujui dan ditolak).
+     * Tampilkan riwayat pengajuan (yang statusnya bukan 'pending').
      */
     public function history()
     {
-        $pengajuans = Pengajuan::with(['ruangan', 'user'])
-                                ->where('status', '!=', 'pending')
-                                ->get();
-        return view('history', compact('pengajuans'));
+        $pengajuans = Pengajuan::with(['ruangan', 'user.organization'])
+            ->where('status', '!=', 'pending')
+            ->get();
+            
+        return view('pengajuan.history', compact('pengajuans'));
     }
 
     /**
-     * Tampilkan formulir untuk membuat sumber daya baru.
+     * Tampilkan formulir untuk membuat pengajuan baru.
      */
     public function tambah()
     {
@@ -45,7 +44,7 @@ class PengajuanController extends Controller
     }
 
     /**
-     * Simpan sumber daya yang baru dibuat di penyimpanan.
+     * Simpan pengajuan baru ke database.
      */
     public function store(Request $request)
     {
@@ -94,40 +93,23 @@ class PengajuanController extends Controller
             'tanggal_mulai' => $tanggal_mulai,
             'tanggal_selesai' => $tanggal_selesai,
             'jml_peserta' => $validatedData['jml_peserta'],
-            'status' => 'pending', // Status default saat dibuat
         ]);
 
         return redirect()->route('pengajuan.index')->with('success', 'Pengajuan berhasil dikirim!');
     }
 
-
     /**
-     * Method baru untuk mengubah status pengajuan (Approve/Deny).
+     * Tampilkan formulir untuk mengedit pengajuan.
      */
-    public function updateStatus(Request $request, Pengajuan $pengajuan)
-    {
-        // Validasi input status
-        $request->validate([
-            'status' => ['required', Rule::in(['disetujui', 'ditolak'])],
-        ]);
-
-        // Update status pengajuan
-        $pengajuan->status = $request->status;
-        $pengajuan->save();
-
-        // Redirect kembali ke index dengan pesan sukses
-        return redirect()->route('pengajuan.index')->with('success', 'Status pengajuan berhasil diperbarui!');
-    }
-
-
-    // ... (method edit, update, dan destroy tidak berubah)
-
     public function edit(Pengajuan $pengajuan)
     {
         $ruangans = Ruangan::all();
         return view('pengajuan.tambah', compact('pengajuan', 'ruangans'));
     }
 
+    /**
+     * Perbarui pengajuan yang ada di database.
+     */
     public function update(Request $request, Pengajuan $pengajuan)
     {
         $validatedData = $request->validate([
@@ -156,8 +138,8 @@ class PengajuanController extends Controller
         }
 
         $isRuanganAvailable = Pengajuan::where('ruangan_id', $validatedData['ruangan_id'])
-            ->where('status', 'disetujui')
             ->where('id', '!=', $pengajuan->id)
+            ->where('status', 'disetujui')
             ->where(function ($query) use ($tanggal_mulai, $tanggal_selesai) {
                 $query->where('tanggal_mulai', '<', $tanggal_selesai)
                       ->where('tanggal_selesai', '>', $tanggal_mulai);
@@ -179,6 +161,25 @@ class PengajuanController extends Controller
         return redirect()->route('pengajuan.index')->with('success', 'Pengajuan berhasil diperbarui!');
     }
 
+    /**
+     * Perbarui status pengajuan (disetujui/ditolak).
+     */
+    public function updateStatus(Request $request, Pengajuan $pengajuan)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:disetujui,ditolak',
+        ]);
+
+        $pengajuan->update(['status' => $validated['status']]);
+
+        $message = $validated['status'] === 'disetujui' ? 'Pengajuan berhasil disetujui!' : 'Pengajuan berhasil ditolak!';
+
+        return redirect()->route('pengajuan.index')->with('success', $message);
+    }
+
+    /**
+     * Hapus pengajuan dari database.
+     */
     public function destroy(Pengajuan $pengajuan)
     {
         $pengajuan->delete();

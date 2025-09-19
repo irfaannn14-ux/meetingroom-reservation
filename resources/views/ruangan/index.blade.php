@@ -145,7 +145,7 @@
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin-top: 25px;
+            margin-top: 20px;
         }
         .btn {
             padding: 10px 25px;
@@ -212,7 +212,7 @@
                                 <div class="d-flex gap-2 justify-content-center">
                                     {{-- Tombol View baru ditambahkan --}}
                                     <button type="button" class="btn btn-info btn-sm btn-action bi bi-search" onclick="openDetailModal({{ json_encode($ruangan) }})" title="Lihat Detail"></button>
-                                    <a href="{{ route('ruangan.edit', $ruangan) }}" class="btn btn-success btn-sm btn-action nav-icon bi bi-pencil-fill" title="Edit"></a>
+                                    <a href="{{ route('ruangan.edit', $ruangan) }}" class="btn btn-success btn-sm btn-action bi bi-pencil-fill" title="Edit"></a>
                                     <button type="button" class="btn btn-danger btn-sm btn-action bi bi-trash-fill" onclick="openDeleteModal({{ $ruangan->id }})" title="Hapus"></button>
                                 </div>
                             </td>

@@ -40,7 +40,7 @@
         border-collapse: collapse;
         font-size: 15px;
         background: #fff;
-        table-layout: fixed; /* Diperbarui: Mengatur layout tabel */
+        table-layout: fixed;
     }
     th, td {
         padding: 0.85rem 1rem;
@@ -52,7 +52,6 @@
     td:first-child {
         width: 60px;
     }
-    /* Diperbarui: Mengatur lebar kolom aksi */
     th:last-child,
     td:last-child {
         width: 200px;
@@ -75,7 +74,6 @@
     .btn-action {
         margin: 0 2px;
     }
-    
     .alert-success {
         background: #d4edda;
         color: #155724;
@@ -125,7 +123,7 @@
         animation: fadeIn 0.3s ease;
     }
     #detailModal .modal-content {
-        max-width: 600px;
+        max-width: 800px;
         text-align: left;
     }
     #confirmStatusModal .modal-content, #deleteConfirmModal .modal-content {
@@ -157,7 +155,6 @@
     .btn i {
         margin-right: 8px;
     }
-    /* Diperbarui: Menambahkan warna untuk tombol info */
     .btn-info { background-color: #17a2b8; color: white; }
     .btn-success { background-color: #28a745; color: white; }
     .btn-danger { background-color: #dc3545; color: white; }
@@ -225,7 +222,6 @@
                             <td><span class="status-badge status-{{ strtolower($pengajuan->status) }}"> {{ ucfirst($pengajuan->status) }} </span></td>
                             <td>
                                 <div class="d-flex gap-2 justify-content-center">
-                                    {{-- Tombol aksi telah diseragamkan --}}
                                     <button type="button" class="btn btn-info btn-sm btn-action bi bi-search" onclick="openDetailModal({{ json_encode($pengajuan) }})" title="Lihat Detail"></button>
                                     <a href="{{ route('pengajuan.edit', $pengajuan) }}" class="btn btn-success btn-sm btn-action bi bi-pencil-fill" title="Edit"></a>
                                     <button type="button" class="btn btn-danger btn-sm btn-action bi bi-trash-fill" onclick="openDeleteModal({{ $pengajuan->id }})" title="Hapus"></button>
@@ -248,8 +244,8 @@
     <div class="modal-content">
         <h3>Detail Pengajuan</h3>
         <table class="table table-bordered text-start">
-            <tr><th width="30%">ID Pengajuan</th><td id="modalId"></td></tr>
-            <tr><th>Nama Pengaju</th><td id="modalNamaPengaju"></td></tr>
+            <tr><th width="30%">Nama Pengaju</th><td id="modalNamaPengaju"></td></tr>
+            <tr><th>Organisasi/Role</th><td id="modalOrganisasi"></td></tr>
             <tr><th>Judul Kegiatan</th><td id="modalJudul"></td></tr>
             <tr><th>Deskripsi Kegiatan</th><td id="modalDeskripsi"></td></tr>
             <tr><th>Ruangan Dipesan</th><td id="modalRuangan"></td></tr>
@@ -317,7 +313,6 @@
         const tglSelesai = new Date(pengajuan.tanggal_selesai).toLocaleDateString('id-ID', options);
 
         // Isi data ke modal
-        document.getElementById('modalId').innerText = pengajuan.id;
         document.getElementById('modalNamaPengaju').innerText = pengajuan.nama_pengaju;
         document.getElementById('modalJudul').innerText = pengajuan.judul_kegiatan;
         document.getElementById('modalDeskripsi').innerText = pengajuan.kegiatan;
@@ -327,6 +322,20 @@
         document.getElementById('modalPeserta').innerText = pengajuan.jml_peserta + ' orang';
         document.getElementById('modalStatus').innerHTML = `<span class="status-badge status-${pengajuan.status.toLowerCase()}">${pengajuan.status.charAt(0).toUpperCase() + pengajuan.status.slice(1)}</span>`;
         
+        let roleOrOrgText = 'N/A';
+        if (pengajuan.user) {
+            if (pengajuan.user.role === 'OPD') {
+                if (pengajuan.user.organization && pengajuan.user.organization.organization_name) {
+                    roleOrOrgText = `OPD - ${pengajuan.user.organization.organization_name}`;
+                } else {
+                    roleOrOrgText = 'OPD - (Data Organisasi Tidak Ditemukan)';
+                }
+            } else {
+                roleOrOrgText = pengajuan.user.role;
+            }
+        }
+        document.getElementById('modalOrganisasi').innerText = roleOrOrgText;
+
         document.getElementById('detailModal').style.display = 'flex';
     }
 
@@ -357,7 +366,9 @@
     function executeDelete() {
         if (pengajuanIdToDelete) {
             const deleteForm = document.getElementById('deleteForm');
-            deleteForm.action = `/pengajuan/${pengajuanIdToDelete}`;
+            let url = "{{ route('pengajuan.destroy', ':id') }}";
+            url = url.replace(':id', pengajuanIdToDelete);
+            deleteForm.action = url;
             deleteForm.submit();
         }
     }
