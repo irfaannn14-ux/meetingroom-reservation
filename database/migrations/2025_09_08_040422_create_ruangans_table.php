@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('nama_ruangan', 100);
             $table->text('fasilitas')->nullable();
             $table->integer('jml_peserta');
-            $table->string('foto_ruangan'); 
+            $table->string('foto_ruangan')->nullable(); 
             $table->timestamps();
         });
     }

@@ -1,2 +1,8 @@
 To Do:
-- modal detail pengajuan tidak perlu menampilkan ID, diganti dengan menampilkan organisasi pengaju
+- filterisasi berdasarkan kolom tabel yang ada
+- integrasi kalender
+- fitur review peminjaman ruangan setelah penggunaan sebagai feedback dari peminjam
+- multi-language support (ID - ENG)
+- responsive design for mobile web
+- statistik penggunaan ruangan khusus untuk admin dan super admin
+- re-design cz this one sucks

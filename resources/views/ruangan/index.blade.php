@@ -56,7 +56,7 @@
         
         th:last-child,
         td:last-child {
-            width: 250px;
+            width: 160px;
         }
         th {
             background-color: #C9DFF2;
@@ -77,6 +77,15 @@
             margin: 0 2px;
         }
         
+        /* Diperbarui: Menyesuaikan ukuran tombol aksi agar seragam */
+        td .btn-action.btn-sm {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
         .alert-success {
             background: #d4edda;
             color: #155724;
@@ -86,25 +95,28 @@
             margin-bottom: 1rem;
         }
         @media (max-width: 900px) {
-            .main-content {
-                margin-left: 0;
-                padding: 1rem;
-            }
-            .content {
-                max-width: 100%;
-            }
-            .ruangan-table-container {
-                padding: 1rem 0.5rem;
-                margin-top: 1rem;
-            }
-            table, th, td {
-                font-size: 13px;
-            }
-            .dashboard-title {
-                margin-bottom: 0.8rem;
-            }
+            /* ... media query styles ... */
         }
         
+        /* Styles for the new search bar */
+        .search-container {
+            position: relative;
+        }
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        #searchInput {
+            padding-left: 40px;
+            border-radius: 8px;
+            height: 44px;
+            width: 280px;
+            border: 1px solid #ced4da;
+        }
+
         /* Modal styles */
         .modal {
             position: fixed;
@@ -154,6 +166,9 @@
             font-weight: bold;
             border: none;
         }
+        /* Diperbarui: Menambahkan warna tombol agar seragam */
+        .btn-info { background-color: #17a2b8; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
         .btn-danger {
             background-color: #dc3545;
             color: white;
@@ -179,9 +194,15 @@
         <div class="content">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 ms-auto">
                 <h1 class="dashboard-title">List Ruangan</h1>
-                <a href="{{ route('ruangan.tambah') }}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle-fill"></i> Tambah Ruangan
-                </a>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="search-container">
+                        <i class="bi bi-search search-icon"></i>
+                        <input type="search" id="searchInput" onkeyup="filterTable()" class="form-control" placeholder="Cari nama, kapasitas, fasilitas...">
+                    </div>
+                    <a href="{{ route('ruangan.tambah') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle-fill"></i> Tambah Ruangan
+                    </a>
+                </div>
             </div>
 
             @if(session('success'))
@@ -201,7 +222,7 @@
                             <th>Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="ruanganTableBody">
                         @forelse($ruangans as $ruangan)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
@@ -210,7 +231,6 @@
                             <td>{{ $ruangan->fasilitas }}</td>
                             <td>
                                 <div class="d-flex gap-2 justify-content-center">
-                                    {{-- Tombol View baru ditambahkan --}}
                                     <button type="button" class="btn btn-info btn-sm btn-action bi bi-search" onclick="openDetailModal({{ json_encode($ruangan) }})" title="Lihat Detail"></button>
                                     <a href="{{ route('ruangan.edit', $ruangan) }}" class="btn btn-success btn-sm btn-action bi bi-pencil-fill" title="Edit"></a>
                                     <button type="button" class="btn btn-danger btn-sm btn-action bi bi-trash-fill" onclick="openDeleteModal({{ $ruangan->id }})" title="Hapus"></button>
@@ -222,6 +242,9 @@
                             <td colspan="5" class="text-center py-4">Belum ada data ruangan.</td>
                         </tr>
                         @endforelse
+                        <tr id="noResultsRow" style="display: none;">
+                            <td colspan="5" class="text-center py-4">Tidak ada ruangan yang cocok dengan pencarian Anda.</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -263,10 +286,8 @@
     </form>
 
     <script>
-        // Variabel untuk menyimpan ID ruangan yang akan dihapus
         let ruanganIdToDelete = null;
 
-        // FUNGSI BARU: untuk membuka modal detail
         function openDetailModal(ruangan) {
             document.getElementById('modalFotoRuangan').src = ruangan.foto_ruangan ? `/storage/${ruangan.foto_ruangan}` : 'https://placehold.co/600x400?text=No+Image';
             document.getElementById('modalNamaRuangan').innerText = ruangan.nama_ruangan;
@@ -287,7 +308,6 @@
         function executeDelete() {
             if (ruanganIdToDelete) {
                 const deleteForm = document.getElementById('deleteForm');
-                // Pastikan route 'ruangan.destroy' menerima objek atau ID
                 let url = "{{ route('ruangan.destroy', ':id') }}";
                 url = url.replace(':id', ruanganIdToDelete);
                 deleteForm.action = url;
@@ -295,7 +315,44 @@
             }
         }
 
-        // Menutup modal jika klik di luar modal-content
+        function filterTable() {
+            const input = document.getElementById("searchInput");
+            const filter = input.value.toLowerCase();
+            const tableBody = document.getElementById("ruanganTableBody");
+            const rows = tableBody.getElementsByTagName("tr");
+            let visibleRows = 0;
+
+            for (let i = 0; i < rows.length; i++) {
+                if (rows[i].id === 'noResultsRow' || rows[i].querySelector('td[colspan="5"]')) {
+                    continue;
+                }
+
+                const namaRuanganCell = rows[i].getElementsByTagName("td")[1];
+                const kapasitasCell = rows[i].getElementsByTagName("td")[2];
+                const fasilitasCell = rows[i].getElementsByTagName("td")[3];
+
+                if (namaRuanganCell && kapasitasCell && fasilitasCell) {
+                    const rowText = (namaRuanganCell.textContent || namaRuanganCell.innerText) +
+                                  (kapasitasCell.textContent || kapasitasCell.innerText) +
+                                  (fasilitasCell.textContent || fasilitasCell.innerText);
+                    
+                    if (rowText.toLowerCase().indexOf(filter) > -1) {
+                        rows[i].style.display = "";
+                        visibleRows++;
+                    } else {
+                        rows[i].style.display = "none";
+                    }
+                }       
+            }
+
+            const noResultsRow = document.getElementById('noResultsRow');
+            if (visibleRows === 0 && !tableBody.querySelector('td[colspan="5"]')) {
+                noResultsRow.style.display = "table-row";
+            } else {
+                noResultsRow.style.display = "none";
+            }
+        }
+
         window.addEventListener('click', function(event) {
             if (event.target.classList.contains('modal')) {
                 closeModal(event.target.id);
@@ -303,3 +360,4 @@
         });
     </script>
 @endsection
+

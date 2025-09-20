@@ -68,15 +68,37 @@
         font-size: 0.9em;
         display: inline-block;
     }
-    /* Menggunakan class yang sama dengan halaman index untuk konsistensi */
     .status-disetujui { background: #28a745; }
     .status-ditolak { background: #dc3545; }
+
+    /* Styles for the new search bar */
+    .search-container {
+        position: relative;
+    }
+    .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+    }
+    #searchInput {
+        padding-left: 40px;
+        border-radius: 8px;
+        height: 44px;
+        width: 320px;
+        border: 1px solid #ced4da;
+    }
 </style>
 
 <div class="main-content">
     <div class="content">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 ms-auto">
             <h1 class="dashboard-title">History Pengajuan</h1>
+            <div class="search-container">
+                <i class="bi bi-search search-icon"></i>
+                <input type="search" id="searchInput" onkeyup="filterTable()" class="form-control" placeholder="Cari pengaju, kegiatan, ruangan...">
+            </div>
         </div>
 
         <div class="history-table-container">
@@ -93,7 +115,7 @@
                         <th>Status</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="historyTableBody">
                     @forelse($pengajuans as $pengajuan)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
@@ -114,9 +136,53 @@
                             <td colspan="8" class="text-center py-4">Belum ada history pengajuan.</td>
                         </tr>
                     @endforelse
+                    <tr id="noResultsRow" style="display: none;">
+                        <td colspan="8" class="text-center py-4">Tidak ada riwayat yang cocok dengan pencarian Anda.</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<script>
+    function filterTable() {
+        const input = document.getElementById("searchInput");
+        const filter = input.value.toLowerCase();
+        const tableBody = document.getElementById("historyTableBody");
+        const rows = tableBody.getElementsByTagName("tr");
+        let visibleRows = 0;
+
+        for (let i = 0; i < rows.length; i++) {
+            if (rows[i].id === 'noResultsRow' || rows[i].querySelector('td[colspan="8"]')) {
+                continue;
+            }
+
+            const pengajuCell = rows[i].getElementsByTagName("td")[1];
+            const kegiatanCell = rows[i].getElementsByTagName("td")[2];
+            const ruanganCell = rows[i].getElementsByTagName("td")[3];
+
+            if (pengajuCell && kegiatanCell && ruanganCell) {
+                const rowText = (pengajuCell.textContent || pengajuCell.innerText) +
+                              (kegiatanCell.textContent || kegiatanCell.innerText) +
+                              (ruanganCell.textContent || ruanganCell.innerText);
+                
+                if (rowText.toLowerCase().indexOf(filter) > -1) {
+                    rows[i].style.display = "";
+                    visibleRows++;
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }       
+        }
+
+        const noResultsRow = document.getElementById('noResultsRow');
+        if (visibleRows === 0 && !tableBody.querySelector('td[colspan="8"]')) {
+            noResultsRow.style.display = "table-row";
+        } else {
+            noResultsRow.style.display = "none";
+        }
+    }
+</script>
 @endsection
+

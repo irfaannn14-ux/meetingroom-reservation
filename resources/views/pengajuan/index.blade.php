@@ -40,7 +40,7 @@
         border-collapse: collapse;
         font-size: 15px;
         background: #fff;
-        table-layout: fixed;
+        table-layout: fixed; /* Diperbarui: Mengatur layout tabel */
     }
     th, td {
         padding: 0.85rem 1rem;
@@ -52,9 +52,10 @@
     td:first-child {
         width: 60px;
     }
+    /* Diperbarui: Mengatur lebar kolom aksi */
     th:last-child,
     td:last-child {
-        width: 200px;
+        width: 160px;
     }
     th {
         background-color: #C9DFF2;
@@ -74,6 +75,14 @@
     .btn-action {
         margin: 0 2px;
     }
+    td .btn-action.btn-sm {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
     .alert-success {
         background: #d4edda;
         color: #155724;
@@ -82,24 +91,23 @@
         border-radius: 6px;
         margin-bottom: 1rem;
     }
-    @media (max-width: 900px) {
-        .main-content {
-            margin-left: 0;
-            padding: 1rem;
-        }
-        .content {
-            max-width: 100%;
-        }
-        .ruangan-table-container {
-            padding: 1rem 0.5rem;
-            margin-top: 1rem;
-        }
-        table, th, td {
-            font-size: 13px;
-        }
-        .dashboard-title {
-            margin-bottom: 0.8rem;
-        }
+    /* Styles for the new search bar */
+    .search-container {
+        position: relative;
+    }
+    .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+    }
+    #searchInput {
+        padding-left: 40px;
+        border-radius: 8px;
+        height: 44px;
+        width: 320px;
+        border: 1px solid #ced4da;
     }
     /* Modal styles */
     .modal {
@@ -123,7 +131,7 @@
         animation: fadeIn 0.3s ease;
     }
     #detailModal .modal-content {
-        max-width: 800px;
+        max-width: 600px;
         text-align: left;
     }
     #confirmStatusModal .modal-content, #deleteConfirmModal .modal-content {
@@ -183,9 +191,15 @@
     <div class="content">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 ms-auto">
             <h1 class="dashboard-title">List Data Pengajuan</h1>
-            <a href="{{ route('pengajuan.tambah') }}" class="btn btn-primary">
-                <i class="bi bi-plus-circle-fill"></i> Buat Pengajuan
-            </a>
+            <div class="d-flex align-items-center gap-3">
+                <div class="search-container">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="search" id="searchInput" onkeyup="filterTable()" class="form-control" placeholder="Cari pengaju, kegiatan, ruangan...">
+                </div>
+                <a href="{{ route('pengajuan.tambah') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle-fill"></i> Buat Pengajuan
+                </a>
+            </div>
         </div>
         
         @if (session('success'))
@@ -209,7 +223,7 @@
                         <th>Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="pengajuanTableBody">
                     @forelse($pengajuans as $pengajuan)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
@@ -233,6 +247,10 @@
                             <td colspan="9" class="text-center py-4">Tidak ada pengajuan yang menunggu persetujuan.</td>
                         </tr>
                     @endforelse
+                    {{-- Baris untuk pesan "tidak ditemukan" --}}
+                    <tr id="noResultsRow" style="display: none;">
+                        <td colspan="9" class="text-center py-4">Tidak ada pengajuan yang cocok dengan pencarian Anda.</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -384,7 +402,45 @@
             closeModal(event.target.id);
         }
     });
+    
+    // FUNGSI BARU: untuk memfilter tabel
+    function filterTable() {
+        const input = document.getElementById("searchInput");
+        const filter = input.value.toLowerCase();
+        const tableBody = document.getElementById("pengajuanTableBody");
+        const rows = tableBody.getElementsByTagName("tr");
+        let visibleRows = 0;
 
+        for (let i = 0; i < rows.length; i++) {
+            if (rows[i].id === 'noResultsRow' || rows[i].querySelector('td[colspan="9"]')) {
+                continue;
+            }
+
+            const pengajuCell = rows[i].getElementsByTagName("td")[1];
+            const kegiatanCell = rows[i].getElementsByTagName("td")[2];
+            const ruanganCell = rows[i].getElementsByTagName("td")[3];
+
+            if (pengajuCell && kegiatanCell && ruanganCell) {
+                const rowText = (pengajuCell.textContent || pengajuCell.innerText) +
+                              (kegiatanCell.textContent || kegiatanCell.innerText) +
+                              (ruanganCell.textContent || ruanganCell.innerText);
+                
+                if (rowText.toLowerCase().indexOf(filter) > -1) {
+                    rows[i].style.display = "";
+                    visibleRows++;
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }       
+        }
+
+        const noResultsRow = document.getElementById('noResultsRow');
+        if (visibleRows === 0 && !tableBody.querySelector('td[colspan="9"]')) {
+            noResultsRow.style.display = "table-row";
+        } else {
+            noResultsRow.style.display = "none";
+        }
+    }
 </script>
 @endsection
 
