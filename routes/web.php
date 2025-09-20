@@ -19,9 +19,7 @@ Route::get('/verifikasi_email', function () {return view('auth.verifikasi_email'
 
 // Protected routes (memerlukan login)
 Route::middleware(['auth.custom'])->group(function () {
-    Route::get('/', function () {
-        return view('dashboard');
-    });
+    Route::get('/', [PengajuanController::class, 'dashboard'])->name('dashboard');
 
     // default route
     Route::get('/welcome', function () {
@@ -49,6 +47,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::put('pengajuan/{pengajuan}', [PengajuanController::class, 'update'])->name('pengajuan.update');
     Route::delete('pengajuan/{pengajuan}', [PengajuanController::class, 'destroy'])->name('pengajuan.destroy');
     Route::post('pengajuan/{pengajuan}/status', [PengajuanController::class, 'updateStatus'])->name('pengajuan.updateStatus');
+    Route::get('/calendar-events', [PengajuanController::class, 'calendarEvents'])->name('calendar.events');
 
     //manajemen user
     Route::get('user/',[UserController::class, 'index'])->name('user.index');
@@ -61,4 +60,3 @@ Route::middleware(['auth.custom'])->group(function () {
     //history
     Route::get('/history', [PengajuanController::class, 'history'])->name('history');
 });
-

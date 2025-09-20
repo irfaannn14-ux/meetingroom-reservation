@@ -207,6 +207,12 @@
                 {{ session('success') }}
             </div>
         @endif
+        
+        @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
 
         <div class="ruangan-table-container">
             <table>
@@ -271,6 +277,7 @@
             <tr><th>Waktu Selesai</th><td id="modalSelesai"></td></tr>
             <tr><th>Jumlah Peserta</th><td id="modalPeserta"></td></tr>
             <tr><th>Status Saat Ini</th><td id="modalStatus"></td></tr>
+            <tr><th>Contact Person</th><td><a id="modalContactPersonWa" href="#" target="_blank" class="btn btn-success btn-sm"><i class="bi bi-whatsapp"></i> WhatsApp</a></td></tr>
         </table>
         <div class="modal-actions">
             <button class="btn btn-danger" onclick="openConfirmModal('ditolak')"><i class="bi bi-x-circle-fill"></i> Deny</button>
@@ -354,6 +361,17 @@
         }
         document.getElementById('modalOrganisasi').innerText = roleOrOrgText;
 
+        // Set WhatsApp link
+        const waButton = document.getElementById('modalContactPersonWa');
+        if (pengajuan.user && pengajuan.user.no_wa) {
+            // Hapus '0' di depan jika ada dan tambahkan '62'
+            const phoneNumber = pengajuan.user.no_wa.startsWith('0') ? pengajuan.user.no_wa.substring(1) : pengajuan.user.no_wa;
+            waButton.href = `https://wa.me/62${phoneNumber}`;
+            waButton.style.display = 'inline-flex'; // Tampilkan tombol
+        } else {
+            waButton.href = '#';
+            waButton.style.display = 'none'; // Sembunyikan tombol jika no_wa tidak tersedia
+        }
         document.getElementById('detailModal').style.display = 'flex';
     }
 
@@ -443,4 +461,3 @@
     }
 </script>
 @endsection
-

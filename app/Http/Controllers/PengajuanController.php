@@ -10,6 +10,21 @@ use Carbon\Carbon;
 class PengajuanController extends Controller
 {
     /**
+     * Tampilkan halaman dashboard dengan statistik.
+     */
+    public function dashboard()
+    {
+        $stats = [
+            'total' => Pengajuan::count(),
+            'diterima' => Pengajuan::where('status', 'disetujui')->count(),
+            'baru' => Pengajuan::where('status', 'pending')->count(),
+            'ditolak' => Pengajuan::where('status', 'ditolak')->count(),
+        ];
+
+        return view('dashboard', compact('stats'));
+    }
+
+    /**
      * Tampilkan daftar pengajuan yang berstatus 'pending'.
      */
     public function index()
@@ -170,6 +185,25 @@ class PengajuanController extends Controller
             'status' => 'required|in:disetujui,ditolak',
         ]);
 
+        // Jika status yang diminta adalah 'disetujui', cek ketersediaan ruangan
+        if ($validated['status'] === 'disetujui') {
+            $tanggal_mulai = $pengajuan->tanggal_mulai;
+            $tanggal_selesai = $pengajuan->tanggal_selesai;
+
+            $isRuanganAvailable = Pengajuan::where('ruangan_id', $pengajuan->ruangan_id)
+                ->where('id', '!=', $pengajuan->id) // Abaikan pengajuan saat ini
+                ->where('status', 'disetujui')      // Hanya cek jadwal yang sudah disetujui
+                ->where(function ($query) use ($tanggal_mulai, $tanggal_selesai) {
+                    $query->where('tanggal_mulai', '<', $tanggal_selesai)
+                          ->where('tanggal_selesai', '>', $tanggal_mulai);
+                })->doesntExist();
+
+            // Jika ruangan tidak tersedia (ada jadwal bentrok), kembalikan dengan error
+            if (!$isRuanganAvailable) {
+                return redirect()->route('pengajuan.index')->with('error', 'Gagal menyetujui: Jadwal bentrok dengan pengajuan lain yang sudah disetujui.');
+            }
+        }
+
         $pengajuan->update(['status' => $validated['status']]);
 
         $message = $validated['status'] === 'disetujui' ? 'Pengajuan berhasil disetujui!' : 'Pengajuan berhasil ditolak!';
@@ -185,5 +219,25 @@ class PengajuanController extends Controller
         $pengajuan->delete();
         return redirect()->route('pengajuan.index')->with('success', 'Pengajuan berhasil dihapus!');
     }
-}
 
+    /**
+     * Sediakan data event untuk FullCalendar.
+     */
+    public function calendarEvents()
+    {
+        $pengajuans = Pengajuan::with('ruangan')
+            ->where('status', 'disetujui')
+            ->get();
+
+        $events = $pengajuans->map(function ($pengajuan) {
+            return [
+                'title' => $pengajuan->judul_kegiatan . ' (' . ($pengajuan->ruangan->nama_ruangan ?? 'N/A') . ')',
+                'start' => $pengajuan->tanggal_mulai,
+                'end' => $pengajuan->tanggal_selesai,
+                'color' => '#28a745', // Warna hijau untuk acara yang disetujui
+            ];
+        });
+
+        return response()->json($events);
+    }
+}

@@ -140,7 +140,7 @@
                             </div>
                             <div>
                                 <h5 class="card-title mb-0 card-title-text">Total Pengajuan</h5>
-                                <div class="h3 h3-custom">145</div>
+                                <div class="h3 h3-custom">{{ $stats['total'] }}</div>
                             </div>
                         </div>
                     </div>
@@ -156,7 +156,7 @@
                             </div>
                             <div>
                                 <h5 class="card-title mb-0 card-title-text">Pengajuan Diterima</h5>
-                                <div class="h3 h3-custom">90</div>
+                                <div class="h3 h3-custom">{{ $stats['diterima'] }}</div>
                             </div>
                         </div>
                     </div>
@@ -172,7 +172,7 @@
                             </div>
                             <div>
                                 <h5 class="card-title mb-0 card-title-text">Pengajuan Baru</h5>
-                                <div class="h3 h3-custom">25</div>
+                                <div class="h3 h3-custom">{{ $stats['baru'] }}</div>
                             </div>
                         </div>
                     </div>
@@ -188,7 +188,7 @@
                             </div>
                             <div>
                                 <h5 class="card-title mb-0 card-title-text">Pengajuan Ditolak</h5>
-                                <div class="h3 h3-custom">30</div>
+                                <div class="h3 h3-custom">{{ $stats['ditolak'] }}</div>
                             </div>
                         </div>
                     </div>
@@ -230,76 +230,19 @@
           dayHeaderDidMount: function(info) {
             info.el.style.fontFamily = "'Montserrat', sans-serif";
           },
-          titleFormat: { year: 'numeric', month: 'long' },
-          events: [
-            // Event dummy, termasuk multiple event di tanggal sama & event jangka panjang
-            {
-              title: 'Pengajuan Rapat',
-              start: '2025-09-02',
-              end: '2025-09-02'
+          locale: 'id', // Menambahkan lokalisasi Indonesia
+          views: {
+            dayGridMonth: {
+              titleFormat: { year: 'numeric', month: 'long' }
             },
-            {
-              title: 'Pengajuan Seminar',
-              start: '2025-09-04',
-              end: '2025-09-04'
+            timeGridWeek: {
+              titleFormat: { day: 'numeric', month: 'long', year: 'numeric' }
             },
-            {
-              title: 'Pengajuan Workshop',
-              start: '2025-09-07',
-              end: '2025-09-07'
-            },
-            {
-              title: 'Pengajuan Ditolak',
-              start: '2025-09-10',
-              end: '2025-09-10',
-              color: '#dc3545'
-            },
-            {
-              title: 'Pengajuan Diterima',
-              start: '2025-09-12',
-              end: '2025-09-12',
-              color: '#28a745'
-            },
-            // Multiple event di tanggal yang sama
-            {
-              title: 'Rapat Divisi IT',
-              start: '2025-09-04',
-              end: '2025-09-04',
-              color: '#007bff'
-            },
-            {
-              title: 'Sosialisasi Proyek',
-              start: '2025-09-04',
-              end: '2025-09-04',
-              color: '#ffc107'
-            },
-            // Event jangka panjang (multi-day)
-            {
-              title: 'Pelatihan Karyawan Baru',
-              start: '2025-09-08',
-              end: '2025-09-11',
-              color: '#20c997'
-            },
-            {
-              title: 'Pameran Produk',
-              start: '2025-09-15',
-              end: '2025-09-18',
-              color: '#6610f2'
-            },
-            // Event lain untuk variasi
-            {
-              title: 'Audit Internal',
-              start: '2025-09-20',
-              end: '2025-09-20',
-              color: '#fd7e14'
-            },
-            {
-              title: 'Pengajuan Ditolak',
-              start: '2025-09-20',
-              end: '2025-09-20',
-              color: '#dc3545'
+            timeGridDay: {
+              titleFormat: { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }
             }
-          ]
+          },
+          events: '{{ route('calendar.events') }}' // Mengambil data dari route
         });
 
         calendar.render();

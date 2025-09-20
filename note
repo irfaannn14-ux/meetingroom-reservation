@@ -1,8 +1,11 @@
 To Do:
-- filterisasi berdasarkan kolom tabel yang ada
+<!-- - filterisasi berdasarkan kolom tabel yang ada -->
 - integrasi kalender
-- fitur review peminjaman ruangan setelah penggunaan sebagai feedback dari peminjam
+<!-- - fitur review peminjaman ruangan setelah penggunaan sebagai feedback dari peminjam -->
 - multi-language support (ID - ENG)
 - responsive design for mobile web
 - statistik penggunaan ruangan khusus untuk admin dan super admin
 - re-design cz this one sucks
+
+- sbg user, gabisa deny/approve pengajuan; gabisa edit juga
+- sbg admin&super admin, bisa di atas;
