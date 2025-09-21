@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Ruangan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\ActivityLog;
 
 class RuanganController extends Controller
 {
@@ -40,7 +41,12 @@ class RuanganController extends Controller
         $path = $request->file('foto_ruangan')->store('ruangan', 'public');
         $validatedData['foto_ruangan'] = $path;
 
-        Ruangan::create($validatedData);
+        $ruangan = Ruangan::create($validatedData);
+
+        ActivityLog::create([
+            'user_id' => session('user_id'),
+            'activity' => 'Menambahkan ruangan baru: ' . $ruangan->nama_ruangan,
+        ]);
 
         return redirect()->route('ruangan.index')->with('success', 'Ruangan berhasil ditambahkan!');
     }
@@ -76,6 +82,11 @@ class RuanganController extends Controller
 
         $ruangan->update($validatedData);
 
+        ActivityLog::create([
+            'user_id' => session('user_id'),
+            'activity' => 'Mengedit ruangan: ' . $ruangan->nama_ruangan,
+        ]);
+
         return redirect()->route('ruangan.index')->with('success', 'Ruangan berhasil diperbarui!');
     }
 
@@ -88,7 +99,15 @@ class RuanganController extends Controller
         if ($ruangan->foto_ruangan) {
             Storage::disk('public')->delete($ruangan->foto_ruangan);
         }
+        
+        $nama_ruangan = $ruangan->nama_ruangan;
         $ruangan->delete();
+
+        ActivityLog::create([
+            'user_id' => session('user_id'),
+            'activity' => 'Menghapus ruangan: ' . $nama_ruangan,
+        ]);
+
         return redirect()->route('ruangan.index')->with('success', 'Ruangan berhasil dihapus!');
     }
 }

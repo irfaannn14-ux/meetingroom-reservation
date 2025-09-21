@@ -143,7 +143,7 @@
         transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s cubic-bezier(0.4,0,0.2,1);
         /* display: none; dihapus agar transisi bisa berjalan */
     }
-    .sidebar-dropdown:hover > .sidebar-dropdown-menu,
+    .sidebar-dropdown.open > .sidebar-dropdown-menu,
     .sidebar-dropdown:focus-within > .sidebar-dropdown-menu {
         max-height: 500px; /* cukup besar untuk menampung isi */
         opacity: 1;
@@ -158,6 +158,16 @@
     .sidebar-dropdown-menu .sidebar-link:hover {
         background-color: var(--color-hover-bg);
         color: var(--color-hover-text);
+    }
+    button.sidebar-link {
+        background: transparent;
+        border: none;
+        margin: 0;
+        font-family: inherit;
+        color: inherit;
+        text-align: left;
+        width: 100%;
+        cursor: pointer;
     }
 </style>
 
@@ -178,7 +188,7 @@
         </li>
         <!-- Mulai custom dropdown Manajemen Pengajuan -->
         <li class="sidebar-item sidebar-dropdown">
-            <a href="#" class="sidebar-link">
+            <button type="button" class="sidebar-link" id="manajemen-pengajuan-toggle">
                 <span class="sidebar-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-checks"><path d="m3 12 2 2 4-4"/><path d="M11 6h9"/><path d="M11 12h9"/><path d="M11 18h9"/><path d="M3 18h.01"/><path d="M3 6h.01"/></svg>
                 </span>
@@ -188,7 +198,7 @@
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
                     </svg>
                 </span>
-            </a>
+            </button>
             <div class="sidebar-dropdown-menu">
                 <a href="/index" class="sidebar-link">
                     <span class="sidebar-icon">
@@ -225,6 +235,36 @@
             </a>
         </li>
         @endif
+        @if(session('user_role') === 'Super Admin')
+        <li class="sidebar-item">
+            <a href="{{ route('log.index') }}" class="sidebar-link">
+                <span class="sidebar-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-list"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>
+                </span>
+                <span class="sidebar-link-text"><strong>Log Aktivitas</strong></span>
+            </a>
+        </li>
+        @endif
     </ul>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const dropdownToggle = document.getElementById('manajemen-pengajuan-toggle');
+        
+        if (dropdownToggle) {
+            const dropdownContainer = dropdownToggle.parentElement;
+
+            dropdownToggle.addEventListener('click', function (e) {
+                e.preventDefault();
+                dropdownContainer.classList.toggle('open');
+            });
+
+            document.addEventListener('click', function (e) {
+                if (dropdownContainer.classList.contains('open') && !dropdownContainer.contains(e.target)) {
+                    dropdownContainer.classList.remove('open');
+                }
+            });
+        }
+    });
+</script>
 <?php ?>

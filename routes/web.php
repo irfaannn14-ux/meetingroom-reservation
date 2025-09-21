@@ -4,6 +4,7 @@ use App\Http\Controllers\PengajuanController;
 use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ActivityLogController;
 use App\Models\Pengajuan;
 use Illuminate\Support\Facades\Route;
 
@@ -65,4 +66,7 @@ Route::middleware(['auth.custom'])->group(function () {
 
     //history
     Route::get('/history', [PengajuanController::class, 'history'])->name('history');
+
+    // Log Aktivitas
+    Route::get('/log-aktivitas', [ActivityLogController::class, 'index'])->name('log.index');
 });

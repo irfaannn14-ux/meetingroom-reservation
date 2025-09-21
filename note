@@ -4,8 +4,8 @@ To Do:
 <!-- - fitur review peminjaman ruangan setelah penggunaan sebagai feedback dari peminjam -->
 - multi-language support (ID - ENG)
 - responsive design for mobile web
-- statistik penggunaan ruangan khusus untuk admin dan super admin
+<!-- - statistik penggunaan ruangan khusus untuk admin dan super admin -->
 - re-design cz this one sucks
 
-- sbg user, gabisa deny/approve pengajuan; gabisa edit juga
-- sbg admin&super admin, bisa di atas;
+<!-- - sidebar gaperlu hover, tapi perlu di click -->
+- menambahkan fitur activity log untuk melihat perubahan2 yg dilakukan oleh admin dan superadmin

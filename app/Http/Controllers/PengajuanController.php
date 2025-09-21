@@ -6,6 +6,7 @@ use App\Models\Pengajuan;
 use App\Models\Ruangan;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Models\ActivityLog;
 
 class PengajuanController extends Controller
 {
@@ -206,6 +207,11 @@ class PengajuanController extends Controller
             'jml_peserta' => $validatedData['jml_peserta'],
         ]);
 
+        ActivityLog::create([
+            'user_id' => session('user_id'),
+            'activity' => 'Mengedit pengajuan ' . $pengajuan->judul_kegiatan,
+        ]);
+
         return redirect()->route('pengajuan.index')->with('success', 'Pengajuan berhasil diperbarui!');
     }
 
@@ -252,6 +258,12 @@ class PengajuanController extends Controller
 
         $pengajuan->update(['status' => $validated['status']]);
 
+        $activity = $validated['status'] === 'disetujui' ? 'Menyetujui' : 'Menolak';
+        ActivityLog::create([
+            'user_id' => session('user_id'),
+            'activity' => $activity . ' pengajuan ' . $pengajuan->judul_kegiatan,
+        ]);
+
         $message = $validated['status'] === 'disetujui' ? 'Pengajuan berhasil disetujui!' : 'Pengajuan berhasil ditolak!';
 
         return redirect()->route('pengajuan.index')->with('success', $message);
@@ -262,7 +274,14 @@ class PengajuanController extends Controller
      */
     public function destroy(Pengajuan $pengajuan)
     {
+        $judul_kegiatan = $pengajuan->judul_kegiatan;
         $pengajuan->delete();
+
+        ActivityLog::create([
+            'user_id' => session('user_id'),
+            'activity' => 'Menghapus pengajuan ' . $judul_kegiatan,
+        ]);
+
         return redirect()->route('pengajuan.index')->with('success', 'Pengajuan berhasil dihapus!');
     }
 

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use App\Models\ActivityLog;
 
 class UserController extends Controller
 {
@@ -50,7 +51,7 @@ class UserController extends Controller
         // Handle upload foto profil
         $path = $request->file('foto_profil')->store('foto_profil', 'public');
 
-        User::create([
+        $user = User::create([
             'nama' => $validatedData['nama'],
             'username' => $validatedData['username'],
             'email' => $validatedData['email'],
@@ -59,6 +60,11 @@ class UserController extends Controller
             'organization_id' => $validatedData['organization_id'],
             'role' => $role,
             'foto_profil' => $path,
+        ]);
+
+        ActivityLog::create([
+            'user_id' => session('user_id'),
+            'activity' => 'Menambahkan pengguna baru: ' . $user->nama,
         ]);
 
         return redirect()->route('user.index')->with('success', 'User berhasil ditambahkan!');
@@ -119,6 +125,11 @@ class UserController extends Controller
 
         $user->update($validatedData);
 
+        ActivityLog::create([
+            'user_id' => session('user_id'),
+            'activity' => 'Mengedit pengguna: ' . $user->nama,
+        ]);
+
         return redirect()->route('user.index')->with('success', 'User berhasil diperbarui!');
     }
 
@@ -131,7 +142,14 @@ class UserController extends Controller
         if ($user->foto_profil) {
             Storage::disk('public')->delete($user->foto_profil);
         }
+        $nama_user = $user->nama;
         $user->delete();
+
+        ActivityLog::create([
+            'user_id' => session('user_id'),
+            'activity' => 'Menghapus pengguna: ' . $nama_user,
+        ]);
+
         return redirect()->route('user.index')->with('success', 'User berhasil dihapus!');
     }
 
@@ -207,4 +225,3 @@ class UserController extends Controller
         return redirect()->route('profile.show')->with('success', 'Profil berhasil diperbarui!');
     }
 }
-

@@ -75,4 +75,9 @@ class User extends Authenticatable
         // di tabel 'users'
         return $this->belongsTo(Organization::class, 'organization_id');
     }
+
+    public function activityLogs()
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
 }
