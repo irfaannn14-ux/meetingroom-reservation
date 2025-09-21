@@ -9,10 +9,27 @@ class ActivityLog extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'activity'];
+    // Allow mass assignment for main fields and optional resource linkage
+    protected $fillable = ['user_id', 'activity', 'resource_type', 'resource_id'];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    // Helper to fetch the related resource if resource_type/resource_id are set
+    public function resource()
+    {
+        if (!$this->resource_type || !$this->resource_id) return null;
+        switch ($this->resource_type) {
+            case 'pengajuan':
+                return \App\Models\Pengajuan::with(['ruangan','user'])->find($this->resource_id);
+            case 'ruangan':
+                return \App\Models\Ruangan::find($this->resource_id);
+            case 'user':
+                return \App\Models\User::with('organization')->find($this->resource_id);
+            default:
+                return null;
+        }
     }
 }

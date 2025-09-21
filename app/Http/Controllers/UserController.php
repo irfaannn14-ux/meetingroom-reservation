@@ -65,6 +65,8 @@ class UserController extends Controller
         ActivityLog::create([
             'user_id' => session('user_id'),
             'activity' => 'Menambahkan pengguna baru: ' . $user->nama,
+            'resource_type' => 'user',
+            'resource_id' => $user->id,
         ]);
 
         return redirect()->route('user.index')->with('success', 'User berhasil ditambahkan!');
@@ -128,6 +130,8 @@ class UserController extends Controller
         ActivityLog::create([
             'user_id' => session('user_id'),
             'activity' => 'Mengedit pengguna: ' . $user->nama,
+            'resource_type' => 'user',
+            'resource_id' => $user->id,
         ]);
 
         return redirect()->route('user.index')->with('success', 'User berhasil diperbarui!');
@@ -148,6 +152,8 @@ class UserController extends Controller
         ActivityLog::create([
             'user_id' => session('user_id'),
             'activity' => 'Menghapus pengguna: ' . $nama_user,
+            'resource_type' => 'user',
+            'resource_id' => $user->id,
         ]);
 
         return redirect()->route('user.index')->with('success', 'User berhasil dihapus!');

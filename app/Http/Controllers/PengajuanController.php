@@ -210,6 +210,8 @@ class PengajuanController extends Controller
         ActivityLog::create([
             'user_id' => session('user_id'),
             'activity' => 'Mengedit pengajuan ' . $pengajuan->judul_kegiatan,
+            'resource_type' => 'pengajuan',
+            'resource_id' => $pengajuan->id,
         ]);
 
         return redirect()->route('pengajuan.index')->with('success', 'Pengajuan berhasil diperbarui!');
@@ -262,6 +264,8 @@ class PengajuanController extends Controller
         ActivityLog::create([
             'user_id' => session('user_id'),
             'activity' => $activity . ' pengajuan ' . $pengajuan->judul_kegiatan,
+            'resource_type' => 'pengajuan',
+            'resource_id' => $pengajuan->id,
         ]);
 
         $message = $validated['status'] === 'disetujui' ? 'Pengajuan berhasil disetujui!' : 'Pengajuan berhasil ditolak!';
@@ -280,6 +284,8 @@ class PengajuanController extends Controller
         ActivityLog::create([
             'user_id' => session('user_id'),
             'activity' => 'Menghapus pengajuan ' . $judul_kegiatan,
+            'resource_type' => 'pengajuan',
+            'resource_id' => $pengajuan->id,
         ]);
 
         return redirect()->route('pengajuan.index')->with('success', 'Pengajuan berhasil dihapus!');

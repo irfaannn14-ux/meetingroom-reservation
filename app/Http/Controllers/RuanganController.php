@@ -46,6 +46,8 @@ class RuanganController extends Controller
         ActivityLog::create([
             'user_id' => session('user_id'),
             'activity' => 'Menambahkan ruangan baru: ' . $ruangan->nama_ruangan,
+            'resource_type' => 'ruangan',
+            'resource_id' => $ruangan->id,
         ]);
 
         return redirect()->route('ruangan.index')->with('success', 'Ruangan berhasil ditambahkan!');
@@ -85,6 +87,8 @@ class RuanganController extends Controller
         ActivityLog::create([
             'user_id' => session('user_id'),
             'activity' => 'Mengedit ruangan: ' . $ruangan->nama_ruangan,
+            'resource_type' => 'ruangan',
+            'resource_id' => $ruangan->id,
         ]);
 
         return redirect()->route('ruangan.index')->with('success', 'Ruangan berhasil diperbarui!');
@@ -106,6 +110,8 @@ class RuanganController extends Controller
         ActivityLog::create([
             'user_id' => session('user_id'),
             'activity' => 'Menghapus ruangan: ' . $nama_ruangan,
+            'resource_type' => 'ruangan',
+            'resource_id' => $ruangan->id,
         ]);
 
         return redirect()->route('ruangan.index')->with('success', 'Ruangan berhasil dihapus!');
