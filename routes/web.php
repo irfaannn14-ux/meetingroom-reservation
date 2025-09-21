@@ -21,6 +21,10 @@ Route::get('/verifikasi_email', function () {return view('auth.verifikasi_email'
 Route::middleware(['auth.custom'])->group(function () {
     Route::get('/', [PengajuanController::class, 'dashboard'])->name('dashboard');
 
+    // Profile routes (for all logged-in users)
+    Route::get('/profile', [UserController::class, 'showProfile'])->name('profile.show');
+    Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
+
     // default route
     Route::get('/welcome', function () {
         return view('welcome');
@@ -50,12 +54,14 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/calendar-events', [PengajuanController::class, 'calendarEvents'])->name('calendar.events');
 
     //manajemen user
-    Route::get('user/',[UserController::class, 'index'])->name('user.index');
-    Route::get('user/tambah',[UserController::class, 'create'])->name('user.tambah');
-    Route::post('user',[UserController::class, 'store'])->name('user.store');
-    Route::get('user/{user}/edit', [UserController::class, 'edit'])->name('user.edit');
-    Route::put('user/{user}', [UserController::class, 'update'])->name('user.update');
-    Route::delete('user/{user}',[UserController::class, 'destroy'])->name('user.destroy');
+    Route::group(['middleware' => 'admin.access'], function () {
+        Route::get('user/',[UserController::class, 'index'])->name('user.index');
+        Route::get('user/tambah',[UserController::class, 'create'])->name('user.tambah');
+        Route::post('user',[UserController::class, 'store'])->name('user.store');
+        Route::get('user/{user}/edit', [UserController::class, 'edit'])->name('user.edit');
+        Route::put('user/{user}', [UserController::class, 'update'])->name('user.update');
+        Route::delete('user/{user}',[UserController::class, 'destroy'])->name('user.destroy');
+    });
 
     //history
     Route::get('/history', [PengajuanController::class, 'history'])->name('history');

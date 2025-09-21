@@ -199,9 +199,11 @@
                         <i class="bi bi-search search-icon"></i>
                         <input type="search" id="searchInput" onkeyup="filterTable()" class="form-control" placeholder="Cari nama, kapasitas, fasilitas...">
                     </div>
+                    @if(session('user_role') !== 'OPD')
                     <a href="{{ route('ruangan.tambah') }}" class="btn btn-primary">
                         <i class="bi bi-plus-circle-fill"></i> Tambah Ruangan
                     </a>
+                    @endif
                 </div>
             </div>
 
@@ -232,8 +234,10 @@
                             <td>
                                 <div class="d-flex gap-2 justify-content-center">
                                     <button type="button" class="btn btn-info btn-sm btn-action bi bi-search" onclick="openDetailModal({{ json_encode($ruangan) }})" title="Lihat Detail"></button>
+                                    @if(session('user_role') !== 'OPD')
                                     <a href="{{ route('ruangan.edit', $ruangan) }}" class="btn btn-success btn-sm btn-action bi bi-pencil-fill" title="Edit"></a>
                                     <button type="button" class="btn btn-danger btn-sm btn-action bi bi-trash-fill" onclick="openDeleteModal({{ $ruangan->id }})" title="Hapus"></button>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

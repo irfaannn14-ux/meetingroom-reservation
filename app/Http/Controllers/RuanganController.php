@@ -16,11 +16,18 @@ class RuanganController extends Controller
 
     public function tambah()
     {
+        if (session('user_role') === 'OPD') {
+            abort(403, 'ANDA TIDAK MEMILIKI AKSES.');
+        }
         return view('ruangan.tambah');
     }
 
     public function store(Request $request)
     {
+        if (session('user_role') === 'OPD') {
+            abort(403, 'ANDA TIDAK MEMILIKI AKSES.');
+        }
+
         $validatedData = $request->validate([
             'nama_ruangan' => 'required|string|max:255',
             'jml_peserta' => 'required|integer|min:1',
@@ -40,11 +47,18 @@ class RuanganController extends Controller
 
     public function edit(Ruangan $ruangan)
     {
+        if (session('user_role') === 'OPD') {
+            abort(403, 'ANDA TIDAK MEMILIKI AKSES.');
+        }
         return view('ruangan.tambah', compact('ruangan'));
     }
 
     public function update(Request $request, Ruangan $ruangan)
     {
+        if (session('user_role') === 'OPD') {
+            abort(403, 'ANDA TIDAK MEMILIKI AKSES.');
+        }
+
         $validatedData = $request->validate([
             'nama_ruangan' => 'required|string|max:255',
             'jml_peserta' => 'required|integer|min:1',
@@ -67,6 +81,10 @@ class RuanganController extends Controller
 
     public function destroy(Ruangan $ruangan)
     {
+        if (session('user_role') === 'OPD') {
+            abort(403, 'ANDA TIDAK MEMILIKI AKSES.');
+        }
+
         if ($ruangan->foto_ruangan) {
             Storage::disk('public')->delete($ruangan->foto_ruangan);
         }

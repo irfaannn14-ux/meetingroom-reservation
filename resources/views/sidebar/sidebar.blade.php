@@ -215,6 +215,7 @@
             </div>
         </li>
         <!-- Akhir custom dropdown Manajemen Pengajuan -->
+        @if(session('user_role') === 'Admin' || session('user_role') === 'Super Admin')
         <li class="sidebar-item">
             <a href="/user" class="sidebar-link">
                 <span class="sidebar-icon">
@@ -223,6 +224,7 @@
                 <span class="sidebar-link-text"><strong>Manajemen User</strong></span>
             </a>
         </li>
+        @endif
     </ul>
 </div>
 <?php ?>

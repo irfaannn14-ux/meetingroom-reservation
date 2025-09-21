@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <!-- FullCalendar CSS -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
@@ -106,6 +107,13 @@
             max-width: 100%;
             margin: 0 auto;
         }
+
+        /* Custom styling for calendar events */
+        .fc-event.approved-event {
+            border-width: 1px;
+            border-style: solid;
+        }
+
         @media (max-width: 900px) {
             .calendar-container {
                 padding: 1rem 0.2rem;
@@ -121,7 +129,7 @@
 
         <div class="welcome-card d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
             <div class="me-md-4 mb-3 mb-md-0">
-                <h1 class="welcome-card-text">Selamat Datang Administrator!</h1>
+                <h1 class="welcome-card-text">Selamat Datang, {{ session('user_nama', 'Pengguna') }}!</h1>
                 <p>Di Aplikasi Pengajuan Peminjaman Ruangan</p>
                 <p>Pemerintah Daerah Kab. Probolinggo</p>
             </div>
@@ -208,29 +216,32 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- FullCalendar JS -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/id.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
 
         var calendar = new FullCalendar.Calendar(calendarEl, {
+          themeSystem: 'bootstrap5', // Integrasi tema Bootstrap 5
           initialView: 'dayGridMonth',
           headerToolbar: {
             left: 'prev,next today',
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
           },
-          height: 600,
+          height: 650, // Sedikit menambah tinggi untuk tampilan yang lebih baik
           navLinks: true,
           editable: false,
           eventLimit: true,
-          // Gunakan font Montserrat untuk seluruh kalender
+          locale: 'id',
+          eventClassNames: 'approved-event', // Class untuk event yang disetujui
+          
+          // Menggunakan font Montserrat untuk seluruh kalender
           eventDidMount: function(info) {
             info.el.style.fontFamily = "'Montserrat', sans-serif";
+            info.el.style.fontWeight = '500';
           },
-          dayHeaderDidMount: function(info) {
-            info.el.style.fontFamily = "'Montserrat', sans-serif";
-          },
-          locale: 'id', // Menambahkan lokalisasi Indonesia
+          
           views: {
             dayGridMonth: {
               titleFormat: { year: 'numeric', month: 'long' }

@@ -243,8 +243,10 @@
                             <td>
                                 <div class="d-flex gap-2 justify-content-center">
                                     <button type="button" class="btn btn-info btn-sm btn-action bi bi-search" onclick="openDetailModal({{ json_encode($pengajuan) }})" title="Lihat Detail"></button>
+                                    @if(session('user_role') !== 'OPD')
                                     <a href="{{ route('pengajuan.edit', $pengajuan) }}" class="btn btn-success btn-sm btn-action bi bi-pencil-fill" title="Edit"></a>
                                     <button type="button" class="btn btn-danger btn-sm btn-action bi bi-trash-fill" onclick="openDeleteModal({{ $pengajuan->id }})" title="Hapus"></button>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -279,10 +281,12 @@
             <tr><th>Status Saat Ini</th><td id="modalStatus"></td></tr>
             <tr><th>Contact Person</th><td><a id="modalContactPersonWa" href="#" target="_blank" class="btn btn-success btn-sm"><i class="bi bi-whatsapp"></i> WhatsApp</a></td></tr>
         </table>
+        @if(session('user_role') !== 'OPD')
         <div class="modal-actions">
             <button class="btn btn-danger" onclick="openConfirmModal('ditolak')"><i class="bi bi-x-circle-fill"></i> Deny</button>
             <button class="btn btn-success" onclick="openConfirmModal('disetujui')"><i class="bi bi-check-circle-fill"></i> Approve</button>
         </div>
+        @endif
     </div>
 </div>
 

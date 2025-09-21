@@ -143,5 +143,68 @@ class UserController extends Controller
         $organizations = Organization::all();
         return view('user.tambah', compact('organizations'));
     }
+
+    /**
+     * Tampilkan halaman edit profil untuk pengguna yang sedang login.
+     */
+    public function showProfile()
+    {
+        $user = User::find(session('user_id'));
+        if (!$user) {
+            abort(404, 'User tidak ditemukan.');
+        }
+        // Organisasi tidak diperlukan untuk edit profil sendiri
+        return view('user.profile', compact('user'));
+    }
+
+    /**
+     * Perbarui profil pengguna yang sedang login.
+     */
+    public function updateProfile(Request $request)
+    {
+        $userId = session('user_id');
+        $user = User::find($userId);
+
+        if (!$user) {
+            abort(404, 'User tidak ditemukan.');
+        }
+
+        $validatedData = $request->validate([
+            'nama' => 'required|string|max:255',
+            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'no_wa' => 'required|string|max:15',
+            'username' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'password' => 'nullable|string|min:8|confirmed', // Menambahkan konfirmasi password
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        // Periksa apakah password diisi
+        if ($request->filled('password')) {
+            $validatedData['password'] = Hash::make($request->password);
+        } else {
+            unset($validatedData['password']);
+        }
+
+        // Handle update foto profil
+        if ($request->hasFile('foto_profil')) {
+            // Hapus foto lama jika ada
+            if ($user->foto_profil) {
+                Storage::disk('public')->delete($user->foto_profil);
+            }
+            // Simpan foto baru dan perbarui session
+            $path = $request->file('foto_profil')->store('foto_profil', 'public');
+            $validatedData['foto_profil'] = $path;
+            session(['user_foto' => $path]);
+        }
+
+        $user->update($validatedData);
+        
+        // Perbarui nama di session jika berubah
+        if($user->wasChanged('nama')){
+            session(['user_nama' => $user->nama]);
+        }
+
+        return redirect()->route('profile.show')->with('success', 'Profil berhasil diperbarui!');
+    }
 }
 

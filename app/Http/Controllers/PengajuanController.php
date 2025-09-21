@@ -14,11 +14,27 @@ class PengajuanController extends Controller
      */
     public function dashboard()
     {
+        $userRole = session('user_role');
+        $userId = session('user_id');
+
+        $query = Pengajuan::query();
+
+        // Jika role adalah OPD, filter berdasarkan user_id
+        if ($userRole === 'OPD') {
+            $query->where('user_id', $userId);
+        }
+
+        // Kloning query untuk setiap status agar tidak saling mempengaruhi
+        $totalQuery = clone $query;
+        $diterimaQuery = clone $query;
+        $baruQuery = clone $query;
+        $ditolakQuery = clone $query;
+
         $stats = [
-            'total' => Pengajuan::count(),
-            'diterima' => Pengajuan::where('status', 'disetujui')->count(),
-            'baru' => Pengajuan::where('status', 'pending')->count(),
-            'ditolak' => Pengajuan::where('status', 'ditolak')->count(),
+            'total' => $totalQuery->count(),
+            'diterima' => $diterimaQuery->where('status', 'disetujui')->count(),
+            'baru' => $baruQuery->where('status', 'pending')->count(),
+            'ditolak' => $ditolakQuery->where('status', 'ditolak')->count(),
         ];
 
         return view('dashboard', compact('stats'));
@@ -29,10 +45,18 @@ class PengajuanController extends Controller
      */
     public function index()
     {
-        // Memuat relasi ruangan dan juga relasi user beserta organisasinya
-        $pengajuans = Pengajuan::with(['ruangan', 'user.organization'])
-            ->where('status', 'pending')
-            ->get();
+        $userRole = session('user_role');
+        $userId = session('user_id');
+
+        $query = Pengajuan::with(['ruangan', 'user.organization'])
+            ->where('status', 'pending');
+
+        // Jika role adalah OPD, hanya tampilkan pengajuan milik user tersebut
+        if ($userRole === 'OPD') {
+            $query->where('user_id', $userId);
+        }
+
+        $pengajuans = $query->get();
             
         return view('pengajuan.index', compact('pengajuans'));
     }
@@ -42,9 +66,18 @@ class PengajuanController extends Controller
      */
     public function history()
     {
-        $pengajuans = Pengajuan::with(['ruangan', 'user.organization'])
-            ->where('status', '!=', 'pending')
-            ->get();
+        $userRole = session('user_role');
+        $userId = session('user_id');
+
+        $query = Pengajuan::with(['ruangan', 'user.organization'])
+            ->where('status', '!=', 'pending');
+
+        // Jika role adalah OPD, hanya tampilkan riwayat pengajuan milik user tersebut
+        if ($userRole === 'OPD') {
+            $query->where('user_id', $userId);
+        }
+
+        $pengajuans = $query->get();
             
         return view('history', compact('pengajuans'));
     }
@@ -185,8 +218,21 @@ class PengajuanController extends Controller
             'status' => 'required|in:disetujui,ditolak',
         ]);
 
-        // Jika status yang diminta adalah 'disetujui', cek ketersediaan ruangan
+        // Jika status yang diminta adalah 'disetujui', cek ketersediaan dan batas peminjaman
         if ($validated['status'] === 'disetujui') {
+            $tanggal_pinjam = Carbon::parse($pengajuan->tanggal_mulai)->toDateString();
+
+            // Cek 1: Batas peminjaman harian (maksimal 3 kali)
+            $peminjamanHarian = Pengajuan::where('ruangan_id', $pengajuan->ruangan_id)
+                ->where('status', 'disetujui')
+                ->whereDate('tanggal_mulai', $tanggal_pinjam)
+                ->count();
+
+            if ($peminjamanHarian >= 3) {
+                return redirect()->route('pengajuan.index')->with('error', 'Gagal menyetujui: Ruangan telah mencapai batas maksimal peminjaman (3 kali) pada tanggal tersebut.');
+            }
+
+            // Cek 2: Ketersediaan ruangan (jadwal tidak bentrok)
             $tanggal_mulai = $pengajuan->tanggal_mulai;
             $tanggal_selesai = $pengajuan->tanggal_selesai;
 
@@ -234,7 +280,9 @@ class PengajuanController extends Controller
                 'title' => $pengajuan->judul_kegiatan . ' (' . ($pengajuan->ruangan->nama_ruangan ?? 'N/A') . ')',
                 'start' => $pengajuan->tanggal_mulai,
                 'end' => $pengajuan->tanggal_selesai,
-                'color' => '#28a745', // Warna hijau untuk acara yang disetujui
+                'backgroundColor' => 'rgba(40, 167, 69, 0.2)', // Light green background
+                'borderColor' => '#28a745', // Solid green border
+                'textColor' => '#0f5132' // Dark green text for contrast
             ];
         });
 
