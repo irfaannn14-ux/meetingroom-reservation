@@ -14,21 +14,29 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
-    protected $table = "users";
-    protected $primarykey = "id";
-    public $timestamps = false; // Menonaktifkan timestamps (created_at, updated_at)
+    // Table name is the Laravel default 'users' so explicit declaration is optional.
+    protected $table = 'users';
+
+    // Use default primary key 'id' (no need to override unless different).
+
+    // The users table in migrations includes timestamps (created_at/updated_at),
+    // so leave $timestamps as the default (true).
+
+    /**
+     * The attributes that are mass assignable.
+     * Only include columns that exist in the migrations.
+     *
+     * @var array<int,string>
+     */
     protected $fillable = [
-        'id',
         'nama',
+        'username',
         'email',
         'password',
-        'username',
+        'organization_id',
         'no_wa',
         'role',
         'foto_profil',
-        'admin',
-        'superadmin',
-        'organization_id', // Pastikan kolom ini ada di fillable
     ];
 
     /**
@@ -46,13 +54,17 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array<string,string>
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        // Laravel's 'hashed' cast will automatically hash passwords on set
+        // (requires Laravel 9.34+). If unavailable, consider a mutator.
+        'password' => 'hashed',
+    ];
 
     public function pengajuans()
     {
