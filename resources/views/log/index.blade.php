@@ -31,8 +31,8 @@
         border-bottom: 1px solid #e0e0e0;
     }
     th {
-        background-color: #C9DFF2;
-        color: #010D26;
+        background-color: #010D26 !important;
+        color: #ffffff !important;
         font-weight: 700;
     }
     tr:last-child td {

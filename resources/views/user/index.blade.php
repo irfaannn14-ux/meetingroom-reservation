@@ -42,6 +42,24 @@ body {
     gap: 8px;
     transition: background-color 0.2s;
 }
+/* Search bar similar to other index pages */
+.search-container {
+    position: relative;
+}
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+}
+#userSearchInput {
+    padding-left: 40px;
+    border-radius: 8px;
+    height: 44px;
+    width: 280px;
+    border: 1px solid #ced4da;
+}
 .add-button:hover {
     background-color: rgba(1, 13, 38, 0.8);
 }
@@ -237,10 +255,16 @@ body {
 <div class="main-content">
     <div class="header-content">
         <h1 class="page-title">Daftar Pengguna</h1>
-        <a href="{{ route('user.tambah') }}" class="add-button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-plus"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
-            Tambah Akun
-        </a>
+        <div class="d-flex align-items-center gap-3">
+            <div class="search-container">
+                <i class="bi bi-search search-icon"></i>
+                <input id="userSearchInput" type="search" onkeyup="filterUsers()" class="form-control" placeholder="Cari nama, role...">
+            </div>
+            <a href="{{ route('user.tambah') }}" class="add-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-plus"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+                Tambah Akun
+            </a>
+        </div>
     </div>
 
     {{-- Pesan sukses --}}
@@ -389,5 +413,27 @@ body {
             closeModal('deleteConfirmModal');
         }
     });
+
+    // Search/filter for user cards
+    function filterUsers() {
+        const input = document.getElementById('userSearchInput');
+        const filter = input.value.toLowerCase();
+        const cards = document.querySelectorAll('.user-card');
+
+        let visible = 0;
+        cards.forEach(card => {
+            const name = (card.querySelector('.user-name')?.innerText || '').toLowerCase();
+            const role = (card.querySelector('.user-role')?.innerText || '').toLowerCase();
+            if (name.indexOf(filter) > -1 || role.indexOf(filter) > -1) {
+                card.style.display = '';
+                visible++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Optionally show a no-results message (not included in markup by default)
+        // You can add an element with id="noUserResults" to show when visible === 0
+    }
 </script>
 @endsection

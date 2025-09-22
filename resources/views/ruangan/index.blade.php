@@ -59,10 +59,10 @@
             width: 160px;
         }
         th {
-            background-color: #C9DFF2;
-            color: #010D26;
+            background-color: #010D26 !important;
+            color: #ffffff !important;
             font-weight: 700;
-            border-bottom: 2px solid #B0C4DE;
+            border-bottom: 2px solid rgba(255,255,255,0.06);
         }
         tr {
             border-bottom: 1px solid #e0e0e0;
@@ -176,6 +176,19 @@
         .btn-secondary {
             background-color: #6c757d;
             color: white;
+        }
+        /* Brand primary for add buttons */
+        .btn-primary {
+            background-color: #010D26 !important;
+            color: #ffffff !important;
+            border-color: #010D26 !important;
+            box-shadow: none !important;
+        }
+        .btn-primary:hover {
+            background-color: #ffffff !important;
+            color: #010D26 !important;
+            border-color: transparent !important;
+            box-shadow: inset 0 0 0 1px rgba(1,13,38,0.06) !important;
         }
         #modalFotoRuangan {
             width: 100%;

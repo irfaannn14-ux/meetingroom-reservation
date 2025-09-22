@@ -46,10 +46,10 @@
         vertical-align: middle;
     }
     th {
-        background-color: #C9DFF2;
-        color: #010D26;
+        background-color: #010D26 !important;
+        color: #ffffff !important;
         font-weight: 700;
-        border-bottom: 2px solid #B0C4DE;
+        border-bottom: 2px solid rgba(255,255,255,0.06);
     }
     tr {
         border-bottom: 1px solid #e0e0e0;

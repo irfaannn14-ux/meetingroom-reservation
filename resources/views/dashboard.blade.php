@@ -127,7 +127,7 @@
     <div class="main-content">
         <h1 class="dashboard-title">Dashboard</h1>
 
-        <div class="welcome-card d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+    <div class="welcome-card d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
             <div class="me-md-4 mb-3 mb-md-0">
                 <h1 class="welcome-card-text">Selamat Datang, {{ session('user_nama', 'Pengguna') }}!</h1>
                 <p>Di Aplikasi Pengajuan Peminjaman Ruangan</p>
@@ -206,7 +206,7 @@
 
         <!-- Calendar Section -->
         <div class="calendar-container">
-            <h4 class="mb-3" style="color:#1335F2;font-weight:bold;font-family:'Montserrat',sans-serif;">Kalender Pengajuan</h4>
+        <h4 class="mb-3" style="color:#010D26;font-weight:bold;font-family:'Montserrat',sans-serif;">Kalender Pengajuan</h4>
             <div id='calendar'></div>
         </div>
         <!-- End Calendar Section -->
@@ -259,5 +259,68 @@
         calendar.render();
       });
     </script>
+    <style>
+        /* Dashboard-specific color overrides (scoped to this view) */
+        .welcome-card-text {
+            color: #010D26 !important; /* change greeting color to requested value */
+        }
+
+        /* FullCalendar toolbar buttons (Bootstrap 5 integration) - broader selector set to override Bootstrap */
+        /* FullCalendar toolbar buttons: default dark background with white text */
+        .fc .fc-toolbar .fc-button,
+        .fc .fc-toolbar .fc-button-primary,
+        .fc .fc-toolbar .btn,
+        .fc .fc-toolbar .btn-primary,
+        .fc .fc-toolbar-chunk .fc-button,
+        .fc .fc-toolbar-chunk .btn {
+            background-color: #010D26 !important; /* default dark */
+            color: #ffffff !important; /* white text */
+            border: 1px solid #010D26 !important;
+            background-image: none !important;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 1px 2px rgba(0,0,0,0.05) !important; /* subtle stroke + light surface shadow */
+            transition: background-color 0.12s ease, color 0.12s ease, box-shadow 0.12s ease !important;
+        }
+
+        /* Active / primary state: keep brand (same as default) */
+        .fc .fc-button-primary,
+        .fc .btn-primary,
+        .fc .fc-toolbar .fc-button.active,
+        .fc .fc-toolbar .fc-button[aria-pressed="true"] {
+            background-color: #010D26 !important;
+            color: #ffffff !important;
+            border-color: #010D26 !important;
+            background-image: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Hover / focus: switch to the light/current color (white bg, dark text) */
+        .fc .fc-toolbar .fc-button:hover,
+        .fc .fc-toolbar .btn:hover,
+        .fc .fc-toolbar-chunk .fc-button:hover,
+        .fc .fc-toolbar .fc-button:focus,
+        .fc .fc-toolbar .btn:focus {
+            background-color: var(--color-light, #ffffff) !important; /* light on hover */
+            color: var(--color-dark, #010D26) !important; /* dark text on hover */
+            border-color: transparent !important;
+            box-shadow: inset 0 0 0 1px rgba(1,13,38,0.06), 0 1px 2px rgba(0,0,0,0.04) !important; /* subtle stroke using brand color */
+        }
+
+        /* keyboard focus outline using brand color for accessibility */
+        .fc .fc-toolbar .fc-button:focus-visible,
+        .fc .fc-toolbar .btn:focus-visible {
+            outline: 3px solid rgba(1,13,38,0.12) !important;
+            outline-offset: 2px !important;
+        }
+
+        /* Disabled buttons muted */
+        .fc .fc-toolbar .fc-button[disabled],
+        .fc .fc-toolbar .btn[disabled],
+        .fc .fc-toolbar .fc-button.disabled,
+        .fc .fc-toolbar .btn.disabled {
+            background-color: #f8f9fa !important;
+            color: #6c757d !important;
+            border-color: #e9ecef !important;
+        }
+    </style>
 </body>
 </html>
