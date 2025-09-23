@@ -120,15 +120,20 @@
         /* Modal styles */
         .modal {
             position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
             display: none;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
             box-sizing: border-box;
         }
+        /* Base z-index for modals */
+        #detailModal { z-index: 1000; }
+        #deleteConfirmModal { z-index: 1001; }
+        
         .modal-content {
             background-color: white;
             padding: 30px;
@@ -137,13 +142,23 @@
             text-align: center;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             animation: fadeIn 0.3s ease;
+            position: relative;
+        }
+        #detailModal .modal-dialog {
+            max-width: 500px;
         }
         #detailModal .modal-content {
-            max-width: 500px; /* Lebar modal detail */
             text-align: left;
         }
-        #deleteConfirmModal .modal-content {
+        #deleteConfirmModal .modal-dialog {
             max-width: 400px;
+        }
+        .modal-header {
+            background-color: #010D26;
+            color: #ffffff;
+        }
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
         }
         .modal-content h3 {
             margin-top: 0;
@@ -310,16 +325,29 @@
             document.getElementById('modalNamaRuangan').innerText = ruangan.nama_ruangan;
             document.getElementById('modalKapasitas').innerText = ruangan.jml_peserta + ' orang';
             document.getElementById('modalFasilitas').innerText = ruangan.fasilitas;
-            document.getElementById('detailModal').style.display = 'flex';
+            openModal('detailModal');
         }
 
         function openDeleteModal(id) {
             ruanganIdToDelete = id;
-            document.getElementById('deleteConfirmModal').style.display = 'flex';
+            openModal('deleteConfirmModal');
         }
 
         function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
+            const modal = document.getElementById(modalId);
+            modal.style.display = 'none';
+            
+            // Re-enable scrolling on body when all modals are closed
+            if (!document.querySelector('.modal[style*="display: flex"]')) {
+                document.body.style.overflow = '';
+            }
+        }
+
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.style.display = 'flex';
+            // Disable scrolling on body when modal is open
+            document.body.style.overflow = 'hidden';
         }
 
         function executeDelete() {

@@ -133,13 +133,15 @@ body {
 }
 .modal {
     position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 2000; /* Higher than notification modal */
     box-sizing: border-box;
 }
 .modal-content {
@@ -147,6 +149,9 @@ body {
     padding: 20px;
     border-radius: 8px;
     width: auto;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
     text-align: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     animation: fadeIn 0.3s ease;
@@ -277,7 +282,7 @@ body {
     {{-- Grid pengguna --}}
     <div class="user-grid">
         @foreach ($all as $user)
-            <div class="user-card" onclick="openModal({{ json_encode($user) }})">
+            <div class="user-card" onclick="event.preventDefault(); openModal({{ json_encode($user) }});">
                 <div class="card-image">
                     @if($user->foto_profil)
                         <img src="{{ asset('storage/' . $user->foto_profil) }}" alt="Foto Profil" class="user-photo">
@@ -344,8 +349,18 @@ body {
 <script>
     // Variable untuk menyimpan ID pengguna yang akan dihapus
     let userIdToDelete = null;
+    let currentModal = null;
+
+    function stopPropagation(event) {
+        event.stopPropagation();
+    }
 
     function openModal(user) {
+        // Close any open modals first
+        if (currentModal) {
+            closeModal(currentModal);
+        }
+
         // Update data di modal detail
         document.getElementById('modalFotoProfil').src = user.foto_profil
             ? `/storage/${user.foto_profil}`
@@ -380,14 +395,24 @@ body {
     }
 
     function closeModal(modalId) {
-        document.getElementById(modalId).style.display = 'none';
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            if (currentModal === modalId) {
+                currentModal = null;
+            }
+        }
     }
 
     // Buka modal konfirmasi hapus dan simpan ID pengguna
     function openDeleteModal(userId) {
         userIdToDelete = userId;
-        document.getElementById('userDetailModal').style.display = 'none';
-        document.getElementById('deleteConfirmModal').style.display = 'flex';
+        closeModal('userDetailModal');
+        const deleteModal = document.getElementById('deleteConfirmModal');
+        deleteModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        currentModal = 'deleteConfirmModal';
     }
 
     // Jalankan aksi penghapusan
@@ -399,19 +424,26 @@ body {
         }
     }
 
-    // Menutup modal jika klik di luar modal-content
-    document.getElementById('userDetailModal').addEventListener('click', function (event) {
-        const modalContent = document.querySelector('#userDetailModal .modal-content');
-        if (!modalContent.contains(event.target)) {
-            closeModal('userDetailModal');
-        }
-    });
+    // Add event listeners after DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle clicks outside modal content
+        const modals = ['userDetailModal', 'deleteConfirmModal'];
+        modals.forEach(modalId => {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.addEventListener('click', function(event) {
+                    if (event.target === modal) {
+                        closeModal(modalId);
+                    }
+                });
+            }
+        });
 
-    document.getElementById('deleteConfirmModal').addEventListener('click', function (event) {
-        const modalContent = document.querySelector('#deleteConfirmModal .modal-content');
-        if (!modalContent.contains(event.target)) {
-            closeModal('deleteConfirmModal');
-        }
+        // Prevent modal content clicks from bubbling
+        const modalContents = document.querySelectorAll('.modal-content');
+        modalContents.forEach(content => {
+            content.addEventListener('click', stopPropagation);
+        });
     });
 
     // Search/filter for user cards

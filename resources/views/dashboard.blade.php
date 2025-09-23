@@ -1,16 +1,7 @@
-<?php
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <!-- FullCalendar CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+<?php ?>
+@extends('layout.main')
+@section('title', 'Dashboard')
+@section('content')
     <style>
         body {
             font-family: 'Montserrat', sans-serif;
@@ -100,7 +91,7 @@
             padding: 2rem 1rem;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-            margin-top: 2.5rem;
+            margin-top: 0;
             margin-bottom: 2rem;
         }
         #calendar {
@@ -125,8 +116,6 @@
     @include('sidebar.sidebar')
     @include('navbar.navbar')
     <div class="main-content">
-        <h1 class="dashboard-title">Dashboard</h1>
-
     <div class="welcome-card d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
             <div class="me-md-4 mb-3 mb-md-0">
                 <h1 class="welcome-card-text">Selamat Datang, {{ session('user_nama', 'Pengguna') }}!</h1>
@@ -213,8 +202,8 @@
 
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- FullCalendar JS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/id.js"></script>
     <script>
@@ -222,66 +211,61 @@
         var calendarEl = document.getElementById('calendar');
 
         var calendar = new FullCalendar.Calendar(calendarEl, {
-          themeSystem: 'bootstrap5', // Integrasi tema Bootstrap 5
+          themeSystem: 'bootstrap5',
           initialView: 'dayGridMonth',
           headerToolbar: {
             left: 'prev,next today',
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
           },
-          height: 650, // Sedikit menambah tinggi untuk tampilan yang lebih baik
+          height: 650,
           navLinks: true,
           editable: false,
           eventLimit: true,
           locale: 'id',
-          eventClassNames: 'approved-event', // Class untuk event yang disetujui
-          
-          // Menggunakan font Montserrat untuk seluruh kalender
+          eventClassNames: 'approved-event',
           eventDidMount: function(info) {
             info.el.style.fontFamily = "'Montserrat', sans-serif";
             info.el.style.fontWeight = '500';
           },
-          
           views: {
-            dayGridMonth: {
-              titleFormat: { year: 'numeric', month: 'long' }
-            },
-            timeGridWeek: {
-              titleFormat: { day: 'numeric', month: 'long', year: 'numeric' }
-            },
-            timeGridDay: {
-              titleFormat: { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }
-            }
+            dayGridMonth: { titleFormat: { year: 'numeric', month: 'long' } },
+            timeGridWeek: { titleFormat: { day: 'numeric', month: 'long', year: 'numeric' } },
+            timeGridDay: { titleFormat: { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' } }
           },
-          events: '{{ route('calendar.events') }}' // Mengambil data dari route
+          events: '{{ route('calendar.events') }}'
         });
 
         calendar.render();
       });
     </script>
+@endsection
+
+@section('javascript')
+    <script>
+        // Additional JavaScript if needed
+    </script>
     <style>
-        /* Dashboard-specific color overrides (scoped to this view) */
+        /* Dashboard-specific color overrides */
         .welcome-card-text {
-            color: #010D26 !important; /* change greeting color to requested value */
+            color: #010D26 !important;
         }
 
-        /* FullCalendar toolbar buttons (Bootstrap 5 integration) - broader selector set to override Bootstrap */
-        /* FullCalendar toolbar buttons: default dark background with white text */
+        /* FullCalendar toolbar buttons */
         .fc .fc-toolbar .fc-button,
         .fc .fc-toolbar .fc-button-primary,
         .fc .fc-toolbar .btn,
         .fc .fc-toolbar .btn-primary,
         .fc .fc-toolbar-chunk .fc-button,
         .fc .fc-toolbar-chunk .btn {
-            background-color: #010D26 !important; /* default dark */
-            color: #ffffff !important; /* white text */
+            background-color: #010D26 !important;
+            color: #ffffff !important;
             border: 1px solid #010D26 !important;
             background-image: none !important;
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 1px 2px rgba(0,0,0,0.05) !important; /* subtle stroke + light surface shadow */
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 1px 2px rgba(0,0,0,0.05) !important;
             transition: background-color 0.12s ease, color 0.12s ease, box-shadow 0.12s ease !important;
         }
 
-        /* Active / primary state: keep brand (same as default) */
         .fc .fc-button-primary,
         .fc .btn-primary,
         .fc .fc-toolbar .fc-button.active,
@@ -293,26 +277,23 @@
             box-shadow: none !important;
         }
 
-        /* Hover / focus: switch to the light/current color (white bg, dark text) */
         .fc .fc-toolbar .fc-button:hover,
         .fc .fc-toolbar .btn:hover,
         .fc .fc-toolbar-chunk .fc-button:hover,
         .fc .fc-toolbar .fc-button:focus,
         .fc .fc-toolbar .btn:focus {
-            background-color: var(--color-light, #ffffff) !important; /* light on hover */
-            color: var(--color-dark, #010D26) !important; /* dark text on hover */
+            background-color: var(--color-light, #ffffff) !important;
+            color: var(--color-dark, #010D26) !important;
             border-color: transparent !important;
-            box-shadow: inset 0 0 0 1px rgba(1,13,38,0.06), 0 1px 2px rgba(0,0,0,0.04) !important; /* subtle stroke using brand color */
+            box-shadow: inset 0 0 0 1px rgba(1,13,38,0.06), 0 1px 2px rgba(0,0,0,0.04) !important;
         }
 
-        /* keyboard focus outline using brand color for accessibility */
         .fc .fc-toolbar .fc-button:focus-visible,
         .fc .fc-toolbar .btn:focus-visible {
             outline: 3px solid rgba(1,13,38,0.12) !important;
             outline-offset: 2px !important;
         }
 
-        /* Disabled buttons muted */
         .fc .fc-toolbar .fc-button[disabled],
         .fc .fc-toolbar .btn[disabled],
         .fc .fc-toolbar .fc-button.disabled,
@@ -322,5 +303,4 @@
             border-color: #e9ecef !important;
         }
     </style>
-</body>
-</html>
+@endsection

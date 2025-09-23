@@ -5,6 +5,7 @@ use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\NotificationController;
 use App\Models\Pengajuan;
 use Illuminate\Support\Facades\Route;
 
@@ -69,4 +70,7 @@ Route::middleware(['auth.custom'])->group(function () {
 
     // Log Aktivitas
     Route::get('/log-aktivitas', [ActivityLogController::class, 'index'])->name('log.index');
+
+    // Notifications
+    Route::get('/api/notifications', [NotificationController::class, 'getNotifications'])->name('notifications.get');
 });

@@ -88,6 +88,30 @@
     .dropdown-menu {
         min-width: 150px;
     }
+    .notification-btn {
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+        position: relative;
+    }
+    .notification-btn:hover {
+        background-color: #f8f9fa;
+    }
+    .notification-indicator {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 8px;
+        height: 8px;
+        background-color: #dc3545;
+        border-radius: 50%;
+        display: none;
+    }
+    .notification-indicator.active {
+        display: block;
+    }
+    /* Notification styles are now in main.blade.php */
 </style>
 
 @include('sidebar.sidebar')
@@ -95,7 +119,10 @@
 <div class="navbar">
     <div class="navbar-title">Aplikasi Pengajuan Peminjaman Ruangan PemDa Probolinggo</div>
     <div class="navbar-right">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="profile-icon lucide lucide-bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <div class="notification-btn" data-bs-toggle="modal" data-bs-target="#notificationModal">
+            <div class="notification-indicator" id="notificationIndicator"></div>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="profile-icon lucide lucide-bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        </div>
         
         <div class="dropdown">
             <div class="d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
@@ -121,3 +148,118 @@
         </div>
     </div>
 </div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let lastNotificationCount = parseInt(localStorage.getItem('lastNotificationCount') || '0');
+    let lastCheckTime = parseInt(localStorage.getItem('lastNotificationCheck') || '0');
+    const indicator = document.getElementById('notificationIndicator');
+    
+    function checkNewNotifications() {
+        const now = Date.now();
+        fetch('/api/notifications')
+            .then(response => response.json())
+            .then(data => {
+                const currentCount = Array.isArray(data) ? data.length : 0;
+                
+                // Show indicator if there are new notifications since last check
+                if (currentCount > lastNotificationCount) {
+                    indicator.classList.add('active');
+                }
+                // Also show indicator if there are notifications and user hasn't checked in last 6 hours
+                else if (currentCount > 0 && (now - lastCheckTime) > (6 * 60 * 60 * 1000)) {
+                    indicator.classList.add('active');
+                }
+                
+                lastNotificationCount = currentCount;
+                localStorage.setItem('lastNotificationCount', currentCount.toString());
+            })
+            .catch(error => console.error('Error checking notifications:', error));
+    }
+
+    // Check for new notifications periodically
+    checkNewNotifications();
+    setInterval(checkNewNotifications, 30000); // Check every 30 seconds
+
+    function loadNotifications() {
+        const notificationList = document.getElementById('notificationList');
+        notificationList.innerHTML = `
+            <div class="notification-item">
+                <div class="notification-content">Memuat notifikasi...</div>
+            </div>`;
+            
+        fetch('/api/notifications')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Received notifications:', data);
+                
+                if (!data || !Array.isArray(data) || data.length === 0) {
+                    notificationList.innerHTML = `
+                        <div class="notification-item">
+                            <div class="notification-text">Tidak ada notifikasi</div>
+                        </div>`;
+                    return;
+                }
+
+                notificationList.innerHTML = data.map(notification => {
+                    // Format the time to "x minutes ago"
+                    const createdAt = notification.created_at.toLowerCase();
+                    return `
+                    <div class="notification-item">
+                        <div class="notification-text">${notification.message}</div>
+                        <div class="notification-time">${createdAt}</div>
+                    </div>
+                    `;
+                }).join('');
+            })
+            .catch(error => {
+                console.error('Error loading notifications:', error);
+                notificationList.innerHTML = `
+                    <div class="notification-item">
+                        <div class="notification-content">
+                            <div class="text-danger">Gagal memuat notifikasi</div>
+                            <small>${error.message}</small>
+                        </div>
+                    </div>`;
+            });
+    }
+
+    // Load notifications when modal is opened
+    const notificationModal = document.getElementById('notificationModal');
+    
+    // Handle modal events
+    notificationModal.addEventListener('show.bs.modal', () => {
+        loadNotifications();
+        indicator.classList.remove('active'); // Remove indicator when opening modal
+        lastCheckTime = Date.now();
+        localStorage.setItem('lastNotificationCheck', lastCheckTime.toString());
+    });
+
+    notificationModal.addEventListener('hide.bs.modal', () => {
+        // Update last count after closing
+        fetch('/api/notifications')
+            .then(response => response.json())
+            .then(data => {
+                const currentCount = Array.isArray(data) ? data.length : 0;
+                lastNotificationCount = currentCount;
+                localStorage.setItem('lastNotificationCount', currentCount.toString());
+            })
+            .catch(console.error);
+    });
+
+    // Fix modal stacking issues
+    notificationModal.addEventListener('hidden.bs.modal', () => {
+        document.body.classList.remove('modal-open');
+        const modalBackdrops = document.getElementsByClassName('modal-backdrop');
+        while (modalBackdrops.length > 0) {
+            modalBackdrops[0].parentNode.removeChild(modalBackdrops[0]);
+        }
+    });
+});
+</script>

@@ -112,15 +112,21 @@
     /* Modal styles */
     .modal {
         position: fixed;
+        top: 0;
+        left: 0;
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
         display: none;
         justify-content: center;
         align-items: center;
-        z-index: 1000;
         box-sizing: border-box;
     }
+    /* Base z-index for modals */
+    #detailModal { z-index: 1000; }
+    #confirmStatusModal { z-index: 1001; }
+    #deleteConfirmModal { z-index: 1002; }
+    
     .modal-content {
         background-color: white;
         padding: 30px;
@@ -129,13 +135,24 @@
         text-align: center;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         animation: fadeIn 0.3s ease;
+        position: relative;
+    }
+    #detailModal .modal-dialog {
+        max-width: 600px;
     }
     #detailModal .modal-content {
-        max-width: 600px;
         text-align: left;
     }
-    #confirmStatusModal .modal-content, #deleteConfirmModal .modal-content {
+    #confirmStatusModal .modal-dialog, 
+    #deleteConfirmModal .modal-dialog {
         max-width: 400px;
+    }
+    .modal-header {
+        background-color: #010D26;
+        color: #ffffff;
+    }
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
     }
     .modal-content h3 {
         margin-bottom: 15px;
@@ -389,7 +406,7 @@
             waButton.href = '#';
             waButton.style.display = 'none'; // Sembunyikan tombol jika no_wa tidak tersedia
         }
-        document.getElementById('detailModal').style.display = 'flex';
+        openModal('detailModal');
     }
 
     function openConfirmModal(status) {
@@ -398,7 +415,7 @@
         document.getElementById('confirmMessage').innerText = `Apakah Anda yakin ingin ${actionText} pengajuan ini?`;
         
         closeModal('detailModal');
-        document.getElementById('confirmStatusModal').style.display = 'flex';
+        openModal('confirmStatusModal');
     }
 
     function executeStatusUpdate() {
@@ -413,7 +430,7 @@
     // --- Fungsi untuk Modal Hapus ---
     function openDeleteModal(id) {
         pengajuanIdToDelete = id;
-        document.getElementById('deleteConfirmModal').style.display = 'flex';
+        openModal('deleteConfirmModal');
     }
 
     function executeDelete() {
@@ -428,13 +445,35 @@
     
     // --- Fungsi Helper ---
     function closeModal(modalId) {
-        document.getElementById(modalId).style.display = 'none';
+        const modal = document.getElementById(modalId);
+        modal.style.display = 'none';
+        
+        // Re-enable scrolling on body when all modals are closed
+        if (!document.querySelector('.modal[style*="display: flex"]')) {
+            document.body.style.overflow = '';
+        }
+    }
+
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.style.display = 'flex';
+        // Disable scrolling on body when modal is open
+        document.body.style.overflow = 'hidden';
     }
 
     // Event listener untuk menutup modal saat klik di luar area konten
     window.addEventListener('click', function(event) {
         if (event.target.classList.contains('modal')) {
-            closeModal(event.target.id);
+            // Only close the top-most modal when clicking outside
+            const openModals = Array.from(document.querySelectorAll('.modal[style*="display: flex"]'));
+            if (openModals.length > 0) {
+                const topModal = openModals.reduce((a, b) => 
+                    (parseInt(getComputedStyle(a).zIndex) > parseInt(getComputedStyle(b).zIndex) ? a : b)
+                );
+                if (event.target === topModal) {
+                    closeModal(topModal.id);
+                }
+            }
         }
     });
     
