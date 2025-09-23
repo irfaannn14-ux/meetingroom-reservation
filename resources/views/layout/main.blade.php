@@ -20,6 +20,15 @@
     
     <!-- Common Modal Styles -->
     <style>
+        /* Global Background */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #010D26 0%, #1a2b4a 30%, #4a6fa5 70%, #C9DFF2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
         /* Modal Base Styles */
         .modal-dialog.notification-modal {
             max-width: 400px;

@@ -4,20 +4,23 @@
 <style>
     .main-content {
         padding: 80px 20px 20px;
-        background-color: #C9DFF2;
         min-height: 100vh;
     }
     .page-title {
         font-size: 2rem;
         font-weight: bold;
-        color: #010D26;
+        color: #ffffff;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         margin-bottom: 20px;
     }
     .table-container {
-        background: #fff;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
         padding: 2rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
     }
     table {
         width: 100%;

@@ -3,11 +3,6 @@
 @section('title', 'Dashboard')
 @section('content')
     <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            margin: 0;
-        }
-
         .main-content {
             padding: 80px 20px 20px;
         }
@@ -18,15 +13,19 @@
             margin-bottom: 20px;
             font-size: 2rem;
             font-weight: bold;
-            color: #333;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
 
         /* Card Welcome */
         .welcome-card {
-            background-color: #fff;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
         .welcome-card-text {
@@ -46,10 +45,13 @@
         /* Kotak-kotak di bawahnya */
         .info-card {
             border: none;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            background-color: #fff;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         .info-card:hover {

@@ -4,17 +4,10 @@
 @section('content')
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #C9DFF2;
-            margin: 0;
-            padding: 0;
-        }
         .main-content {
             margin-left: 60px;
             padding: 2rem;
             min-height: 100vh;
-            background-color: #C9DFF2;
             margin-top: 60px;
         }
         .content {
@@ -23,10 +16,13 @@
             margin: 0 auto;
         }
         .ruangan-table-container {
-            background: #fff;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             padding: 2.5rem 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
             margin-top: 1.5rem;
         }
         .dashboard-title {
@@ -34,7 +30,8 @@
             margin-bottom: 1.2rem;
             font-size: 2rem;
             font-weight: 700;
-            color: #010D26;
+            color: #ffffff !important;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
         table {
             width: 100%;

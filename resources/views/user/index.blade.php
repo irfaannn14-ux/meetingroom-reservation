@@ -15,7 +15,6 @@ body {
 }
 .main-content {
     padding: 80px 20px 20px;
-    background-color: var(--color-bg);
     min-height: 100vh;
 }
 .header-content {
@@ -27,7 +26,8 @@ body {
 .page-title {
     font-size: 2rem;
     font-weight: bold;
-    color: var(--color-dark);
+    color: #ffffff !important;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
 }
 .add-button {
     background-color: var(--color-dark);
@@ -69,9 +69,12 @@ body {
     gap: 20px;
 }
 .user-card {
-    background-color: var(--color-light);
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     display: flex;
     flex-direction: column;
     overflow: hidden;

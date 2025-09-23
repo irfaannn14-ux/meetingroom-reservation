@@ -25,14 +25,17 @@
         top: 0;
         width: 100%;
         height: 60px;
-        background-color: var(--color-light);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         display: flex;
         align-items: center;
         justify-content: space-between;
         padding: 0 1rem;
         transition: padding-left 0.3s ease-in-out;
         z-index: 999;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     }
     .navbar-title {
         font-size: 1rem;
@@ -82,21 +85,26 @@
         padding: 5px;
     }
     .dropdown-toggle:hover {
-        background-color: #f8f9fa;
+        background: rgba(1, 13, 38, 0.1);
         border-radius: 4px;
     }
     .dropdown-menu {
         min-width: 150px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
     .notification-btn {
         cursor: pointer;
-        padding: 5px;
-        border-radius: 4px;
+        padding: 8px;
+        border-radius: 8px;
         transition: background-color 0.2s;
         position: relative;
     }
     .notification-btn:hover {
-        background-color: #f8f9fa;
+        background: rgba(1, 13, 38, 0.1);
     }
     .notification-indicator {
         position: absolute;

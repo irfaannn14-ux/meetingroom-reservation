@@ -25,7 +25,10 @@
     /* Sidebar base */
     .sidebar {
         width: var(--sidebar-collapsed);
-        background-color: var(--color-light);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
         color: var(--color-dark);
         height: 100vh;
         position: fixed;
@@ -35,6 +38,7 @@
         padding: 1rem 0.5rem;
         transition: width 0.3s ease-in-out, padding 0.3s ease-in-out;
         z-index: 1000;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
     }
     /* Perluas area hover agar mudah memicu expand */
     .sidebar::after {
