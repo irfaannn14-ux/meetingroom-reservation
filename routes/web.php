@@ -23,13 +23,6 @@ Route::get('/verifikasi_email', function () {return view('auth.verifikasi_email'
 Route::middleware(['auth.custom'])->group(function () {
     Route::get('/', [PengajuanController::class, 'dashboard'])->name('dashboard');
     
-    // lihat QR
-    Route::get('/pengajuan/{pengajuan}/lihat-qr', function (\App\Models\Pengajuan $pengajuan) {
-    return view('pengajuan.lihat-qr', compact('pengajuan'));
-    })->name('pengajuan.lihatQr');
-
-
-
     // Profile routes (for all logged-in users)
     Route::get('/profile', [UserController::class, 'showProfile'])->name('profile.show');
     Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');

@@ -232,19 +232,12 @@
         }
 
         function loadQrCode(pengajuanId) {
-            fetch(`/pengajuan/${pengajuanId}/qrcode`)
-                .then(res => res.json())
-                .then(data => {
-                    const qrContainer = document.getElementById("qrCodeContainer");
-                    qrContainer.innerHTML = "";
-                    QRCode.toCanvas(data.token, {
-                        width: 200
-                    }, function(err, canvas) {
-                        if (err) console.error(err);
-                        qrContainer.appendChild(canvas);
-                    });
-                });
-        }
+    const qrContainer = document.getElementById("qrCodeContainer");
+    qrContainer.innerHTML = `
+        <img src="/images/barcode.png" alt="QR Code" style="width:200px; height:auto;">
+    `;
+}
+
     </script>
 
 @endsection
