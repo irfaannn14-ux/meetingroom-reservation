@@ -34,8 +34,8 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'role' => $role,
             'foto_profil' => null, // Default no foto for factory
-            'admin' => in_array($role, ['Admin', 'Super Admin']),
-            'superadmin' => $role === 'Super Admin',
+        //    'admin' => in_array($role, ['Admin', 'Super Admin']),
+        //    'superadmin' => $role === 'Super Admin',
             'remember_token' => Str::random(10),
         ];
     }
