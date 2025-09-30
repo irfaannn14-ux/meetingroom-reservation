@@ -320,7 +320,7 @@ class PengajuanController extends Controller
         // generate token sementara
         $token = Str::random(32);
 
-        // simpan ke DB dengan expired (contoh: 1 menit)
+        // simpan ke DB dengan expired 
         DB::table('pengajuan_tokens')->updateOrInsert(
             ['pengajuan_id' => $id],
             ['token' => $token, 'expired_at' => Carbon::now()->addMinutes(1)]
