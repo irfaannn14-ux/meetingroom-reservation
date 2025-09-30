@@ -234,7 +234,7 @@
         function loadQrCode(pengajuanId) {
     const qrContainer = document.getElementById("qrCodeContainer");
     qrContainer.innerHTML = `
-        <img src="/images/barcode.png" alt="QR Code" style="width:200px; height:auto;">
+        <img src="/images/baru0.png" alt="QR Code" style="width:200px; height:auto;">
     `;
 }
 
