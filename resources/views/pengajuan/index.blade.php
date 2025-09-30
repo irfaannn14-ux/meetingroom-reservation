@@ -269,10 +269,26 @@
                             <td><span class="status-badge status-{{ strtolower($pengajuan->status) }}"> {{ ucfirst($pengajuan->status) }} </span></td>
                             <td>
                                 <div class="d-flex gap-2 justify-content-center">
-                                    <button type="button" class="btn btn-info btn-sm btn-action bi bi-search" onclick="openDetailModal({{ json_encode($pengajuan) }})" title="Lihat Detail"></button>
+                                    {{-- Tombol Detail --}}
+                                    <button type="button" class="btn btn-info btn-sm btn-action bi bi-search"
+                                            onclick="openDetailModal({{ json_encode($pengajuan) }})"
+                                            title="Lihat Detail"></button>
+
+                                    {{-- Tombol Lihat QR --}}
+                                    <a href="{{ route('pengajuan.lihatQr', $pengajuan->id) }}"
+                                    class="btn btn-primary btn-sm btn-action bi bi-qr-code"
+                                    title="Lihat QR"></a>
+
                                     @if(session('user_role') !== 'OPD')
-                                    <a href="{{ route('pengajuan.edit', $pengajuan) }}" class="btn btn-success btn-sm btn-action bi bi-pencil-fill" title="Edit"></a>
-                                    <button type="button" class="btn btn-danger btn-sm btn-action bi bi-trash-fill" onclick="openDeleteModal({{ $pengajuan->id }})" title="Hapus"></button>
+                                        {{-- Tombol Edit --}}
+                                        <a href="{{ route('pengajuan.edit', $pengajuan) }}"
+                                        class="btn btn-success btn-sm btn-action bi bi-pencil-fill"
+                                        title="Edit"></a>
+
+                                        {{-- Tombol Hapus --}}
+                                        <button type="button" class="btn btn-danger btn-sm btn-action bi bi-trash-fill"
+                                                onclick="openDeleteModal({{ $pengajuan->id }})"
+                                                title="Hapus"></button>
                                     @endif
                                 </div>
                             </td>

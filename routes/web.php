@@ -22,6 +22,13 @@ Route::get('/verifikasi_email', function () {return view('auth.verifikasi_email'
 // Protected routes (memerlukan login)
 Route::middleware(['auth.custom'])->group(function () {
     Route::get('/', [PengajuanController::class, 'dashboard'])->name('dashboard');
+    
+    // lihat QR
+    Route::get('/pengajuan/{pengajuan}/lihat-qr', function (\App\Models\Pengajuan $pengajuan) {
+    return view('pengajuan.lihat-qr', compact('pengajuan'));
+    })->name('pengajuan.lihatQr');
+
+
 
     // Profile routes (for all logged-in users)
     Route::get('/profile', [UserController::class, 'showProfile'])->name('profile.show');
@@ -75,3 +82,4 @@ Route::middleware(['auth.custom'])->group(function () {
     // Notifications
     Route::get('/api/notifications', [NotificationController::class, 'getNotifications'])->name('notifications.get');
 });
+
