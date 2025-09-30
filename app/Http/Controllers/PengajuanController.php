@@ -7,6 +7,8 @@ use App\Models\Ruangan;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\ActivityLog;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class PengajuanController extends Controller
 {
@@ -58,7 +60,7 @@ class PengajuanController extends Controller
         }
 
         $pengajuans = $query->get();
-            
+
         return view('pengajuan.index', compact('pengajuans'));
     }
 
@@ -79,7 +81,7 @@ class PengajuanController extends Controller
         }
 
         $pengajuans = $query->get();
-            
+
         return view('history', compact('pengajuans'));
     }
 
@@ -126,7 +128,7 @@ class PengajuanController extends Controller
             ->where('status', 'disetujui') // Hanya cek jadwal yang sudah disetujui
             ->where(function ($query) use ($tanggal_mulai, $tanggal_selesai) {
                 $query->where('tanggal_mulai', '<', $tanggal_selesai)
-                      ->where('tanggal_selesai', '>', $tanggal_mulai);
+                    ->where('tanggal_selesai', '>', $tanggal_mulai);
             })->doesntExist();
 
         if (!$isRuanganAvailable) {
@@ -171,7 +173,7 @@ class PengajuanController extends Controller
             'waktu_pinjam' => 'required|date_format:H:i',
             'waktu_kembali' => 'required|date_format:H:i',
         ]);
-        
+
         $ruangan = Ruangan::find($validatedData['ruangan_id']);
         if ($validatedData['jml_peserta'] > $ruangan->jml_peserta) {
             return back()
@@ -181,7 +183,7 @@ class PengajuanController extends Controller
 
         $tanggal_mulai = Carbon::parse($validatedData['tanggal_pinjam'] . ' ' . $validatedData['waktu_pinjam']);
         $tanggal_selesai = Carbon::parse($validatedData['tanggal_kembali'] . ' ' . $validatedData['waktu_kembali']);
-        
+
         if ($tanggal_selesai->lte($tanggal_mulai)) {
             return back()->withErrors(['waktu_kembali' => 'Waktu kembali harus setelah waktu pinjam.'])->withInput();
         }
@@ -191,7 +193,7 @@ class PengajuanController extends Controller
             ->where('status', 'disetujui')
             ->where(function ($query) use ($tanggal_mulai, $tanggal_selesai) {
                 $query->where('tanggal_mulai', '<', $tanggal_selesai)
-                      ->where('tanggal_selesai', '>', $tanggal_mulai);
+                    ->where('tanggal_selesai', '>', $tanggal_mulai);
             })->doesntExist();
 
         if (!$isRuanganAvailable) {
@@ -249,7 +251,7 @@ class PengajuanController extends Controller
                 ->where('status', 'disetujui')      // Hanya cek jadwal yang sudah disetujui
                 ->where(function ($query) use ($tanggal_mulai, $tanggal_selesai) {
                     $query->where('tanggal_mulai', '<', $tanggal_selesai)
-                          ->where('tanggal_selesai', '>', $tanggal_mulai);
+                        ->where('tanggal_selesai', '>', $tanggal_mulai);
                 })->doesntExist();
 
             // Jika ruangan tidak tersedia (ada jadwal bentrok), kembalikan dengan error
@@ -312,5 +314,18 @@ class PengajuanController extends Controller
         });
 
         return response()->json($events);
+    }
+    public function generateQrCode($id)
+    {
+        // generate token sementara
+        $token = Str::random(32);
+
+        // simpan ke DB dengan expired (contoh: 1 menit)
+        DB::table('pengajuan_tokens')->updateOrInsert(
+            ['pengajuan_id' => $id],
+            ['token' => $token, 'expired_at' => Carbon::now()->addMinutes(1)]
+        );
+
+        return response()->json(['token' => $token]);
     }
 }

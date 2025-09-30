@@ -67,6 +67,7 @@ Route::middleware(['auth.custom'])->group(function () {
 
     //history
     Route::get('/history', [PengajuanController::class, 'history'])->name('history');
+    Route::get('/pengajuan/{id}/qrcode', [PengajuanController::class, 'generateQrCode']);
 
     // Log Aktivitas
     Route::get('/log-aktivitas', [ActivityLogController::class, 'index'])->name('log.index');
