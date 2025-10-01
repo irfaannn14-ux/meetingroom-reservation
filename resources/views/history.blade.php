@@ -171,7 +171,6 @@
                     <div class="modal-content p-4 text-center">
                         <h5 class="mb-3">QR Code Pengajuan</h5>
                         <div id="qrCodeContainer"></div>
-                        <small class="text-muted d-block mt-2">QR Code ini akan diperbarui otomatis.</small>
                     </div>
                 </div>
             </div>
@@ -230,7 +229,7 @@
         function loadQrCode(pengajuanId) {
     const qrContainer = document.getElementById("qrCodeContainer");
     qrContainer.innerHTML = `
-    <img src="/images/baru0.png" 
+    <img src="/images/qr_a.png" 
          alt="QR Code" 
          class="img-fluid w-100"
          style="max-height: 600px; object-fit: contain;">
