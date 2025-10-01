@@ -167,7 +167,7 @@
                 </table>
             </div>
             <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content p-4 text-center">
                         <h5 class="mb-3">QR Code Pengajuan</h5>
                         <div id="qrCodeContainer"></div>
@@ -234,8 +234,12 @@
         function loadQrCode(pengajuanId) {
     const qrContainer = document.getElementById("qrCodeContainer");
     qrContainer.innerHTML = `
-        <img src="/images/baru0.png" alt="QR Code" style="width:200px; height:auto;">
+    <img src="/images/baru0.png" 
+         alt="QR Code" 
+         class="img-fluid w-100"
+         style="max-height: 600px; object-fit: contain;">
     `;
+
 }
 
     </script>
