@@ -220,45 +220,23 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
     <script>
         let refreshInterval;
-        let currentQrIndex = 0;
-
-        const dummyQrs = [
-            "/images/qr_a.png",
-            "/images/qr_b.png"
-        ];
-
-        const SWITCH_INTERVAL_MS = 300000;  
 
         function showQrCode(pengajuanId) {
-            const modalEl = document.getElementById('qrModal');
-            const modal = new bootstrap.Modal(modalEl);
+            const modal = new bootstrap.Modal(document.getElementById('qrModal'));
             modal.show();
-
-            currentQrIndex = 0;
-            renderQr();
-
-            clearInterval(refreshInterval);
-
-            refreshInterval = setInterval(() => {
-                currentQrIndex = (currentQrIndex + 1) % dummyQrs.length;
-                renderQr();
-            }, SWITCH_INTERVAL_MS);
+            loadQrCode(pengajuanId);
         }
 
-        function renderQr() {
-            const qrContainer = document.getElementById("qrCodeContainer");
-            qrContainer.innerHTML = `
-                <img src="${dummyQrs[currentQrIndex]}" 
-                    alt="QR Code" 
-                    class="img-fluid w-100"
-                    style="max-height: 600px; object-fit: contain;">
-            `;
-        }
+        function loadQrCode(pengajuanId) {
+    const qrContainer = document.getElementById("qrCodeContainer");
+    qrContainer.innerHTML = `
+    <img src="/images/baru0.png" 
+         alt="QR Code" 
+         class="img-fluid w-100"
+         style="max-height: 600px; object-fit: contain;">
+    `;
+}
 
-        document.getElementById('qrModal').addEventListener('hidden.bs.modal', function () {
-            clearInterval(refreshInterval);
-        });
     </script>
-
 
 @endsection
