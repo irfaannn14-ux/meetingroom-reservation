@@ -222,28 +222,23 @@
         let refreshInterval;
         let currentQrIndex = 0;
 
-        // Daftar QR code dummy (pastikan ada di public/images/)
         const dummyQrs = [
             "/images/qr_a.png",
             "/images/qr_b.png"
         ];
 
-        // Versi testing: 10 detik = 10000 ms
-        const SWITCH_INTERVAL_MS = 10000;  
+        const SWITCH_INTERVAL_MS = 300000;  
 
         function showQrCode(pengajuanId) {
             const modalEl = document.getElementById('qrModal');
             const modal = new bootstrap.Modal(modalEl);
             modal.show();
 
-            // reset ke QR pertama setiap kali buka
             currentQrIndex = 0;
             renderQr();
 
-            // clear interval lama
             clearInterval(refreshInterval);
 
-            // set interval ganti QR tiap 10 detik (testing)
             refreshInterval = setInterval(() => {
                 currentQrIndex = (currentQrIndex + 1) % dummyQrs.length;
                 renderQr();
@@ -260,7 +255,6 @@
             `;
         }
 
-        // stop interval kalau modal ditutup
         document.getElementById('qrModal').addEventListener('hidden.bs.modal', function () {
             clearInterval(refreshInterval);
         });
