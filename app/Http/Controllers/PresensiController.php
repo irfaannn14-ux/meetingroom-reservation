@@ -5,23 +5,18 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ActivityLog;
+use App\Models\Organization;
 
 class PresensiController extends Controller
 {
     public function create($id)
     {
-        // contoh opsi organisasi (silakan ganti dari DB kalau ada)
-        $organisasiOptions = [
-            'biro-umum'   => 'Biro Umum',
-            'bappeda'     => 'Bappeda',
-            'dispendik'   => 'Dinas Pendidikan',
-            'kominfo'     => 'Diskominfo',
-            'sekretariat' => 'Sekretariat',
-        ];
+        // Ambil semua organisasi dari database
+        $organizations = Organization::all();
 
         return view('presensi.form', [
             'id' => $id,
-            'organisasiOptions' => $organisasiOptions,
+            'organizations' => $organizations,
         ]);
     }
 
