@@ -8,6 +8,8 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\NotificationController;
 use App\Models\Pengajuan;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PresensiController;
+
 
 // Auth routes (tidak perlu middleware)
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -74,5 +76,9 @@ Route::middleware(['auth.custom'])->group(function () {
 
     // Notifications
     Route::get('/api/notifications', [NotificationController::class, 'getNotifications'])->name('notifications.get');
+
+    // Presensi
+    Route::get('/presensi/{id}', [PresensiController::class, 'create'])->name('presensi.create');
+    Route::post('/presensi', [PresensiController::class, 'store'])->name('presensi.store');
 });
 
