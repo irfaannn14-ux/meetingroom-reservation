@@ -228,13 +228,29 @@
 
         function loadQrCode(pengajuanId) {
     const qrContainer = document.getElementById("qrCodeContainer");
-    qrContainer.innerHTML = `
-    <img src="/images/qr_a.png" 
-         alt="QR Code" 
-         class="img-fluid w-100"
-         style="max-height: 600px; object-fit: contain;">
-    `;
+    const qrUrl = `${window.location.origin}/presensi/${pengajuanId}`;
+    
+    // generate QR menuju URL tersebut
+    QRCode.toDataURL(qrUrl, { width: 280, margin: 1 }, function (err, qrDataUrl) {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        qrContainer.innerHTML = `
+            <div style="position: relative; display: inline-block; width: 100%; max-width: 450px;">
+                <img src="/images/qr_a.png" alt="Background QR" class="img-fluid w-100" style="border-radius: 10px;">
+                <img src="${qrDataUrl}" 
+                    alt="QR Code" 
+                    style="position: absolute; 
+                            top: 266px;   /* atur sesuai kebutuhan */
+                            left: 127px;  /* atur sesuai kebutuhan */
+                            width: 203px; 
+                            height: 198px;">
+            </div>
+        `;
+    });
 }
+
 
     </script>
 
