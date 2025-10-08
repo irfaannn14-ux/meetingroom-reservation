@@ -59,14 +59,12 @@
     background-color: #fff;
     border-bottom-color: #007bff;
   }
-  .show-dropdown {
-    display: block;
-  }
+  .show-dropdown { display: block; }
 </style>
 
 <div class="container mt-5" style="max-width: 600px;">
   <div class="card p-4 shadow-lg border-0">
-    <h4 class="mb-4 text-center">Form Presensi (ID: {{ $id }})</h4>
+    <h4 class="mb-4 text-center">Form Presensi</h4>
 
     {{-- pesan error umum (AJAX) --}}
     <div id="formAlert" class="alert alert-danger d-none" role="alert"></div>
@@ -107,7 +105,8 @@
                 </a>
               @endif
             @endforeach
-            <a href="#" data-value="eksternal" data-text="Eksternal">Eksternal</a>
+            {{-- Eksternal HANYA muncul saat Jabatan = Lainnya --}}
+            <a href="#" id="org-eksternal" class="d-none" data-value="eksternal" data-text="Eksternal">Eksternal</a>
           </div>
         </div>
         <input type="hidden" name="organisasi" id="organisasi-input" required>
@@ -125,7 +124,7 @@
       </div>
 
       <button type="submit" class="btn btn-primary w-100">
-        Kirim Presensi
+        Submit
       </button>
     </form>
   </div>
@@ -138,35 +137,45 @@
   const jabatanEl = document.getElementById('fieldJabatan');
   const orgInput = document.getElementById('organisasi-input');
   const selectedOrgSpan = document.getElementById('selected-org');
+  const eksternalLink = document.getElementById('org-eksternal');
+
   const sukmaUrl = 'https://sukma.jatimprov.go.id/fe';
   const postUrl = "{{ route('presensi.store') }}";
 
   const EKST_VALUE = 'eksternal';
   const EKST_LABEL = 'Eksternal';
+  const MAX_PDF_BYTES = 2 * 1024 * 1024; // 2MB
 
-  // Make functions global for onclick handlers (must be before event listeners)
+  function showError(msg) {
+    alertBox.textContent = msg;
+    alertBox.classList.remove('d-none');
+  }
+  function hideError() {
+    alertBox.textContent = '';
+    alertBox.classList.add('d-none');
+  }
+
+  // Toggle dropdown
   window.toggleOrgDropdown = function() {
     document.getElementById("org-dropdown-content").classList.toggle("show-dropdown");
   };
 
+  // Filter opsi (hormati item yang disembunyikan dengan class d-none)
   window.filterOrgOptions = function() {
     const input = event.target;
-    const filter = input.value.toUpperCase();
+    const filter = (input.value || '').toUpperCase();
     const div = document.getElementById("org-dropdown-content");
-    const a = div.getElementsByTagName("a");
+    const links = div.querySelectorAll("a");
     let visibleCount = 0;
-    
-    for (let i = 0; i < a.length; i++) {
-      const txtValue = a[i].textContent || a[i].innerText;
-      if (txtValue.toUpperCase().indexOf(filter) > -1) {
-        a[i].style.display = "";
-        visibleCount++;
-      } else {
-        a[i].style.display = "none";
-      }
-    }
-    
-    // Show/hide "no results" message
+
+    links.forEach(a => {
+      if (a.classList.contains('d-none')) { a.style.display = 'none'; return; }
+      const txtValue = (a.getAttribute('data-text') || a.textContent || '').toUpperCase();
+      const show = txtValue.indexOf(filter) > -1;
+      a.style.display = show ? '' : 'none';
+      if (show) visibleCount++;
+    });
+
     let noResultsMsg = div.querySelector('.no-results-message');
     if (visibleCount === 0 && filter.length > 0) {
       if (!noResultsMsg) {
@@ -184,59 +193,59 @@
     }
   };
 
-  // Handle organization selection
+  // Pilih organisasi
   document.getElementById("org-dropdown-content").addEventListener('click', function(event) {
-    if (event.target.tagName === 'A') {
+    if (event.target.tagName === 'A' && !event.target.classList.contains('d-none')) {
       event.preventDefault();
-      
       const selectedValue = event.target.getAttribute('data-value');
       const selectedText = event.target.getAttribute('data-text');
-      
       orgInput.value = selectedValue;
       selectedOrgSpan.textContent = selectedText;
-      
       document.getElementById("org-dropdown-content").classList.remove("show-dropdown");
     }
   });
 
-  // Close dropdown when clicking outside
+  // Tutup dropdown saat klik di luar container
   window.addEventListener('click', function(event) {
-    if (!event.target.matches('.custom-dropdown-button') && 
-        !event.target.matches('.custom-dropdown-input') && 
-        !event.target.closest('.custom-dropdown-button')) {
+    if (!event.target.closest('.custom-dropdown-container')) {
       const dropdown = document.getElementById("org-dropdown-content");
-      if (dropdown.classList.contains('show-dropdown')) {
-        dropdown.classList.remove('show-dropdown');
-      }
+      if (dropdown.classList.contains('show-dropdown')) dropdown.classList.remove('show-dropdown');
     }
   });
 
-  // Clear search input when dropdown is opened
+  // Clear filter saat dropdown dibuka
   document.querySelector('.custom-dropdown-button').addEventListener('click', function() {
     const searchInput = document.querySelector('#org-dropdown-content .custom-dropdown-input');
     if (searchInput) {
       searchInput.value = '';
-      // Reset all options to visible
       const links = document.querySelectorAll('#org-dropdown-content a');
-      links.forEach(link => link.style.display = '');
+      links.forEach(link => {
+        if (!link.classList.contains('d-none')) link.style.display = '';
+      });
     }
   });
 
+  // Tampilkan/hilangkan “Eksternal” sesuai jabatan + kunci dropdown saat Lainnya
   function lockOrganisasiIfNeeded() {
     const isLainnya = jabatanEl.value === 'Lainnya';
+    const ddBtn = document.querySelector('.custom-dropdown-button');
 
     if (isLainnya) {
+      if (eksternalLink) eksternalLink.classList.remove('d-none'); // tampilkan "Eksternal"
       orgInput.value = EKST_VALUE;
       selectedOrgSpan.textContent = EKST_LABEL;
-      document.querySelector('.custom-dropdown-button').style.pointerEvents = 'none';
-      document.querySelector('.custom-dropdown-button').style.opacity = '0.6';
+      ddBtn.style.pointerEvents = 'none';
+      ddBtn.style.opacity = '0.6';
+      // pastikan dropdown tertutup
+      document.getElementById("org-dropdown-content").classList.remove("show-dropdown");
     } else {
-      document.querySelector('.custom-dropdown-button').style.pointerEvents = 'auto';
-      document.querySelector('.custom-dropdown-button').style.opacity = '1';
+      if (eksternalLink) eksternalLink.classList.add('d-none');   // sembunyikan "Eksternal"
       if (orgInput.value === EKST_VALUE) {
         orgInput.value = '';
         selectedOrgSpan.textContent = 'Pilih organisasi...';
       }
+      ddBtn.style.pointerEvents = 'auto';
+      ddBtn.style.opacity = '1';
     }
   }
 
@@ -246,18 +255,26 @@
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    alertBox.classList.add('d-none');
-    alertBox.textContent = '';
+    hideError();
 
     const ttdInput = document.getElementById('fieldTtd');
-    if (ttdInput.files.length === 0 || ttdInput.files[0].type !== 'application/pdf') {
-      alertBox.textContent = 'TTD Digital wajib berupa file PDF.';
-      alertBox.classList.remove('d-none');
+    const file = ttdInput.files[0];
+
+    if (!file) {
+      showError('Silakan unggah TTD Digital (PDF).');
+      return;
+    }
+    if (file.type !== 'application/pdf') {
+      showError('TTD Digital wajib berupa file PDF.');
+      return;
+    }
+    if (file.size > MAX_PDF_BYTES) {
+      showError('Ukuran file TTD melebihi 2 MB. Silakan kompres atau pilih file lain.');
       return;
     }
 
     const formData = new FormData(form);
-
+    // Jika Lainnya, paksa organisasi=eksternal (karena dropdown dikunci)
     if (jabatanEl.value === 'Lainnya') {
       formData.set('organisasi', EKST_VALUE);
     }
@@ -266,22 +283,37 @@
       const res = await fetch(postUrl, {
         method: 'POST',
         headers: {
-          'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+          'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+          'Accept': 'application/json' // minta JSON untuk 422 error
         },
         body: formData
       });
 
-      const data = await res.json();
-      if (!res.ok || !data.ok) throw new Error(data?.message || 'Gagal menyimpan presensi.');
+      // Toleransi jika server balas HTML (mis. 413 dari web server/PHP)
+      let data;
+      const ct = res.headers.get('content-type') || '';
+      if (ct.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        if (res.status === 413 || /payload too large/i.test(text)) {
+          throw new Error('Ukuran file TTD melebihi 2 MB. Silakan kompres atau pilih file lain.');
+        }
+        throw new Error('Gagal menyimpan presensi. Coba lagi.');
+      }
 
-      // 1) buka SUKMA di tab baru
-      window.open(sukmaUrl, '_blank');
-      // 2) kembali ke history (flash success dari server)
+      if (!res.ok || !data.ok) {
+        throw new Error(data?.message || 'Gagal menyimpan presensi.');
+      }
+
+      // 1) HANYA SUKMA yang buka tab baru
+      window.open('https://sukma.jatimprov.go.id/fe', '_blank', 'noopener,noreferrer');
+
+      // 2) Tab utama kembali ke History (di tab yang sama) dengan flash dari server
       window.location.href = data.redirect;
 
     } catch (err) {
-      alertBox.textContent = err.message || 'Terjadi kesalahan.';
-      alertBox.classList.remove('d-none');
+      showError(err.message || 'Terjadi kesalahan.');
     }
   });
 })();
