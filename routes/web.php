@@ -80,5 +80,13 @@ Route::middleware(['auth.custom'])->group(function () {
     // Presensi
     Route::get('/presensi/{id}', [PresensiController::class, 'create'])->name('presensi.create');
     Route::post('/presensi', [PresensiController::class, 'store'])->name('presensi.store');
+
+    Route::get('/presensi/{pengajuan}/data', [PresensiController::class, 'show'])->name('presensi.show');
+
+    // routes/web.php
+    Route::get('/presensi/ttd/{presensi}', [PresensiController::class, 'downloadTtd'])
+        ->name('presensi.ttd')
+        ->middleware('auth.custom');
+
 });
 

@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 use App\Models\ActivityLog;
 use App\Models\Organization;
+use App\Models\Presensi;
 
 class PresensiController extends Controller
 {
@@ -72,10 +74,21 @@ class PresensiController extends Controller
                 'message' => 'Jika Jabatan “Lainnya”, Organisasi harus “eksternal”.',
             ], 422);
         }
+        // Simpan file TTD
+        $ttdPath = null;
+        if ($request->hasFile('ttd')) {
+            $ttdPath = $request->file('ttd')->store('presensi/ttd', 'public');
+        }
 
-        // === Simpan data/file bila diperlukan ===
-        // Contoh penyimpanan file PDF TTD:
-        // $ttdPath = $request->file('ttd')->store('presensi/ttd', 'public');
+        // Simpan data presensi
+        $presensi = Presensi::create([
+            'pengajuan_id' => $data['pengajuan_id'],
+            'user_id'      => Auth::id(),
+            'nama'         => $data['nama'],
+            'jabatan'      => $data['jabatan'],
+            'organisasi'   => $data['organisasi'],
+            'ttd_path'     => $ttdPath,
+        ]);
 
         // Catat aktivitas (dibungkus try agar tidak mengganggu flow jika tabel/log belum siap)
         try {
@@ -98,6 +111,45 @@ class PresensiController extends Controller
         return response()->json([
             'ok'       => true,
             'redirect' => route('history'),
+            'detail'   => route('presensi.show', $data['pengajuan_id']),
+        ]);
+    }
+    // NEW: halaman detail data presensi per pengajuan
+    public function show($pengajuanId)
+    {
+        // Ambil semua data presensi untuk pengajuan tsb (terbaru dulu)
+        // ->get() untuk semua, atau ->simplePaginate(10) kalau mau paging
+        $presensis = Presensi::where('pengajuan_id', $pengajuanId)
+            ->latest('id')
+            ->get(); // ->simplePaginate(10);
+
+        return view('presensi.show', [
+            'pengajuanId' => $pengajuanId,
+            'presensis'   => $presensis,
+        ]);
+    }
+    public function downloadTtd(Presensi $presensi)
+    {
+        if (!$presensi->ttd_path) {
+            abort(404);
+        }
+
+        // File disimpan di disk 'public' (storage/app/public/...)
+        $disk = Storage::disk('public');
+
+        // Normalisasi path agar tidak dobel 'public/'
+        $path = ltrim(str_replace('public/', '', $presensi->ttd_path), '/');
+
+        if (!$disk->exists($path)) {
+            abort(404);
+        }
+
+        // Stream sebagai PDF
+        return response()->streamDownload(function() use ($disk, $path) {
+            echo $disk->get($path);
+        }, basename($path), [
+            'Content-Type' => 'application/pdf',
+            'Cache-Control' => 'private, max-age=0, must-revalidate',
         ]);
     }
 }

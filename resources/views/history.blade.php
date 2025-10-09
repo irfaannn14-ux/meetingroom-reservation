@@ -148,9 +148,17 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-primary" onclick="showQrCode({{ $pengajuan->id }})">
+                                    <div class="d-inline-flex align-items-center justify-content-center gap-2 flex-wrap">
+                                        <button class="btn btn-sm btn-primary"
+                                                onclick="showQrCode({{ $pengajuan->id }})">
                                         Lihat QR
-                                    </button>
+                                        </button>
+
+                                        <a href="{{ route('presensi.show', $pengajuan->id) }}"
+                                        class="btn btn-sm btn-secondary">
+                                        Detail
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
