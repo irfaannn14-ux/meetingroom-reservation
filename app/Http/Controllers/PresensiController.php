@@ -36,7 +36,6 @@ class PresensiController extends Controller
                 'nama'         => 'required|string|max:255',
                 'jabatan'      => 'required|in:OPD,Lainnya',
                 'organisasi'   => 'required|string|max:100',
-                // 2048 KB = 2 MB
                 'ttd'          => 'required|mimes:pdf|max:2048',
             ],
             [
