@@ -30,17 +30,19 @@ body {
     text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
 }
 .add-button {
-    background-color: var(--color-dark);
-    color: var(--color-light);
+    background: linear-gradient(135deg, #1D64F2 0%, #010D26 100%);
+    color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 12px 24px;
     border-radius: 8px;
     text-decoration: none;
     font-weight: bold;
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: background-color 0.2s;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(29, 100, 242, 0.3);
+    font-size: 16px;
 }
 /* Search bar similar to other index pages */
 .search-container {
@@ -61,7 +63,11 @@ body {
     border: 1px solid #ced4da;
 }
 .add-button:hover {
-    background-color: rgba(1, 13, 38, 0.8);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(29, 100, 242, 0.4);
+}
+.add-button:active {
+    transform: translateY(0);
 }
 .user-grid {
     display: grid;

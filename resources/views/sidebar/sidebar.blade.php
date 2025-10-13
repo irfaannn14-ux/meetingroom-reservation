@@ -98,17 +98,23 @@
         display: flex;
         align-items: center;
         text-decoration: none;
-        color: var(--color-dark);
+        color: white;
         padding: 0.75rem 0.5rem;
         border-radius: 8px;
-        transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        background: linear-gradient(135deg, #1D64F2 0%, #010D26 100%);
+        box-shadow: 0 4px 15px rgba(29, 100, 242, 0.3);
+        transition: all 0.3s ease;
         white-space: nowrap;
         overflow: hidden;
         font-size: 16px;
+        border: none;
     }
     .sidebar-link:hover {
-        background-color: var(--color-hover-bg);
-        color: var(--color-hover-text);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(29, 100, 242, 0.4);
+    }
+    .sidebar-link:active {
+        transform: translateY(0);
     }
     .sidebar-icon {
         min-width: 40px;
@@ -119,9 +125,10 @@
     }
     .sidebar-icon svg {
         transition: stroke 0.2s ease-in-out;
+        stroke: white;
     }
     .sidebar-link:hover .sidebar-icon svg {
-        stroke: var(--color-hover-text);
+        stroke: white;
     }
     .sidebar-link-text {
         opacity: 0;
@@ -142,6 +149,7 @@
         overflow: hidden;
         display: flex;
         flex-direction: column;
+        gap: 0.5rem;
         padding-left: 2.2rem;
         margin-top: 0.2rem;
         transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s cubic-bezier(0.4,0,0.2,1);
@@ -156,22 +164,31 @@
     .sidebar-dropdown-menu .sidebar-link {
         font-size: 15px;
         padding: 0.6rem 0.5rem;
-        background: transparent;
-        color: var(--color-dark);
+        background: linear-gradient(135deg, #1D64F2 0%, #010D26 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(29, 100, 242, 0.3);
     }
     .sidebar-dropdown-menu .sidebar-link:hover {
-        background-color: var(--color-hover-bg);
-        color: var(--color-hover-text);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(29, 100, 242, 0.4);
     }
     button.sidebar-link {
-        background: transparent;
+        background: linear-gradient(135deg, #1D64F2 0%, #010D26 100%);
         border: none;
         margin: 0;
         font-family: inherit;
-        color: inherit;
+        color: white;
         text-align: left;
         width: 100%;
         cursor: pointer;
+        box-shadow: 0 4px 15px rgba(29, 100, 242, 0.3);
+    }
+    button.sidebar-link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(29, 100, 242, 0.4);
+    }
+    button.sidebar-link:active {
+        transform: translateY(0);
     }
 </style>
 

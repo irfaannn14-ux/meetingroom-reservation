@@ -22,7 +22,7 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            padding: 20px;
+            padding: 20px 100px;
             border-radius: 15px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -118,14 +118,20 @@
     @include('sidebar.sidebar')
     @include('navbar.navbar')
     <div class="main-content">
-    <div class="welcome-card d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
-            <div class="me-md-4 mb-3 mb-md-0">
-                <h1 class="welcome-card-text">Selamat Datang, {{ session('user_nama', 'Pengguna') }}!</h1>
-                <p>Di Aplikasi Pengajuan Peminjaman Ruangan</p>
-                <p>Pemerintah Daerah Kab. Probolinggo</p>
+        <div class="welcome-card mb-4" style="position: relative; min-height: 250px; overflow: hidden;">
+            <!-- Background Image -->
+            <div style="position: absolute; top: 0; right: 5%; bottom: 0; width: 55%; background-image: url('{{ asset('images/developers.png') }}'); background-size: contain; background-position: center right; background-repeat: no-repeat; opacity: 1; z-index: 1;"></div>
+            
+            <!-- White Gradient Overlay -->
+            <!-- White Gradient Overlay removed -->
+            
+            <!-- Content -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center" style="position: relative; z-index: 3; min-height: 210px;">
+            <div class="me-md-4 mb-3 mb-md-0" style="flex: 1;">
+            <h1 class="welcome-card-text">Selamat Datang, {{ session('user_nama', 'Pengguna') }}!</h1>
+            <p>Di Aplikasi Pengajuan Peminjaman Ruangan</p>
+            <p>Pemerintah Daerah Kab. Probolinggo</p>
             </div>
-            <div>
-                <img src="{{ asset('images/gambar.jpeg') }}" alt="Welcome Image">
             </div>
         </div>
 
@@ -253,46 +259,69 @@
             color: #010D26 !important;
         }
 
-        /* FullCalendar toolbar buttons */
+        /* FullCalendar toolbar buttons - Updated with Gradient like Sign In */
         .fc .fc-toolbar .fc-button,
         .fc .fc-toolbar .fc-button-primary,
         .fc .fc-toolbar .btn,
         .fc .fc-toolbar .btn-primary,
         .fc .fc-toolbar-chunk .fc-button,
-        .fc .fc-toolbar-chunk .btn {
-            background-color: #010D26 !important;
+        .fc .fc-toolbar-chunk .btn,
+        .fc-button-primary:not(:disabled):not(.disabled),
+        .fc-button-primary:not(:disabled),
+        .fc .fc-button-primary:not(:disabled):not(.fc-button-active):not(:active) {
+            background: linear-gradient(135deg, #1D64F2 0%, #010D26 100%) !important;
+            background-color: #1D64F2 !important;
             color: #ffffff !important;
-            border: 1px solid #010D26 !important;
-            background-image: none !important;
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 1px 2px rgba(0,0,0,0.05) !important;
-            transition: background-color 0.12s ease, color 0.12s ease, box-shadow 0.12s ease !important;
+            border: none !important;
+            border-left: none !important;
+            border-right: none !important;
+            background-image: linear-gradient(135deg, #1D64F2 0%, #010D26 100%) !important;
+            box-shadow: 0 4px 15px rgba(29, 100, 242, 0.3) !important;
+            transition: all 0.3s ease !important;
+            font-weight: 600 !important;
+            border-radius: 6px !important;
+            padding: 0.5em 1em !important;
+            margin: 0 5px !important;
         }
 
         .fc .fc-button-primary,
         .fc .btn-primary,
         .fc .fc-toolbar .fc-button.active,
-        .fc .fc-toolbar .fc-button[aria-pressed="true"] {
-            background-color: #010D26 !important;
+        .fc .fc-toolbar .fc-button.fc-button-active,
+        .fc .fc-toolbar .fc-button[aria-pressed="true"],
+        .fc-button-primary.fc-button-active {
+            background: linear-gradient(135deg, #1D64F2 0%, #010D26 100%) !important;
+            background-color: #1D64F2 !important;
             color: #ffffff !important;
-            border-color: #010D26 !important;
-            background-image: none !important;
-            box-shadow: none !important;
+            border: none !important;
+            background-image: linear-gradient(135deg, #1D64F2 0%, #010D26 100%) !important;
+            box-shadow: 0 4px 15px rgba(29, 100, 242, 0.4) !important;
         }
 
         .fc .fc-toolbar .fc-button:hover,
         .fc .fc-toolbar .btn:hover,
         .fc .fc-toolbar-chunk .fc-button:hover,
         .fc .fc-toolbar .fc-button:focus,
-        .fc .fc-toolbar .btn:focus {
-            background-color: var(--color-light, #ffffff) !important;
-            color: var(--color-dark, #010D26) !important;
-            border-color: transparent !important;
-            box-shadow: inset 0 0 0 1px rgba(1,13,38,0.06), 0 1px 2px rgba(0,0,0,0.04) !important;
+        .fc .fc-toolbar .btn:focus,
+        .fc-button-primary:hover,
+        .fc-button-primary:not(:disabled):not(.disabled):hover {
+            background: linear-gradient(135deg, #1D64F2 0%, #010D26 100%) !important;
+            background-color: #1D64F2 !important;
+            color: #ffffff !important;
+            border: none !important;
+            background-image: linear-gradient(135deg, #1D64F2 0%, #010D26 100%) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(29, 100, 242, 0.4) !important;
+        }
+
+        .fc .fc-toolbar .fc-button:active,
+        .fc .fc-toolbar .btn:active {
+            transform: translateY(0) !important;
         }
 
         .fc .fc-toolbar .fc-button:focus-visible,
         .fc .fc-toolbar .btn:focus-visible {
-            outline: 3px solid rgba(1,13,38,0.12) !important;
+            outline: 3px solid rgba(29, 100, 242, 0.3) !important;
             outline-offset: 2px !important;
         }
 
@@ -300,9 +329,76 @@
         .fc .fc-toolbar .btn[disabled],
         .fc .fc-toolbar .fc-button.disabled,
         .fc .fc-toolbar .btn.disabled {
-            background-color: #f8f9fa !important;
-            color: #6c757d !important;
-            border-color: #e9ecef !important;
+            background: #6c757d !important;
+            color: #ffffff !important;
+            border: none !important;
+            opacity: 0.5 !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+        
+        /* Fix for button icons visibility */
+        .fc .fc-toolbar .fc-button .fc-icon,
+        .fc .fc-toolbar .fc-button span {
+            color: #ffffff !important;
+            font-weight: bold !important;
+        }
+        
+        /* Ensure proper spacing and visibility */
+        .fc .fc-toolbar .fc-button {
+            min-width: 40px !important;
+            min-height: 40px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            margin: 0 6px !important;
+        }
+        
+        /* Remove default button group styling that makes buttons stick together */
+        .fc .fc-button-group > .fc-button {
+            border-radius: 6px !important;
+            margin: 0 5px !important;
+            border-left: none !important;
+            border-right: none !important;
+        }
+        
+        .fc .fc-button-group > .fc-button:not(:last-child) {
+            margin-right: 5px !important;
+            border-top-right-radius: 6px !important;
+            border-bottom-right-radius: 6px !important;
+        }
+        
+        .fc .fc-button-group > .fc-button:not(:first-child) {
+            margin-left: 5px !important;
+            border-top-left-radius: 6px !important;
+            border-bottom-left-radius: 6px !important;
+        }
+        
+        .fc .fc-button-group > .fc-button:first-child {
+            border-radius: 6px !important;
+        }
+        
+        .fc .fc-button-group > .fc-button:last-child {
+            border-radius: 6px !important;
+        }
+        
+        /* Add gap between button groups */
+        .fc .fc-toolbar-chunk {
+            display: flex !important;
+            gap: 12px !important;
+            align-items: center !important;
+        }
+        
+        .fc .fc-button-group {
+            display: flex !important;
+            gap: 6px !important;
+        }
+        
+        /* Calendar header styling to ensure proper contrast */
+        .fc .fc-toolbar-title {
+            color: #010D26 !important;
+            font-weight: 700 !important;
+            font-size: 1.5rem !important;
         }
     </style>
 @endsection

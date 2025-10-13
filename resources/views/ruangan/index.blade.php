@@ -189,6 +189,33 @@
             background-color: #6c757d;
             color: white;
         }
+        
+        /* Custom Add Button with Gradient like Sign In */
+        .btn-add-custom {
+            background: linear-gradient(135deg, #1D64F2 0%, #010D26 100%);
+            color: white !important;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(29, 100, 242, 0.3);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-add-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(29, 100, 242, 0.4);
+            color: white !important;
+        }
+        .btn-add-custom:active {
+            transform: translateY(0);
+        }
+        
         /* Brand primary for add buttons */
         .btn-primary {
             background-color: #010D26 !important;
@@ -225,7 +252,7 @@
                         <input type="search" id="searchInput" onkeyup="filterTable()" class="form-control" placeholder="Cari nama, kapasitas, fasilitas...">
                     </div>
                     @if(session('user_role') !== 'OPD')
-                    <a href="{{ route('ruangan.tambah') }}" class="btn btn-primary">
+                    <a href="{{ route('ruangan.tambah') }}" class="btn btn-add-custom">
                         <i class="bi bi-plus-circle-fill"></i> Tambah Ruangan
                     </a>
                     @endif
