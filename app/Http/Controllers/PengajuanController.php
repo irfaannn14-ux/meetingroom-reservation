@@ -40,7 +40,31 @@ class PengajuanController extends Controller
             'ditolak' => $ditolakQuery->where('status', 'ditolak')->count(),
         ];
 
-        return view('dashboard', compact('stats'));
+        // Get top 5 most booked rooms
+        $topRoomsQuery = Pengajuan::select('ruangan_id', DB::raw('count(*) as total'))
+            ->groupBy('ruangan_id')
+            ->orderBy('total', 'desc')
+            ->limit(5)
+            ->with('ruangan');
+
+        // Apply same filter for OPD users
+        if ($userRole === 'OPD') {
+            $topRoomsQuery->where('user_id', $userId);
+        }
+
+        $topRooms = $topRoomsQuery->get();
+
+        // Prepare data for chart
+        $roomNames = [];
+        $roomCounts = [];
+        $roomColors = ['#6366F1', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981']; // Modern colors
+
+        foreach ($topRooms as $index => $room) {
+            $roomNames[] = $room->ruangan ? $room->ruangan->nama_ruangan : 'Unknown';
+            $roomCounts[] = $room->total;
+        }
+
+        return view('dashboard', compact('stats', 'roomNames', 'roomCounts', 'roomColors'));
     }
 
     /**

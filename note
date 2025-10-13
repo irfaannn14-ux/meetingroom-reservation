@@ -1,12 +1,6 @@
 To Do:
-<!-- - filterisasi berdasarkan kolom tabel yang ada -->
-<!-- - integrasi kalender -->
-<!-- - fitur review peminjaman ruangan setelah penggunaan sebagai feedback dari peminjam -->
-- notifikasi pada navbar digunakan untuk notif apa?
-- multi-language support (ID - ENG)
-- responsive design for mobile web
-<!-- - statistik penggunaan ruangan khusus untuk admin dan super admin -->
-- re-design cz this one sucks
+- dashboard: add pie chart showing top 5 most booked rooms
+menggunakan apexcharts.js; data diambil dari table pengajuans, lalu di sort ruangan yang dipinjam dari keseluruhan pengajuan yang ada dari terbanyak ke terendah, lalu di ambil 5 teratas;
 
-<!-- - sidebar gaperlu hover, tapi perlu di click -->
-<!-- - menambahkan fitur activity log untuk melihat perubahan2 yg dilakukan oleh admin dan superadmin -->
+- dashboard: add heatmap for busy hours
+menggunakan apexcharts.js; data diambil dari table pengajuans, lalu di sort jam-jam yang paling banyak di pinjam dari keseluruhan pengajuan yang ada, lalu di show dengan pembagian tiap 2 jam (0-2, 2-4, dst);

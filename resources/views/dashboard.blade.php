@@ -48,15 +48,9 @@
             border-radius: 15px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-        }
-
-        .info-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
 
         .icon-box {
@@ -106,6 +100,28 @@
             border-width: 1px;
             border-style: solid;
         }
+        
+        /* Developer Image Shift on Sidebar Hover */
+        .developer-image {
+            position: absolute;
+            top: 0;
+            right: 5%;
+            bottom: 0;
+            width: 55%;
+            background-image: url('{{ asset('images/developers.png') }}');
+            background-size: contain;
+            background-position: center right;
+            background-repeat: no-repeat;
+            opacity: 1;
+            z-index: 1;
+            transition: right 0.3s ease, width 0.3s ease;
+        }
+        
+        /* Shift image when sidebar is hovered */
+        .sidebar:hover ~ .main-content .developer-image {
+            right: -5%;
+            width: 50%;
+        }
 
         @media (max-width: 900px) {
             .calendar-container {
@@ -118,14 +134,10 @@
     @include('sidebar.sidebar')
     @include('navbar.navbar')
     <div class="main-content">
-        <div class="welcome-card mb-4" style="position: relative; min-height: 250px; overflow: hidden;">
-            <!-- Background Image -->
-            <div style="position: absolute; top: 0; right: 5%; bottom: 0; width: 55%; background-image: url('{{ asset('images/developers.png') }}'); background-size: contain; background-position: center right; background-repeat: no-repeat; opacity: 1; z-index: 1;"></div>
-            
-            <!-- White Gradient Overlay -->
-            <!-- White Gradient Overlay removed -->
-            
-            <!-- Content -->
+        <!-- Welcome Card-->
+        <div class="welcome-card mb-4" style="position: relative; min-height: 250px; overflow: hidden;" title="Made with ❤️ by Tim IT Diskominfo Kab. Probolinggo, Featuring Anak Magang 😁">
+            <!-- Developer Image with shift effect -->
+            <div class="developer-image"></div>
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center" style="position: relative; z-index: 3; min-height: 210px;">
             <div class="me-md-4 mb-3 mb-md-0" style="flex: 1;">
             <h1 class="welcome-card-text">Selamat Datang, {{ session('user_nama', 'Pengguna') }}!</h1>
@@ -135,6 +147,7 @@
             </div>
         </div>
 
+        <!-- Info Cards -->
         <div class="row">
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="card info-card h-100">
@@ -208,14 +221,43 @@
         </div>
         <!-- End Calendar Section -->
 
+        <!-- Additional Info Section -->
+        <div class="row">
+            <div class="col-lg-6 col-md-6 mb-4">
+                <div class="card info-card h-100">
+                    <div class="card-body">
+                        <h5 class="mb-3" style="color:#010D26;font-weight:bold;font-family:'Montserrat',sans-serif;">
+                            <i class="fas fa-info-circle me-2"></i>HeatMap Penggunaan Ruangan Hari Ini
+                        </h5>
+                        <p>Konten untuk div kiri</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 col-md-6 mb-4">
+                <div class="card info-card h-100">
+                    <div class="card-body">
+                        <h5 class="mb-3" style="color:#010D26;font-weight:bold;font-family:'Montserrat',sans-serif;">
+                            <i class="fas fa-chart-pie me-2"></i>Top 5 Ruangan Terpopuler
+                        </h5>
+                        <div id="roomPieChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
+    <!-- ApexCharts JS -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    
     <!-- FullCalendar JS -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/id.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', function() {
+        // FullCalendar
         var calendarEl = document.getElementById('calendar');
 
         var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -245,6 +287,117 @@
         });
 
         calendar.render();
+
+        // ApexCharts - Room Pie Chart
+        var roomNames = @json($roomNames);
+        var roomCounts = @json($roomCounts);
+        var roomColors = @json($roomColors);
+        
+        var totalBookings = roomCounts.reduce((a, b) => a + b, 0);
+
+        var pieChartOptions = {
+            series: roomCounts,
+            chart: {
+                type: 'donut',
+                height: 380,
+                fontFamily: 'Montserrat, sans-serif',
+            },
+            labels: roomNames,
+            colors: roomColors,
+            legend: {
+                position: 'right',
+                fontSize: '14px',
+                fontWeight: 600,
+                markers: {
+                    width: 12,
+                    height: 12,
+                    radius: 6,
+                },
+                itemMargin: {
+                    horizontal: 5,
+                    vertical: 8
+                }
+            },
+            states: {
+                hover: {
+                    filter: {
+                        type: 'none'
+                    }
+                },
+                active: {
+                    filter: {
+                        type: 'none'
+                    }
+                }
+            },
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '70%',
+                        labels: {
+                            show: true,
+                            name: {
+                                show: true,
+                                fontSize: '18px',
+                                fontWeight: 700,
+                                color: '#010D26',
+                                offsetY: -10,
+                            },
+                            value: {
+                                show: true,
+                                fontSize: '32px',
+                                fontWeight: 700,
+                                color: '#010D26',
+                                offsetY: 10,
+                                formatter: function (val) {
+                                    return val + ' kali'
+                                }
+                            },
+                            total: {
+                                show: true,
+                                label: 'Total Booking',
+                                fontSize: '16px',
+                                fontWeight: 600,
+                                color: '#6c757d',
+                                formatter: function (w) {
+                                    return totalBookings + ' kali'
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            tooltip: {
+                enabled: true,
+                y: {
+                    formatter: function(value, { seriesIndex }) {
+                        var percentage = ((value / totalBookings) * 100).toFixed(1);
+                        return value + ' kali (' + percentage + '%)'
+                    }
+                },
+                style: {
+                    fontSize: '14px',
+                    fontFamily: 'Montserrat, sans-serif'
+                }
+            },
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                    chart: {
+                        height: 300
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }]
+        };
+
+        var pieChart = new ApexCharts(document.querySelector("#roomPieChart"), pieChartOptions);
+        pieChart.render();
       });
     </script>
 @endsection
