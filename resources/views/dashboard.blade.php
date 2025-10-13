@@ -227,9 +227,9 @@
                 <div class="card info-card h-100">
                     <div class="card-body">
                         <h5 class="mb-3" style="color:#010D26;font-weight:bold;font-family:'Montserrat',sans-serif;">
-                            <i class="fas fa-info-circle me-2"></i>HeatMap Penggunaan Ruangan Hari Ini
+                            <i class="fas fa-fire me-2"></i>HeatMap Jam Tersibuk
                         </h5>
-                        <p>Konten untuk div kiri</p>
+                        <div id="bookingHeatmap"></div>
                     </div>
                 </div>
             </div>
@@ -243,6 +243,54 @@
                         <div id="roomPieChart"></div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- New Info Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+            <div class="card info-card h-100">
+                <div class="card-body">
+                <h5 class="mb-3" style="color:#010D26;font-weight:bold;font-family:'Montserrat',sans-serif;">
+                    <i class="fas fa-info-circle me-2"></i>Informasi Tambahan
+                </h5>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box" style="background-color: #6f42c1;">
+                        <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="ms-3">
+                        <h6 class="mb-0 card-title-text" style="color: #343a40; font-weight: bold; font-family: 'Montserrat', sans-serif;">Jam Operasional</h6>
+                        <p class="mb-0" style="color: #343a40; font-weight: bold; font-family: 'Montserrat', sans-serif;">08:00 - 17:00 WIB</p>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box" style="background-color: #fd7e14;">
+                        <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="ms-3">
+                        <h6 class="mb-0 card-title-text" style="color: #343a40; font-weight: bold; font-family: 'Montserrat', sans-serif;">Hari Kerja</h6>
+                        <p class="mb-0" style="color: #343a40; font-weight: bold; font-family: 'Montserrat', sans-serif;">Senin - Jumat</p>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box" style="background-color: #20c997;">
+                        <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="ms-3">
+                        <h6 class="mb-0 card-title-text" style="color: #343a40; font-weight: bold; font-family: 'Montserrat', sans-serif;">Kontak</h6>
+                        <p class="mb-0" style="color: #343a40; font-weight: bold; font-family: 'Montserrat', sans-serif;">(Insert Nomor Kontak Here)</p>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                </div>
+            </div>
             </div>
         </div>
 
@@ -398,6 +446,157 @@
 
         var pieChart = new ApexCharts(document.querySelector("#roomPieChart"), pieChartOptions);
         pieChart.render();
+
+        // ApexCharts - Booking Heatmap
+        var heatmapData = @json($heatmapData);
+        var days = @json($days);
+
+        var heatmapOptions = {
+            series: heatmapData,
+            chart: {
+                type: 'heatmap',
+                height: 450,
+                fontFamily: 'Montserrat, sans-serif',
+                toolbar: {
+                    show: false
+                }
+            },
+            plotOptions: {
+                heatmap: {
+                    shadeIntensity: 0.5,
+                    radius: 6,
+                    useFillColorAsStroke: false,
+                    colorScale: {
+                        ranges: [{
+                            from: 0,
+                            to: 0,
+                            name: 'Tidak ada',
+                            color: '#F0F4F8'
+                        },
+                        {
+                            from: 1,
+                            to: 2,
+                            name: 'Rendah',
+                            color: '#C9DFF2'
+                        },
+                        {
+                            from: 3,
+                            to: 5,
+                            name: 'Sedang',
+                            color: '#7BB5E8'
+                        },
+                        {
+                            from: 6,
+                            to: 10,
+                            name: 'Tinggi',
+                            color: '#1D64F2'
+                        },
+                        {
+                            from: 11,
+                            to: 999,
+                            name: 'Sangat Tinggi',
+                            color: '#010D26'
+                        }]
+                    }
+                }
+            },
+            dataLabels: {
+                enabled: true,
+                style: {
+                    colors: ['#010D26'],
+                    fontSize: '12px',
+                    fontFamily: 'Montserrat, sans-serif',
+                    fontWeight: 600
+                },
+                formatter: function(val) {
+                    return val === 0 ? '' : val;
+                }
+            },
+            xaxis: {
+                categories: days,
+                labels: {
+                    style: {
+                        colors: '#010D26',
+                        fontSize: '13px',
+                        fontFamily: 'Montserrat, sans-serif',
+                        fontWeight: 600
+                    }
+                },
+                axisBorder: {
+                    show: true,
+                    color: '#C9DFF2'
+                },
+                axisTicks: {
+                    show: true,
+                    color: '#C9DFF2'
+                }
+            },
+            yaxis: {
+                labels: {
+                    style: {
+                        colors: '#010D26',
+                        fontSize: '12px',
+                        fontFamily: 'Montserrat, sans-serif',
+                        fontWeight: 500
+                    }
+                }
+            },
+            legend: {
+                show: true,
+                position: 'bottom',
+                horizontalAlign: 'center',
+                fontSize: '13px',
+                fontFamily: 'Montserrat, sans-serif',
+                fontWeight: 600,
+                markers: {
+                    width: 20,
+                    height: 8,
+                    radius: 2
+                },
+                itemMargin: {
+                    horizontal: 10,
+                    vertical: 5
+                }
+            },
+            tooltip: {
+                enabled: true,
+                y: {
+                    formatter: function(value) {
+                        return value + ' booking'
+                    }
+                },
+                style: {
+                    fontSize: '13px',
+                    fontFamily: 'Montserrat, sans-serif'
+                }
+            },
+            states: {
+                hover: {
+                    filter: {
+                        type: 'none'
+                    }
+                },
+                active: {
+                    filter: {
+                        type: 'none'
+                    }
+                }
+            },
+            responsive: [{
+                breakpoint: 768,
+                options: {
+                    chart: {
+                        height: 350
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }]
+        };
+
+        var heatmapChart = new ApexCharts(document.querySelector("#bookingHeatmap"), heatmapOptions);
+        heatmapChart.render();
       });
     </script>
 @endsection

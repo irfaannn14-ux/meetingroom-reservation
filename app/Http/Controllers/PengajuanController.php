@@ -64,7 +64,79 @@ class PengajuanController extends Controller
             $roomCounts[] = $room->total;
         }
 
-        return view('dashboard', compact('stats', 'roomNames', 'roomCounts', 'roomColors'));
+        // Get heatmap data - booking count by time slots (2 hour intervals)
+        $heatmapQuery = Pengajuan::select(
+                DB::raw('HOUR(tanggal_mulai) as hour'),
+                DB::raw('DAYNAME(tanggal_mulai) as day_name'),
+                DB::raw('COUNT(*) as count')
+            )
+            ->where('status', 'disetujui');
+
+        // Apply same filter for OPD users
+        if ($userRole === 'OPD') {
+            $heatmapQuery->where('user_id', $userId);
+        }
+
+        $bookingsByTime = $heatmapQuery
+            ->groupBy('hour', 'day_name')
+            ->get();
+
+        // Define time slots (2-hour intervals)
+        $timeSlots = [
+            '00:00-02:00',
+            '02:00-04:00',
+            '04:00-06:00',
+            '06:00-08:00',
+            '08:00-10:00',
+            '10:00-12:00',
+            '12:00-14:00',
+            '14:00-16:00',
+            '16:00-18:00',
+            '18:00-20:00',
+            '20:00-22:00',
+            '22:00-00:00'
+        ];
+
+        // Define days mapping
+        $daysMap = [
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu',
+            'Sunday' => 'Minggu'
+        ];
+        $days = array_values($daysMap);
+
+        // Initialize heatmap data structure
+        $heatmapData = [];
+        foreach ($timeSlots as $slot) {
+            $row = ['name' => $slot];
+            foreach ($days as $day) {
+                $row['data'][] = 0;
+            }
+            $heatmapData[] = $row;
+        }
+
+        // Fill in actual booking counts
+        foreach ($bookingsByTime as $booking) {
+            $hour = $booking->hour;
+            $dayName = $booking->day_name;
+            $count = $booking->count;
+
+            // Find time slot index (every 2 hours)
+            $slotIndex = floor($hour / 2);
+            
+            // Find day index
+            $dayIndex = array_search($daysMap[$dayName] ?? $dayName, $days);
+
+            if ($slotIndex !== false && $dayIndex !== false && isset($heatmapData[$slotIndex])) {
+                $heatmapData[$slotIndex]['data'][$dayIndex] = (int)$count;
+            }
+        }
+
+        return view('dashboard', compact('stats', 'roomNames', 'roomCounts', 'roomColors', 'heatmapData', 'days'));
     }
 
     /**
