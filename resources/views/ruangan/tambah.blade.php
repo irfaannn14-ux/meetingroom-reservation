@@ -52,7 +52,7 @@ $isEdit = isset($ruangan);
                     @if($isEdit && $ruangan->foto_ruangan)
                         <div class="mt-2">
                             <small class="text-muted">Foto saat ini:</small><br>
-                            <img src="{{ asset('storage/images/ruangan/' . $ruangan->foto_ruangan) }}" alt="Foto Ruangan" class="img-thumbnail" style="width: 100px;">
+                            <img src="{{ asset('storage/' . $ruangan->foto_ruangan) }}" alt="Foto Ruangan" class="img-thumbnail" style="width: 200px;">
                         </div>
                     @endif
                 </div>

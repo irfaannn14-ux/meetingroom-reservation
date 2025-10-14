@@ -239,6 +239,34 @@
     .status-disetujui { background: #28a745; }
     .status-ditolak { background: #dc3545; }
 
+    /* Custom Close Button */
+    .btn-close-custom {
+        background: linear-gradient(135deg, #dc3545 0%, #a71d2a 100%);
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+        color: white;
+        font-size: 16px;
+    }
+    .btn-close-custom:hover {
+        transform: translateY(-2px) rotate(90deg);
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    }
+    .btn-close-custom:active {
+        transform: translateY(0) rotate(90deg);
+    }
+    .btn-close-custom i {
+        margin: 0;
+    }
+
 </style>
 
 <div class="main-content">
@@ -322,7 +350,12 @@
 {{-- MODAL 1: Detail Pengajuan --}}
 <div id="detailModal" class="modal">
     <div class="modal-content">
-        <h3>Detail Pengajuan</h3>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 style="margin-bottom: 0;">Detail Pengajuan</h3>
+            <button type="button" class="btn-close-custom" onclick="closeModal('detailModal')" title="Tutup">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
         <table class="table table-bordered text-start">
             <tr><th width="30%">Nama Pengaju</th><td id="modalNamaPengaju"></td></tr>
             <tr><th>Organisasi/Role</th><td id="modalOrganisasi"></td></tr>
@@ -339,6 +372,10 @@
         <div class="modal-actions">
             <button class="btn btn-danger" onclick="openConfirmModal('ditolak')"><i class="bi bi-x-circle-fill"></i> Deny</button>
             <button class="btn btn-success" onclick="openConfirmModal('disetujui')"><i class="bi bi-check-circle-fill"></i> Approve</button>
+        </div>
+        @else
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeModal('detailModal')"><i class="bi bi-x-circle"></i> Tutup</button>
         </div>
         @endif
     </div>

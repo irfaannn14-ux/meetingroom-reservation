@@ -1,6 +1,11 @@
-To Do:
-- dashboard: add pie chart showing top 5 most booked rooms
-menggunakan apexcharts.js; data diambil dari table pengajuans, lalu di sort ruangan yang dipinjam dari keseluruhan pengajuan yang ada dari terbanyak ke terendah, lalu di ambil 5 teratas;
+revisi:
+1. di form edit ruangan, foto ruangan seharusnya muncul; DONE!
+2. di modal view ruangan, diberikan button untuk tutup modal;
+3. di history presensi, rename kolom ID menjadi 'Nomor';
 
-- dashboard: add heatmap for busy hours
-menggunakan apexcharts.js; data diambil dari table pengajuans, lalu di sort jam-jam yang paling banyak di pinjam dari keseluruhan pengajuan yang ada, lalu di show dengan pembagian tiap 2 jam (0-2, 2-4, dst);
+4. di history presensi, tidak perlu kolom TTD, diganti dengan 1 button yang download semua TTD dalam 1 file PDF;
+5. di form presensi, diubah antara lain sebagai berikut:
+  - input jabatan menjadi textfield manual saja;
+  - organisasi ditambahkan opsi 'Lainnya' yang jika dipilih, akan memunculkan textfield manual untuk input organisasi;
+  - TTD Digital diubah menjadi menggunakan library signature pad;
+
