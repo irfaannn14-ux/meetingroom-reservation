@@ -83,10 +83,8 @@ Route::middleware(['auth.custom'])->group(function () {
 
     Route::get('/presensi/{pengajuan}/data', [PresensiController::class, 'show'])->name('presensi.show');
 
-    // routes/web.php
-    Route::get('/presensi/ttd/{presensi}', [PresensiController::class, 'downloadTtd'])
-        ->name('presensi.ttd')
-        ->middleware('auth.custom');
+    Route::get('/presensi/{pengajuanId}/download-ttd', [PresensiController::class, 'downloadAllTtd'])
+        ->name('presensi.download-all-ttd');
 
 });
 

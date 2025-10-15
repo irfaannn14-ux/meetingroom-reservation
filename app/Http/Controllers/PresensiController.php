@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\ActivityLog;
 use App\Models\Organization;
 use App\Models\Presensi;
+use Mpdf\Mpdf;
+use Mpdf\Output\Destination;
 
 class PresensiController extends Controller
 {
@@ -113,42 +115,71 @@ class PresensiController extends Controller
             'detail'   => route('presensi.show', $data['pengajuan_id']),
         ]);
     }
+
     // NEW: halaman detail data presensi per pengajuan
     public function show($pengajuanId)
     {
-        // Ambil semua data presensi untuk pengajuan tsb (terbaru dulu)
-        // ->get() untuk semua, atau ->simplePaginate(10) kalau mau paging
+
         $presensis = Presensi::where('pengajuan_id', $pengajuanId)
-            ->latest('id')
-            ->get(); // ->simplePaginate(10);
+            ->orderBy('created_at', 'asc')
+            ->get();
 
         return view('presensi.show', [
             'pengajuanId' => $pengajuanId,
             'presensis'   => $presensis,
         ]);
     }
-    public function downloadTtd(Presensi $presensi)
-    {
-        if (!$presensi->ttd_path) {
-            abort(404);
-        }
 
-        // File disimpan di disk 'public' (storage/app/public/...)
-        $disk = Storage::disk('public');
+    public function downloadAllTtd($pengajuanId)
+{
+    $presensis = Presensi::where('pengajuan_id', $pengajuanId)
+        ->whereNotNull('ttd_path')
+        ->orderBy('created_at')
+        ->get();
 
-        // Normalisasi path agar tidak dobel 'public/'
-        $path = ltrim(str_replace('public/', '', $presensi->ttd_path), '/');
-
-        if (!$disk->exists($path)) {
-            abort(404);
-        }
-
-        // Stream sebagai PDF
-        return response()->streamDownload(function() use ($disk, $path) {
-            echo $disk->get($path);
-        }, basename($path), [
-            'Content-Type' => 'application/pdf',
-            'Cache-Control' => 'private, max-age=0, must-revalidate',
-        ]);
+    if ($presensis->isEmpty()) {
+        return back()->with('error', 'Tidak ada TTD untuk pengajuan ini.');
     }
+
+    $mpdf = new Mpdf([
+        'tempDir' => storage_path('app/mpdf-temp'),
+        'format'  => 'A4',
+    ]);
+
+    $imported = 0;
+
+    foreach ($presensis as $p) {
+        $pdfPath = storage_path('app/public/' . ltrim($p->ttd_path, '/'));
+        if (!is_file($pdfPath)) continue;
+
+        // Pastikan benar‐benar PDF (jaga-jaga)
+        $isPdf = strtolower(pathinfo($pdfPath, PATHINFO_EXTENSION)) === 'pdf';
+        if (function_exists('mime_content_type')) {
+            $isPdf = $isPdf && mime_content_type($pdfPath) === 'application/pdf';
+        }
+        if (!$isPdf) continue;
+
+        try {
+            $pageCount = $mpdf->SetSourceFile($pdfPath);
+
+            for ($i = 1; $i <= $pageCount; $i++) {
+                $tpl  = $mpdf->ImportPage($i);
+                $size = $mpdf->getTemplateSize($tpl); // menjaga orientasi asli
+                $mpdf->AddPage($size['orientation']);
+                $mpdf->UseTemplate($tpl);
+                $imported++;
+            }
+        } catch (\Throwable $e) {
+            // Lewati file bermasalah, lanjut lainnya
+            continue;
+        }
+    }
+
+    if ($imported === 0) {
+        return back()->with('error', 'Tidak ada file PDF TTD yang valid untuk digabung.');
+    }
+
+    return $mpdf->Output("ttd-pengajuan-{$pengajuanId}.pdf", Destination::INLINE);
+}
+
 }

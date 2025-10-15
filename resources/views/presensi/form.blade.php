@@ -69,8 +69,11 @@
     {{-- pesan error umum (AJAX) --}}
     <div id="formAlert" class="alert alert-danger d-none" role="alert"></div>
 
-    <form id="formPresensi" enctype="multipart/form-data">
-      @csrf
+    <form id="formPresensi"
+      method="POST"
+      action="{{ route('presensi.store') }}"
+      enctype="multipart/form-data">
+  @csrf
       <input type="hidden" name="pengajuan_id" value="{{ $id }}">
 
       <div class="mb-3">

@@ -50,6 +50,17 @@
                     </div>
                 @endif
 
+                <div class="actions-bar mb-3">
+                    <a href="{{ route('presensi.download-all-ttd', $pengajuanId) }}" class="btn btn-primary">
+                        {{-- ikon kecil optional --}}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="margin-right:.4rem">
+                            <path d="M5 20h14v-2H5v2zm7-18l-5 5h3v6h4V7h3l-5-5z"/>
+                        </svg>
+                        Unduh Semua TTD
+                    </a>
+                </div>
+
+
                 <table>
                     <thead>
                         <tr>
@@ -58,41 +69,24 @@
                             <th>Jabatan</th>
                             <th>Organisasi</th>
                             <th>Waktu Presensi</th>
-                            <th>TTD Digital</th>
                         </tr>
                     </thead>
                     <tbody>
-  @forelse($presensis as $presensi)
-    <tr>
-      <td>{{ $loop->iteration }}</td>
-      <td>{{ $presensi->nama }}</td>
-      <td>{{ $presensi->jabatan }}</td>
-      <td>{{ $presensi->organisasi_nama ?? $presensi->organisasi }}</td>
-      <td>{{ optional($presensi->created_at)->format('d-m-Y H:i') }} WIB</td>
-      <td>
-  @if($presensi->ttd_path)
-    <a href="{{ route('presensi.ttd', $presensi) }}"
-       class="btn btn-sm btn-primary"
-       target="_blank" rel="noopener">
-      Lihat / Unduh
-    </a>
-  @else
-    <button class="btn btn-sm btn-secondary" disabled>TTD tidak ada</button>
-  @endif
-</td>
-
-    </tr>
-  @empty
-    <tr>
-      <td colspan="7" class="text-center py-4">Belum ada data presensi untuk pengajuan ID: {{ $pengajuanId }}.</td>
-    </tr>
-  @endforelse
-</tbody>
-
+                        @forelse($presensis as $presensi)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $presensi->nama }}</td>
+                                <td>{{ $presensi->jabatan }}</td>
+                                <td>{{ $presensi->organisasi_nama ?? $presensi->organisasi }}</td>
+                                <td>{{ optional($presensi->created_at)->format('d-m-Y H:i') }} WIB</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center py-4">Belum ada data presensi untuk pengajuan ID: {{ $pengajuanId }}.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
                 </table>
-
-                {{-- kalau pakai paginate: --}}
-                {{-- <div class="mt-3">{{ $presensis->links() }}</div> --}}
             </div>
         </div>
     </div>
