@@ -2,7 +2,9 @@
 
 @section('title', 'History Pengajuan')
 @section('content')
-    @php use Illuminate\Support\Facades\Storage; @endphp
+    @php use Illuminate\Support\Facades\Storage; 
+    use Carbon\Carbon;
+     @endphp
 
     <style>
         .main-content { padding: 2rem; min-height: 100vh; margin-top: 60px; }
@@ -51,7 +53,7 @@
                 @endif
 
                 <div class="actions-bar mb-3">
-                    <a href="{{ route('presensi.download-all-ttd', $pengajuanId) }}" class="btn btn-primary">
+                    <a href="{{ route('presensi.ttd.all', $pengajuanId) }}" class="btn btn-primary">
                         {{-- ikon kecil optional --}}
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="margin-right:.4rem">
                             <path d="M5 20h14v-2H5v2zm7-18l-5 5h3v6h4V7h3l-5-5z"/>
@@ -78,7 +80,11 @@
                                 <td>{{ $presensi->nama }}</td>
                                 <td>{{ $presensi->jabatan }}</td>
                                 <td>{{ $presensi->organisasi_nama ?? $presensi->organisasi }}</td>
-                                <td>{{ optional($presensi->created_at)->format('d-m-Y H:i') }} WIB</td>
+                                <td>{{optional(isset($presensi->presensi_at) && $presensi->presensi_at
+                                            ? Carbon::parse($presensi->presensi_at)
+                                            : $presensi->created_at)
+                                        ->timezone('Asia/Jakarta')
+                                        ->format('d-m-Y H:i')}} WIB</td>
                             </tr>
                         @empty
                             <tr>

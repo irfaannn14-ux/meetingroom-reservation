@@ -12,8 +12,8 @@ return new class extends Migration {
             $table->unsignedBigInteger('pengajuan_id');
             $table->unsignedBigInteger('user_id')->nullable();
             $table->string('nama', 255);
-            $table->enum('jabatan', ['OPD','Lainnya']);
-            $table->string('organisasi', 100);
+            $table->string('jabatan', 100);   // textfield manual
+            $table->string('organisasi', 255); // bisa ID sync atau teks manual
             $table->string('ttd_path')->nullable();
             $table->timestamps();
 

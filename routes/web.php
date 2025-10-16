@@ -17,14 +17,20 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Other auth pages
-Route::get('/forgotpassword', function () {return view('auth.forgotpassword');});
-Route::get('/new_password', function () {return view('auth.new_password');});
-Route::get('/verifikasi_email', function () {return view('auth.verifikasi_email');});
+Route::get('/forgotpassword', function () {
+    return view('auth.forgotpassword');
+});
+Route::get('/new_password', function () {
+    return view('auth.new_password');
+});
+Route::get('/verifikasi_email', function () {
+    return view('auth.verifikasi_email');
+});
 
 // Protected routes (memerlukan login)
 Route::middleware(['auth.custom'])->group(function () {
     Route::get('/', [PengajuanController::class, 'dashboard'])->name('dashboard');
-    
+
     // Profile routes (for all logged-in users)
     Route::get('/profile', [UserController::class, 'showProfile'])->name('profile.show');
     Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
@@ -35,9 +41,15 @@ Route::middleware(['auth.custom'])->group(function () {
     });
 
     //sidebar, navbar, dan main
-    Route::get('/sidebar', function () {return view('sidebar.sidebar');});
-    Route::get('/navbar', function () {return view('navbar.navbar');});
-    Route::get('/main', function () {return view('layout.main');});
+    Route::get('/sidebar', function () {
+        return view('sidebar.sidebar');
+    });
+    Route::get('/navbar', function () {
+        return view('navbar.navbar');
+    });
+    Route::get('/main', function () {
+        return view('layout.main');
+    });
 
     //ruangan
     Route::get('ruangan/index', [RuanganController::class, 'index'])->name('ruangan.index');
@@ -59,12 +71,12 @@ Route::middleware(['auth.custom'])->group(function () {
 
     //manajemen user
     Route::group(['middleware' => 'admin.access'], function () {
-        Route::get('user/',[UserController::class, 'index'])->name('user.index');
-        Route::get('user/tambah',[UserController::class, 'create'])->name('user.tambah');
-        Route::post('user',[UserController::class, 'store'])->name('user.store');
+        Route::get('user/', [UserController::class, 'index'])->name('user.index');
+        Route::get('user/tambah', [UserController::class, 'create'])->name('user.tambah');
+        Route::post('user', [UserController::class, 'store'])->name('user.store');
         Route::get('user/{user}/edit', [UserController::class, 'edit'])->name('user.edit');
         Route::put('user/{user}', [UserController::class, 'update'])->name('user.update');
-        Route::delete('user/{user}',[UserController::class, 'destroy'])->name('user.destroy');
+        Route::delete('user/{user}', [UserController::class, 'destroy'])->name('user.destroy');
     });
 
     //history
@@ -83,8 +95,6 @@ Route::middleware(['auth.custom'])->group(function () {
 
     Route::get('/presensi/{pengajuan}/data', [PresensiController::class, 'show'])->name('presensi.show');
 
-    Route::get('/presensi/{pengajuanId}/download-ttd', [PresensiController::class, 'downloadAllTtd'])
-        ->name('presensi.download-all-ttd');
-
+    Route::get('/presensi/{pengajuanId}/ttd/all', [PresensiController::class, 'downloadAllTtd'])
+        ->name('presensi.ttd.all');
 });
-
