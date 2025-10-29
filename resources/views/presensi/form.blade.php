@@ -117,7 +117,7 @@
   const orgManualInput = document.getElementById('org-manual-input');
 
   const postUrl = "{{ route('presensi.store') }}";
-  const sukmaUrl = 'https://sukma.jatimprov.go.id/fe';
+  const sukmaUrl = 'https://sukma.jatimprov.go.id/fe/survey?idUser=2676';
 
   const LAINNYA_VALUE = 'lainnya';
   const MAX_SIG_BYTES = 2 * 1024 * 1024; // 2 MB
