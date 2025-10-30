@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use App\Models\ActivityLog;
 use App\Models\Organization;
 use App\Models\Presensi;
@@ -38,7 +39,7 @@ class PresensiController extends Controller
                 'jabatan'           => ['required', 'string', 'max:100'],   // text bebas
                 'organisasi'        => ['required', 'string'],              // id sync atau 'lainnya'
                 'organisasi_manual' => ['required_if:organisasi,lainnya', 'string', 'max:255'],
-                'ttd'               => ['required', 'file', 'image', 'mimes:png', 'max:2048'], // PNG ≤ 2MB
+                'ttd_path'          => ['required', 'string'],
             ],
             [
                 'pengajuan_id.required'         => 'ID pengajuan tidak valid.',
@@ -46,10 +47,7 @@ class PresensiController extends Controller
                 'jabatan.required'              => 'Jabatan wajib diisi.',
                 'organisasi.required'           => 'Organisasi wajib dipilih.',
                 'organisasi_manual.required_if' => 'Silakan isi nama organisasi pada kolom yang muncul.',
-                'ttd.required' => 'TTD Digital wajib diunggah.',
-                'ttd.image'    => 'TTD tidak valid.',
-                'ttd.mimes'    => 'TTD harus berupa PNG.',
-                'ttd.max'      => 'Ukuran file TTD melebihi 2 MB.',
+                'ttd_path.required'                  => 'TTD Digital wajib diisi.',
             ]
         );
 
@@ -74,15 +72,29 @@ class PresensiController extends Controller
 
 
 
-        // Simpan TTD (PNG) ke storage public
-        $ttdPath = $request->file('ttd')->store('presensi/ttd', 'public');
+
+        // **Menangani Tanda Tangan Base64**
+        // Menyimpan tanda tangan base64 ke file PNG di storage publik
+        $dataUrl = $data['ttd_path']; // Data base64 dari formulir
+        if (!Str::startsWith($dataUrl, 'data:image')) {
+            return response()->json(['ok' => false, 'message' => 'Format TTD tidak valid.'], 422);
+        }
+
+        [$meta, $raw] = explode(',', $dataUrl, 2);
+        $binary = base64_decode($raw, true);
+        if ($binary === false) {
+            return response()->json(['ok' => false, 'message' => 'Data TTD tidak valid.'], 422);
+        }
+        // Menyimpan file TTD di folder public/presensi/ttd
+        $ttdPath = 'presensi/ttd/' . Str::uuid()->toString() . '.png'; // Menambahkan nama unik untuk file
+        Storage::disk('public')->put($ttdPath, $binary); // Menyimpan file ke storage
 
         $presensi = \App\Models\Presensi::create([
             'pengajuan_id' => $data['pengajuan_id'],
             'user_id'      => Auth::id(),
             'nama'         => $data['nama'],
             'jabatan'      => $data['jabatan'],
-            'organisasi'   => $organisasi,   // <— simpan NAMA organisasi
+            'organisasi'   => $organisasi,
             'ttd_path'     => $ttdPath,
         ]);
 
@@ -173,39 +185,6 @@ class PresensiController extends Controller
 
         if (!$pages) {
             return back()->with('error', 'Semua file TTD tidak ditemukan.');
-        }
-
-        // HTML untuk Dompdf
-        $html = '<html><head><meta charset="utf-8">
-      <style>
-        @page { margin: 24px; }
-        body { font-family: DejaVu Sans, Arial, Helvetica, sans-serif; }
-        .page { page-break-after: always; text-align: center; }
-        .page:last-child { page-break-after: auto; }
-        .meta { margin-bottom: 12px; font-size: 12px; color:#333; }
-        .org  { color:#555; }
-        .time { color:#777; }
-        img { max-width: 90%; height: auto; border: 1px solid #e5e5e5; }
-      </style>
-    </head><body>' . implode('', $pages) . '</body></html>';
-
-        // Render PDF
-        $opts = new Options();
-        $opts->set('isRemoteEnabled', true);
-        $dompdf = new Dompdf($opts);
-        $dompdf->loadHtml($html, 'UTF-8');
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
-
-        // Nama file
-        $pdfName = 'ttd_pengajuan_' . $pengajuanId . '_' . date('Ymd_His') . '.pdf';
-
-        // Kirim ke browser
-        return response($dompdf->output(), 200, [
-            'Content-Type'              => 'application/pdf',
-            'Content-Disposition'       => 'attachment; filename="' . $pdfName . '"',
-            'Cache-Control'             => 'private, max-age=0, must-revalidate',
-            'X-Content-Type-Options'    => 'nosniff',
-        ]);
+        };
     }
 }

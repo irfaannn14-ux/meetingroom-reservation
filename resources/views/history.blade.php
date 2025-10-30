@@ -121,7 +121,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>Nomor</th>
                             <th>Pengaju</th>
                             <th>Kegiatan</th>
                             <th>Ruangan</th>
