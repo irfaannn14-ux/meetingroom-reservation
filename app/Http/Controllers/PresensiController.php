@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\ActivityLog;
 use App\Models\Organization;
+use Illuminate\Support\Facades\DB;
 use App\Models\Presensi;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -133,58 +134,177 @@ class PresensiController extends Controller
     }
 
     public function downloadAllTtd(int $pengajuanId)
-    {
-        // Ambil semua presensi dengan TTD untuk pengajuan ini
+    {   
         $items = Presensi::where('pengajuan_id', $pengajuanId)
             ->whereNotNull('ttd_path')
             ->orderBy('id')
             ->get();
 
-
         if ($items->isEmpty()) {
             return back()->with('error', 'Tidak ada TTD untuk diunduh.');
         }
 
-        // Sudah didefinisikan DI ATAS loop:
         $orgMap = Organization::pluck('organization_name', 'bkd_organization_id')->all();
 
-        $pages = [];
-        foreach ($items as $p) {
-            // 1) Ambil file PNG & jadikan data-URI
+        $organization_name = DB::selectOne("SELECT
+            organization_name
+        FROM pengajuans
+        JOIN users ON pengajuans.user_id=users.id
+        JOIN organization ON organization.bkd_organization_id=users.organization_id;");
+        $instansi = 'PEMERINTAH KABUPATEN PROBOLINGGO';
+        $tanggalCetak = now()->format('d F Y');
+
+        $rows = '';
+        foreach ($items as $i => $p) {
             $relPath = ltrim(str_replace('public/', '', (string) $p->ttd_path), '/');
             if (!Storage::disk('public')->exists($relPath)) continue;
 
             $fullPath = storage_path('app/public/' . $relPath);
             $pngData  = @file_get_contents($fullPath);
             if ($pngData === false) continue;
-            $src = 'data:image/png;base64,' . base64_encode($pngData);
 
-            // 2) Siapkan teks (aman di-HTML-kan)
+            $src  = 'data:image/png;base64,' . base64_encode($pngData);
+
             $nama = e($p->nama ?? '');
             $jab  = e($p->jabatan ?? '');
-
-            // 3) **INI BAGIAN YANG DIMAKSUD**: resolve organisasi
             $orgRaw  = $p->organisasi ?? '';
-            $orgName = $orgMap[$orgRaw] ?? ($orgMap[(int)$orgRaw] ?? $orgRaw); // jika ID → nama, kalau sudah nama pakai apa adanya
-            $org     = e($orgName);
-
+            $orgName = $orgMap[$orgRaw] ?? ($orgMap[(int)$orgRaw] ?? $orgRaw);
+            $org  = e($orgName);
             $waktu = $p->created_at ? $p->created_at->format('d-m-Y H:i') . ' WIB' : '';
 
-            // 4) Susun halaman
-            $pages[] = '
-      <div class="page">
-        <div class="meta">
-          <strong>' . $nama . '</strong>' . ($jab ? ' &mdash; ' . $jab : '') . '
-          ' . ($org ? '<br><span class="org">' . $org . '</span>' : '') . '
-          ' . ($waktu ? '<br><small class="time">' . $waktu . '</small>' : '') . '
-        </div>
-        <img src="' . $src . '" alt="TTD">
-      </div>';
+            $rows .= '
+            <tr>
+                <td style="text-align:center;">' . ($i + 1) . '</td>
+                <td>
+                    <strong>' . $nama . '</strong><br>
+                    ' . ($jab ? '<em>' . $jab . '</em><br>' : '') . '
+                    ' . ($org ? '<small>' . $org . '</small><br>' : '') . '
+                    ' . ($waktu ? '<small>' . $waktu . '</small>' : '') . '
+                </td>
+                <td style="text-align:center;">
+                    <img src="' . $src . '" alt="TTD" style="max-width: 150px; height:auto;">
+                </td>
+            </tr>';
         }
 
-
-        if (!$pages) {
+        if (empty($rows)) {
             return back()->with('error', 'Semua file TTD tidak ditemukan.');
-        };
+        }
+
+        $html = '
+        <html>
+        <head>
+            <style>
+                body {
+                    font-family: DejaVu Sans, sans-serif;
+                    font-size: 12px;
+                    margin: 40px;
+                }
+
+                h2 {
+                    text-align: center;
+                    margin: 0;
+                    text-transform: uppercase;
+                }
+
+                .header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 25px;
+                    border-bottom: 2px solid #000;
+                    padding-bottom: 10px;
+                }
+
+                .header-left {
+                    flex: 1;
+                    text-align: left;
+                }
+
+                .header-center {
+                    flex: 2;
+                    text-align: center;
+                }
+
+                .header p {
+                    margin: 2px 0;
+                }
+
+                .logo {
+                    width: 70px;
+                    height: auto;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 15px;
+                }
+
+                th, td {
+                    border: 1px solid #000;
+                    padding: 8px;
+                    vertical-align: top;
+                }
+
+                th {
+                    background-color: #f2f2f2;
+                    text-align: center;
+                }
+
+                .info {
+                    text-align: center;
+                    margin-top: 25px;
+                    font-size: 11px;
+                    font-style: italic;
+                }
+            </style>
+        </head>
+
+        <body>
+            <div class="header">
+                <div class="header-left"></div>
+
+                <div class="header-center">
+                    <p><strong style="font-size:18px;">' . e($instansi) . '</strong></p>
+                    <p style="font-size:16px;">' . e($organization_name->organization_name) . '</p>
+                    <p style="font-size:16px;"><strong>DAFTAR LIST PRESENSI</strong></p>
+                    <p style="font-size:14px;margin-top:5px;">Tanggal Cetak: ' . e($tanggalCetak) . '</p>
+                </div>
+
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:5%;">No</th>
+                        <th style="width:45%;">Data Pegawai</th>
+                        <th style="width:50%;">Tanda Tangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ' . $rows . '
+                </tbody>
+            </table>
+
+            <div class="info">
+                <p>Dicetak otomatis dari sistem presensi pada ' . e($tanggalCetak) . '.</p>
+            </div>
+        </body>
+        </html>';
+
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+        $dompdf = new Dompdf($options);
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $filename = 'TTD_Pengajuan_' . $pengajuanId . '.pdf';
+        return response($dompdf->output(), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 }

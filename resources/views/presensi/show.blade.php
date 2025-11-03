@@ -109,6 +109,17 @@
                     </div>
                 @endif
 
+                <div class="actions-bar mb-3">
+                    <a href="{{ route('presensi.ttd.all', $pengajuanId) }}" class="btn btn-primary">
+                        {{-- ikon kecil optional --}}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle; margin-right:.4rem;">
+                            <path d="M5 20h14v-2H5v2z"/>
+                            <path d="M12 2v12l4-4h-3V2h-2v8H8l4 4z"/>
+                        </svg>
+                        Unduh Semua TTD
+                    </a>
+                </div>
+
                 <table>
                     <thead>
                         <tr>

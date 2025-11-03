@@ -95,6 +95,5 @@ Route::middleware(['auth.custom'])->group(function () {
 
     Route::get('/presensi/{pengajuan}/data', [PresensiController::class, 'show'])->name('presensi.show');
 
-    Route::get('/presensi/{pengajuanId}/ttd/all', [PresensiController::class, 'downloadAllTtd'])
-        ->name('presensi.ttd.all');
+    Route::get('/presensi/{pengajuanId}/ttd/all', [PresensiController::class, 'downloadAllTtd'])->name('presensi.ttd.all');
 });
