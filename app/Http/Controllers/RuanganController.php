@@ -30,7 +30,7 @@ class RuanganController extends Controller
         }
 
         $validatedData = $request->validate([
-            'nama_ruangan' => 'required|string|max:255',
+            'nama_ruangan' => 'required|string|max:255|unique:ruangans,nama_ruangan',
             'jml_peserta' => 'required|integer|min:1',
             'fasilitas' => 'required|string',
             'foto_ruangan' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -98,6 +98,17 @@ class RuanganController extends Controller
     {
         if (session('user_role') === 'OPD') {
             abort(403, 'ANDA TIDAK MEMILIKI AKSES.');
+        }
+
+        // Check if ruangan has active bookings
+        $activeBookings = $ruangan->pengajuans()
+            ->whereIn('status', ['pending', 'disetujui'])
+            ->where('tanggal_selesai', '>=', now())
+            ->count();
+
+        if ($activeBookings > 0) {
+            return redirect()->route('ruangan.index')
+                ->with('error', 'Ruangan tidak dapat dihapus karena memiliki booking aktif!');
         }
 
         if ($ruangan->foto_ruangan) {
