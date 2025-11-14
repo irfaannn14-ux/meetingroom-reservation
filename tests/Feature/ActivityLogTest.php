@@ -171,10 +171,6 @@ class ActivityLogTest extends TestCase
         ]);
     }
 
-    // ========================================
-    // A. ACCESS CONTROL TESTS
-    // ========================================
-
     /**
      * Test 1: Super Admin dapat mengakses halaman log aktivitas
      * 
@@ -235,10 +231,6 @@ class ActivityLogTest extends TestCase
         // Assert
         $response->assertStatus(302); // Redirect to login
     }
-
-    // ========================================
-    // B. LOG FILTERING TESTS
-    // ========================================
 
     /**
      * Test 5: Hanya menampilkan log dari Admin dan Super Admin
@@ -304,10 +296,6 @@ class ActivityLogTest extends TestCase
         $this->assertEquals($sortedTimestamps, $timestamps);
     }
 
-    // ========================================
-    // C. RELATIONSHIP TESTS
-    // ========================================
-
     /**
      * Test 8: Log memuat relasi user
      * 
@@ -351,10 +339,6 @@ class ActivityLogTest extends TestCase
             $this->assertNotNull($log->user->role);
         }
     }
-
-    // ========================================
-    // D. ACTIVITY LOG MODEL TESTS
-    // ========================================
 
     /**
      * Test 10: ActivityLog model memiliki relasi dengan User
@@ -444,10 +428,6 @@ class ActivityLogTest extends TestCase
         }
     }
 
-    // ========================================
-    // E. DATA INTEGRITY TESTS
-    // ========================================
-
     /**
      * Test 14: Log count sesuai dengan filter Admin dan Super Admin
      * 
@@ -511,10 +491,6 @@ class ActivityLogTest extends TestCase
         $this->assertContains('pengajuan', $resourceTypes);
         $this->assertContains('user', $resourceTypes);
     }
-
-    // ========================================
-    // F. INTEGRATION TESTS
-    // ========================================
 
     /**
      * Test 17: Log activity terekam saat Admin melakukan aksi

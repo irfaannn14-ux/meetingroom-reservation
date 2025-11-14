@@ -157,10 +157,6 @@ class NotificationTest extends TestCase
         ]);
     }
 
-    // ========================================
-    // A. NOTIFICATION API TESTS
-    // ========================================
-
     /**
      * Test 1: Authenticated user dapat mengakses API notifications
      * 
@@ -206,10 +202,6 @@ class NotificationTest extends TestCase
         $response->assertStatus(200);
         $response->assertHeader('Content-Type', 'application/json');
     }
-
-    // ========================================
-    // B. NOTIFICATION CONTENT TESTS
-    // ========================================
 
     /**
      * Test 4: Notifikasi untuk pengajuan disetujui
@@ -372,10 +364,6 @@ class NotificationTest extends TestCase
         $this->assertStringContainsString($admin->nama, $data[0]['message']);
     }
 
-    // ========================================
-    // C. NOTIFICATION ORDERING & LIMITING
-    // ========================================
-
     /**
      * Test 9: API mengembalikan maksimal 10 notifikasi terbaru
      * 
@@ -453,10 +441,6 @@ class NotificationTest extends TestCase
         $this->assertArrayHasKey('type', $data[0]);
     }
 
-    // ========================================
-    // D. NOTIFICATION FILTERING
-    // ========================================
-
     /**
      * Test 11: Hanya notifikasi terkait pengajuan yang ditampilkan
      * 
@@ -527,10 +511,6 @@ class NotificationTest extends TestCase
         $response->assertJsonCount(0); // No notifications
     }
 
-    // ========================================
-    // E. NOTIFICATION MESSAGE FORMAT
-    // ========================================
-
     /**
      * Test 13: Notifikasi memiliki struktur message, created_at, dan type
      * 
@@ -591,10 +571,6 @@ class NotificationTest extends TestCase
         $this->assertNotEmpty($data[0]['created_at']);
         $this->assertIsString($data[0]['created_at']);
     }
-
-    // ========================================
-    // F. ERROR HANDLING
-    // ========================================
 
     /**
      * Test 15: Skip notifikasi jika pengajuan sudah dihapus
