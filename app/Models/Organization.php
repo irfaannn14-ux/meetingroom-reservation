@@ -30,6 +30,7 @@ class Organization extends Model
      * @var array
      */
     protected $fillable = [
+        'organization_id',
         'bkd_organization_id',
         'organization_name',
         'active',
