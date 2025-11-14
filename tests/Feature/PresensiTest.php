@@ -175,10 +175,6 @@ class PresensiTest extends TestCase
         return 'data:image/png;base64,' . base64_encode($pngData);
     }
 
-    // ========================================
-    // A. CRUD OPERATIONS - CREATE/STORE TESTS
-    // ========================================
-
     /**
      * Test 1: User dapat mengakses form presensi
      * 
@@ -410,10 +406,6 @@ class PresensiTest extends TestCase
         $response->assertStatus(422);
         $response->assertJson(['ok' => false]);
     }
-
-    // ========================================
-    // B. CRUD OPERATIONS - READ/INDEX TESTS
-    // ========================================
 
     /**
      * Test 9: User dapat melihat daftar presensi per pengajuan
@@ -692,10 +684,6 @@ class PresensiTest extends TestCase
         $presensi = Presensi::where('pengajuan_id', $pengajuan->id)->first();
         $this->assertStringEndsWith('.png', $presensi->ttd_path);
     }
-
-    // ========================================
-    // E. BUSINESS LOGIC TESTS
-    // ========================================
 
     /**
      * Test 21: Activity log tercatat saat presensi

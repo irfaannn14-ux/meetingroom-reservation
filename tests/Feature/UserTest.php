@@ -114,10 +114,6 @@ class UserTest extends TestCase
         ]);
     }
 
-    // ========================================
-    // A. CRUD OPERATIONS - CREATE/STORE TESTS
-    // ========================================
-
     /**
      * Test 1: Admin dapat mengakses halaman tambah user
      * 
@@ -387,10 +383,6 @@ class UserTest extends TestCase
         ]);
     }
 
-    // ========================================
-    // B. CRUD OPERATIONS - READ/INDEX TESTS
-    // ========================================
-
     /**
      * Test 11: Admin dapat melihat daftar semua user
      * 
@@ -457,10 +449,6 @@ class UserTest extends TestCase
         // Pastikan relasi organization di-load
         $this->assertTrue($users->first()->relationLoaded('organization'));
     }
-
-    // ========================================
-    // C. CRUD OPERATIONS - UPDATE/EDIT TESTS
-    // ========================================
 
     /**
      * Test 15: Admin dapat mengakses halaman edit user
@@ -626,10 +614,6 @@ class UserTest extends TestCase
         Storage::disk('public')->assertMissing($path); // Foto lama terhapus
     }
 
-    // ========================================
-    // D. CRUD OPERATIONS - DELETE TESTS
-    // ========================================
-
     /**
      * Test 20: Superadmin dapat menghapus user
      * 
@@ -710,10 +694,6 @@ class UserTest extends TestCase
         $response->assertStatus(403); // Middleware aborts dengan 403
         $this->assertDatabaseHas('users', ['id' => $userToDelete->id]); // User masih ada
     }
-
-    // ========================================
-    // E. PROFILE MANAGEMENT TESTS
-    // ========================================
 
     /**
      * Test 23: User dapat mengakses halaman profil sendiri
@@ -950,10 +930,6 @@ class UserTest extends TestCase
         $response->assertSessionHas('user_foto', $user->foto_profil);
     }
 
-    // ========================================
-    // F. PERMISSION & AUTHORIZATION TESTS
-    // ========================================
-
     /**
      * Test 31: Guest tidak dapat akses user management
      * 
@@ -1088,10 +1064,6 @@ class UserTest extends TestCase
             'role' => 'Admin', // Role auto-assigned based on organization
         ]);
     }
-
-    // ========================================
-    // G. ORGANIZATION RELATIONSHIP TESTS
-    // ========================================
 
     /**
      * Test 35: User terelasi dengan organization
