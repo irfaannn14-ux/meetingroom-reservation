@@ -8,19 +8,19 @@
 ---
 
 ## 📈 Progress Overview
-**Total Tests**: 75 / ~215 ≈ **35% Complete** 🚀
+**Total Tests**: 111 / ~215 ≈ **52% Complete** 🚀🚀
 
 | Status | Count | Percentage |
 |--------|-------|------------|
-| ✅ Implemented | 75 tests | 35% |
-| ⏳ Design Only | ~140 tests | 65% |
+| ✅ Implemented | 111 tests | 52% |
+| ⏳ Design Only | ~104 tests | 48% |
 
 ---
 
 ## Daftar Controller
 1. ✅ AuthenticationController - **DONE** (27 test cases) - `AuthenticationTest.php`
-2. ✅ RuanganController - **DONE** (33 test cases) - `RuanganTest.php`
-3. ⏳ PengajuanController - **PENDING** (Reservation/Booking Management)
+2. ✅ RuanganController - **DONE** (48 test cases) - `RuanganTest.php`
+3. ✅ PengajuanController - **DONE** (35 test cases) - `PengajuanTest.php` ⭐ **NEW!**
 4. ⏳ PresensiController - **PENDING** (Attendance Management)
 5. ⏳ UserController - **PENDING** (User Management)
 6. ⏳ ActivityLogController - **PENDING** (Activity Log)
@@ -134,21 +134,91 @@
 
 ---
 
-## 3. ⏳ PENGAJUAN CONTROLLER TEST (Reservation/Booking) - NOT YET IMPLEMENTED
-**File**: `tests/Feature/PengajuanTest.php` - ❌ **BELUM DIBUAT**
-**Estimated**: 40-45 test cases
-**Status**: ⏳ **RANCANGAN SAJA - BELUM ADA IMPLEMENTASI**
+## 3. ✅ PENGAJUAN CONTROLLER TEST - COMPLETED ⭐ **NEW!**
+**Status**: 35/35 tests passed (107 assertions)
+**Duration**: 3.25s
+**File**: `tests/Feature/PengajuanTest.php`
+**Documentation**: `tests/Feature/README_PENGAJUAN_TEST.md`
 
-### ⏳ ALL TESTS BELOW ARE DESIGN ONLY (Not implemented yet)
+### ✅ ALL TEST CATEGORIES IMPLEMENTED:
 
-### A. CRUD Operations (20 tests) - ⏳ PENDING
+### A. CRUD Operations - CREATE/STORE (8 tests) ✅
 
-#### Create/Store (8 tests) - ⏳ PENDING
-1. ⏳ **TODO** - User dapat mengakses halaman buat pengajuan
-2. ⏳ **TODO** - User dapat membuat pengajuan dengan data valid
-   - Data: ruangan_id, tanggal_mulai, tanggal_selesai, jam_mulai, jam_selesai, keperluan, jumlah_peserta
-3. ✅ Validasi form pengajuan
-   - Ruangan wajib dipilih
+#### Create/Store Tests - ALL IMPLEMENTED ✅
+1. ✅ **DONE** - User dapat mengakses halaman tambah pengajuan
+2. ✅ **DONE** - Admin dapat mengakses halaman tambah pengajuan
+3. ✅ **DONE** - User dapat membuat pengajuan dengan data valid
+4. ✅ **DONE** - Validasi judul kegiatan wajib diisi
+5. ✅ **DONE** - Validasi kegiatan wajib diisi
+6. ✅ **DONE** - Validasi ruangan wajib dipilih
+7. ✅ **DONE** - Validasi tanggal kembali harus setelah atau sama dengan tanggal pinjam
+8. ✅ **DONE** - Validasi waktu kembali harus setelah waktu pinjam
+
+### B. CRUD Operations - READ/INDEX (6 tests) ✅
+
+#### Read/Index Tests - ALL IMPLEMENTED ✅
+9. ✅ **DONE** - User dapat melihat daftar pengajuan miliknya
+10. ✅ **DONE** - Admin dapat melihat semua pengajuan
+11. ✅ **DONE** - Superadmin dapat melihat semua pengajuan
+12. ✅ **DONE** - User hanya melihat pengajuan miliknya sendiri
+13. ✅ **DONE** - Index hanya menampilkan pengajuan status pending
+14. ✅ **DONE** - User dapat melihat history pengajuan
+
+### C. CRUD Operations - UPDATE/EDIT (2 tests) ✅
+
+#### Update/Edit Tests - ALL IMPLEMENTED ✅
+15. ✅ **DONE** - User dapat edit pengajuan dengan status pending
+16. ✅ **DONE** - User dapat mengakses halaman edit pengajuan
+
+### D. CRUD Operations - DELETE (2 tests) ✅
+
+#### Delete Tests - ALL IMPLEMENTED ✅
+17. ✅ **DONE** - User dapat menghapus pengajuan
+18. ✅ **DONE** - Admin dapat menghapus pengajuan
+
+### E. APPROVAL WORKFLOW (5 tests) ✅
+
+#### Approval Tests - ALL IMPLEMENTED ✅
+19. ✅ **DONE** - Admin dapat approve pengajuan
+20. ✅ **DONE** - Admin dapat reject pengajuan
+21. ✅ **DONE** - Superadmin dapat approve pengajuan
+22. ✅ **DONE** - Tidak bisa approve jika jadwal bentrok
+23. ✅ **DONE** - Maksimal 3 peminjaman per hari untuk ruangan yang sama
+
+### F. CALENDAR & SCHEDULING (4 tests) ✅
+
+#### Calendar Tests - ALL IMPLEMENTED ✅
+24. ✅ **DONE** - Kalender menampilkan booking yang sudah approved
+25. ✅ **DONE** - Kalender tidak menampilkan booking pending
+26. ✅ **DONE** - Tidak bisa booking ruangan yang bentrok jadwal
+27. ✅ **DONE** - Kapasitas peserta tidak boleh melebihi kapasitas ruangan
+
+### G. BUSINESS LOGIC & INTEGRATION (7 tests) ✅
+
+#### Business Logic Tests - ALL IMPLEMENTED ✅
+28. ✅ **DONE** - Multi-day booking berfungsi dengan benar
+29. ✅ **DONE** - Status pengajuan default adalah pending
+30. ✅ **DONE** - Relasi pengajuan dengan user berfungsi
+31. ✅ **DONE** - Relasi pengajuan dengan ruangan berfungsi
+32. ✅ **DONE** - Dashboard menampilkan statistik dengan benar
+33. ✅ **DONE** - User OPD hanya melihat statistik pengajuan miliknya
+34. ✅ **DONE** - Validasi jumlah peserta minimal 1
+35. ✅ **DONE** - Pengajuan dapat diedit saat status pending
+
+**Key Features Tested:**
+- ✅ CRUD operations with access control (OPD, Admin, Superadmin)
+- ✅ Approval workflow (approve/reject with conflict detection)
+- ✅ Schedule conflict detection (no overlapping approved bookings)
+- ✅ Daily booking limit (max 3 bookings per room per day)
+- ✅ Capacity validation (participants ≤ room capacity)
+- ✅ Calendar integration (JSON API for FullCalendar)
+- ✅ Dashboard statistics (filtered by role)
+- ✅ Activity logging on all actions
+- ✅ Multi-day bookings support
+
+---
+
+## 4. ⏳ PRESENSI CONTROLLER TEST (Attendance) - NOT YET IMPLEMENTED
    - Tanggal mulai wajib diisi
    - Tanggal selesai >= tanggal mulai
    - Jam mulai wajib diisi
