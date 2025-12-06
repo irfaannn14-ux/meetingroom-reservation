@@ -87,6 +87,21 @@ if ($selectedRuanganId) {
     .show-dropdown {
         display: block;
     }
+    .ruangan-item.disabled {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        pointer-events: none;
+        opacity: 0.6;
+        text-decoration: line-through;
+    }
+    .ruangan-item.recommended {
+        background-color: #d1ecf1;
+        font-weight: bold;
+        border-left: 4px solid #0c5460;
+    }
+    .ruangan-item.available {
+        background-color: #d4edda;
+    }
 </style>
     <div class="main-content">
         <div class="container d-flex justify-content-center">
@@ -127,10 +142,15 @@ if ($selectedRuanganId) {
 
                     <div class="row mb-3">
                         <div class="col">
+                            <label for="jml_peserta" class="form-label">Jumlah Peserta <span class="text-danger">*Isi Dulu</span></label>
+                            <input type="number" name="jml_peserta" id="jml_peserta" class="form-control" placeholder="Masukkan Jumlah Peserta Dulu" value="{{ old('jml_peserta', $pengajuan->jml_peserta ?? '') }}" required min="1" oninput="handlePesertaChange()">
+                            <small class="text-muted">Isi jumlah peserta untuk melihat ruangan yang tersedia</small>
+                        </div>
+                        <div class="col">
                             <label for="ruangan_id" class="form-label">Ruangan</label>
                             <input type="hidden" name="ruangan_id" id="ruangan-id-input" value="{{ old('ruangan_id', $pengajuan->ruangan_id ?? '') }}" required>
                             <div class="custom-dropdown-container">
-                                <div class="custom-dropdown-button form-control" onclick="toggleDropdown()">
+                                <div class="custom-dropdown-button form-control" onclick="toggleDropdown()" id="dropdown-button">
                                     <span id="selected-ruangan">
                                         {{ $selectedRuanganName }}
                                     </span>
@@ -139,14 +159,17 @@ if ($selectedRuanganId) {
                                 <div id="ruangan-dropdown-content" class="custom-dropdown-content">
                                     <input type="text" class="custom-dropdown-input" onkeyup="filterRuangan()" placeholder="Cari Ruangan...">
                                     @foreach($ruangans as $ruangan)
-                                        <a href="#" data-value="{{ $ruangan->id }}" data-nama="{{ $ruangan->nama_ruangan }}">{{ $ruangan->nama_ruangan }}</a>
+                                        <a href="#" 
+                                           data-value="{{ $ruangan->id }}" 
+                                           data-nama="{{ $ruangan->nama_ruangan }}"
+                                           data-kapasitas="{{ $ruangan->jml_peserta }}"
+                                           class="ruangan-item">
+                                           {{ $ruangan->nama_ruangan }} (Kapasitas: {{ $ruangan->jml_peserta }})
+                                        </a>
                                     @endforeach
                                 </div>
                             </div>
-                        </div>
-                        <div class="col">
-                            <label for="jml_peserta" class="form-label">Jumlah Peserta</label>
-                            <input type="number" name="jml_peserta" id="jml_peserta" class="form-control" placeholder="Jumlah Peserta Kegiatan" value="{{ old('jml_peserta', $pengajuan->jml_peserta ?? '') }}" required>
+                            <small id="ruangan-hint" class="text-muted"></small>
                         </div>
                     </div>
 
@@ -164,11 +187,42 @@ if ($selectedRuanganId) {
                     <div class="row mb-4">
                         <div class="col">
                             <label for="waktu_pinjam" class="form-label">Waktu Pinjam</label>
-                            <input type="time" name="waktu_pinjam" id="waktu_pinjam" class="form-control" value="{{ old('waktu_pinjam', ($pengajuan->tanggal_mulai ?? null) ? \Carbon\Carbon::parse($pengajuan->tanggal_mulai)->format('H:i') : '') }}" required>
+                            <select name="waktu_pinjam" id="waktu_pinjam" class="form-control" required>
+                                <option value="">-- Pilih Waktu --</option>
+                                @php
+                                    $oldWaktuPinjam = old('waktu_pinjam', ($pengajuan->tanggal_mulai ?? null) ? \Carbon\Carbon::parse($pengajuan->tanggal_mulai)->format('H:i') : '');
+                                @endphp
+                                @for($hour = 6; $hour <= 16; $hour++)
+                                    @foreach(['00', '30'] as $minute)
+                                        @php
+                                            $time = sprintf('%02d:%s', $hour, $minute);
+                                            // Skip 16:30 karena minimal 2 jam, jadi maksimal kembali 18:00
+                                            if($hour == 16 && $minute == '30') continue;
+                                        @endphp
+                                        <option value="{{ $time }}" {{ $oldWaktuPinjam == $time ? 'selected' : '' }}>{{ $time }}</option>
+                                    @endforeach
+                                @endfor
+                            </select>
+                            <small class="text-muted">Maksimal pukul 16:00 (minimal pinjam 2 jam, selesai max 18:00)</small>
                         </div>
                         <div class="col">
                             <label for="waktu_kembali" class="form-label">Waktu Kembali</label>
-                            <input type="time" name="waktu_kembali" id="waktu_kembali" class="form-control" value="{{ old('waktu_kembali', ($pengajuan->tanggal_selesai ?? null) ? \Carbon\Carbon::parse($pengajuan->tanggal_selesai)->format('H:i') : '') }}" required>
+                            <select name="waktu_kembali" id="waktu_kembali" class="form-control" required>
+                                <option value="">-- Pilih Waktu --</option>
+                                @php
+                                    $oldWaktuKembali = old('waktu_kembali', ($pengajuan->tanggal_selesai ?? null) ? \Carbon\Carbon::parse($pengajuan->tanggal_selesai)->format('H:i') : '');
+                                @endphp
+                                @for($hour = 6; $hour <= 18; $hour++)
+                                    @foreach(['00', '30'] as $minute)
+                                        @php
+                                            $time = sprintf('%02d:%s', $hour, $minute);
+                                            if($hour == 18 && $minute == '30') continue; 
+                                        @endphp
+                                        <option value="{{ $time }}" {{ $oldWaktuKembali == $time ? 'selected' : '' }}>{{ $time }}</option>
+                                    @endforeach
+                                @endfor
+                            </select>
+                            <small class="text-muted">Maksimal pukul 18:00 WIB</small>
                         </div>
                     </div>
 
@@ -184,8 +238,19 @@ if ($selectedRuanganId) {
 <script>
     // Menyimpan data ruangan dari PHP ke variabel JavaScript untuk akses mudah
     const ruangansData = @json($ruangans->keyBy('id'));
+    
+    // Array untuk sorting
+    const ruangansArray = @json($ruangans->values());
 
     function toggleDropdown() {
+        const jmlPeserta = parseInt(document.getElementById('jml_peserta').value);
+        
+        if (!jmlPeserta || jmlPeserta < 1) {
+            alert('Silakan isi jumlah peserta terlebih dahulu!');
+            document.getElementById('jml_peserta').focus();
+            return;
+        }
+        
         document.getElementById("ruangan-dropdown-content").classList.toggle("show-dropdown");
     }
 
@@ -204,30 +269,114 @@ if ($selectedRuanganId) {
         }
     }
 
-    // Fungsi baru untuk memperbarui placeholder jumlah peserta
-    function updatePesertaPlaceholder(ruanganId) {
-        const jmlPesertaInput = document.getElementById('jml_peserta');
-        const selectedRuangan = ruangansData[ruanganId];
-
-        if (selectedRuangan) {
-            // Jika ruangan ditemukan, set placeholder dengan kapasitasnya
-            jmlPesertaInput.placeholder = 'Maksimal: ' + selectedRuangan.jml_peserta + ' orang';
+    // Fungsi utama untuk handle perubahan jumlah peserta
+    function handlePesertaChange() {
+        const jmlPeserta = parseInt(document.getElementById('jml_peserta').value);
+        const dropdownButton = document.getElementById('dropdown-button');
+        const ruanganHint = document.getElementById('ruangan-hint');
+        
+        if (!jmlPeserta || jmlPeserta < 1) {
+            // Reset semua ruangan
+            resetAllRuangan();
+            dropdownButton.style.pointerEvents = 'none';
+            dropdownButton.style.opacity = '0.6';
+            ruanganHint.textContent = 'Isi jumlah peserta untuk melihat ruangan tersedia';
+            ruanganHint.style.color = '#6c757d';
+            return;
+        }
+        
+        // Enable dropdown
+        dropdownButton.style.pointerEvents = 'auto';
+        dropdownButton.style.opacity = '1';
+        
+        // Filter dan classify ruangan
+        const availableRuangan = [];
+        const disabledRuangan = [];
+        
+        ruangansArray.forEach(ruangan => {
+            if (ruangan.jml_peserta >= jmlPeserta) {
+                availableRuangan.push(ruangan);
+            } else {
+                disabledRuangan.push(ruangan);
+            }
+        });
+        
+        // Update tampilan ruangan di dropdown
+        const allRuanganItems = document.querySelectorAll('.ruangan-item');
+        allRuanganItems.forEach(item => {
+            const kapasitas = parseInt(item.getAttribute('data-kapasitas'));
+            
+            // Remove all classes first
+            item.classList.remove('disabled', 'recommended', 'available');
+            
+            if (kapasitas < jmlPeserta) {
+                // Ruangan terlalu kecil - disabled
+                item.classList.add('disabled');
+                item.innerHTML = item.getAttribute('data-nama') + ' (Kapasitas: ' + kapasitas + ') - <em>Terlalu Kecil</em>';
+            } else {
+                // Ruangan tersedia
+                item.classList.add('available');
+                item.innerHTML = item.getAttribute('data-nama') + ' (Kapasitas: ' + kapasitas + ')';
+            }
+        });
+        
+        // Auto-select ruangan dengan kapasitas terdekat
+        if (availableRuangan.length > 0) {
+            // Sort berdasarkan kapasitas (ascending)
+            availableRuangan.sort((a, b) => a.jml_peserta - b.jml_peserta);
+            
+            const recommendedRuangan = availableRuangan[0]; // Ruangan dengan kapasitas terdekat
+            
+            // Highlight recommended
+            const recommendedItem = document.querySelector(`.ruangan-item[data-value="${recommendedRuangan.id}"]`);
+            if (recommendedItem) {
+                recommendedItem.classList.remove('available');
+                recommendedItem.classList.add('recommended');
+                recommendedItem.innerHTML = recommendedItem.getAttribute('data-nama') + ' (Kapasitas: ' + recommendedRuangan.jml_peserta + ') - <strong>⭐ Direkomendasikan</strong>';
+            }
+            
+            // Auto-select recommended ruangan
+            document.getElementById("ruangan-id-input").value = recommendedRuangan.id;
+            document.getElementById("selected-ruangan").textContent = recommendedRuangan.nama_ruangan + ' (Kapasitas: ' + recommendedRuangan.jml_peserta + ')';
+            
+            // Update hint
+            ruanganHint.textContent = `✓ Ruangan "${recommendedRuangan.nama_ruangan}" dipilih otomatis (paling efisien untuk ${jmlPeserta} peserta)`;
+            ruanganHint.style.color = '#0c5460';
+            ruanganHint.style.fontWeight = '500';
         } else {
-            // Jika tidak, kembalikan ke default
-            jmlPesertaInput.placeholder = 'Jumlah Peserta Kegiatan';
+            // Tidak ada ruangan yang cukup
+            ruanganHint.textContent = `⚠ Tidak ada ruangan dengan kapasitas ${jmlPeserta} peserta atau lebih!`;
+            ruanganHint.style.color = '#dc3545';
+            ruanganHint.style.fontWeight = '500';
+            
+            // Clear selection
+            document.getElementById("ruangan-id-input").value = '';
+            document.getElementById("selected-ruangan").textContent = 'Tidak Ada Ruangan Tersedia';
         }
     }
 
+    function resetAllRuangan() {
+        const allRuanganItems = document.querySelectorAll('.ruangan-item');
+        allRuanganItems.forEach(item => {
+            item.classList.remove('disabled', 'recommended', 'available');
+            const nama = item.getAttribute('data-nama');
+            const kapasitas = item.getAttribute('data-kapasitas');
+            item.innerHTML = nama + ' (Kapasitas: ' + kapasitas + ')';
+        });
+        
+        // Clear selection
+        document.getElementById("ruangan-id-input").value = '';
+        document.getElementById("selected-ruangan").textContent = 'Pilih Ruangan';
+    }
+
     document.getElementById("ruangan-dropdown-content").addEventListener('click', function(event) {
-        if (event.target.tagName === 'A') {
+        if (event.target.tagName === 'A' && !event.target.classList.contains('disabled')) {
             const selectedValue = event.target.getAttribute('data-value');
             const selectedNama = event.target.getAttribute('data-nama');
+            const selectedKapasitas = event.target.getAttribute('data-kapasitas');
 
             document.getElementById("ruangan-id-input").value = selectedValue;
-            document.getElementById("selected-ruangan").textContent = selectedNama;
-            
-            // Panggil fungsi untuk memperbarui placeholder setiap kali ruangan dipilih
-            updatePesertaPlaceholder(selectedValue);
+            document.getElementById("selected-ruangan").textContent = selectedNama + ' (Kapasitas: ' + selectedKapasitas + ')';
             
             document.getElementById("ruangan-dropdown-content").classList.remove("show-dropdown");
             event.preventDefault();
@@ -243,11 +392,20 @@ if ($selectedRuanganId) {
         }
     }
 
-    // Jalankan saat halaman dimuat untuk mengatur placeholder awal jika dalam mode edit atau ada error validasi
+    // Jalankan saat halaman dimuat untuk mengatur kondisi awal
     document.addEventListener('DOMContentLoaded', function() {
-        const initialRuanganId = document.getElementById('ruangan-id-input').value;
-        if (initialRuanganId) {
-            updatePesertaPlaceholder(initialRuanganId);
+        const initialJmlPeserta = document.getElementById('jml_peserta').value;
+        const dropdownButton = document.getElementById('dropdown-button');
+        
+        if (initialJmlPeserta && initialJmlPeserta > 0) {
+            // Jika ada nilai peserta (edit mode atau validation error)
+            handlePesertaChange();
+        } else {
+            // Disable dropdown jika belum ada jumlah peserta
+            dropdownButton.style.pointerEvents = 'none';
+            dropdownButton.style.opacity = '0.6';
+            document.getElementById('ruangan-hint').textContent = 'Isi jumlah peserta untuk melihat ruangan tersedia';
+            document.getElementById('ruangan-hint').style.color = '#6c757d';
         }
     });
 </script>
