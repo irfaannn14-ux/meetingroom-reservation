@@ -206,6 +206,78 @@ class PengajuanController extends Controller
             'waktu_kembali' => 'required|date_format:H:i',
         ]);
 
+        // ATURAN BARU #5: Validasi Lead Time - Minimal 2 hari sebelum kegiatan
+        $now = Carbon::now();
+        $tanggalPinjam = Carbon::parse($validatedData['tanggal_pinjam']);
+        $daysUntilEvent = $now->startOfDay()->diffInDays($tanggalPinjam->startOfDay(), false);
+        
+        if ($daysUntilEvent < 2) {
+            return back()->withErrors([
+                'tanggal_pinjam' => 'Pengajuan harus dilakukan minimal 2 hari sebelum kegiatan. Anda hanya dapat mengajukan untuk tanggal ' . $now->copy()->addDays(2)->format('d M Y') . ' atau setelahnya.'
+            ])->withInput();
+        }
+
+        // ATURAN BARU #6: Validasi Maximum Advance Booking - Maksimal 1 tahun ke depan
+        $maxBookingDate = $now->copy()->addYear();
+        if ($tanggalPinjam->gt($maxBookingDate)) {
+            return back()->withErrors([
+                'tanggal_pinjam' => 'Booking maksimal untuk 1 tahun ke depan. Tanggal maksimal: ' . $maxBookingDate->format('d M Y')
+            ])->withInput();
+        }
+
+        $tanggal_mulai = Carbon::parse($validatedData['tanggal_pinjam'] . ' ' . $validatedData['waktu_pinjam']);
+        $tanggal_selesai = Carbon::parse($validatedData['tanggal_kembali'] . ' ' . $validatedData['waktu_kembali']);
+
+        // ATURAN BARU #1: Validasi Jam Operasional - Hanya 06:00 - 18:00 WIB
+        $jamMulai = $tanggal_mulai->hour + ($tanggal_mulai->minute / 60);
+        $jamSelesai = $tanggal_selesai->hour + ($tanggal_selesai->minute / 60);
+        
+        if ($jamMulai < 6 || $jamMulai >= 18) {
+            return back()->withErrors([
+                'waktu_pinjam' => 'Jam mulai harus antara 06:00 - 18:00 WIB'
+            ])->withInput();
+        }
+        
+        if ($jamSelesai < 6 || $jamSelesai > 18) {
+            return back()->withErrors([
+                'waktu_kembali' => 'Jam selesai harus antara 06:00 - 18:00 WIB'
+            ])->withInput();
+        }
+
+        // ATURAN BARU #3: Validasi Kelipatan 30 Menit
+        if ($tanggal_mulai->minute % 30 !== 0) {
+            return back()->withErrors([
+                'waktu_pinjam' => 'Waktu pinjam harus dalam kelipatan 30 menit (contoh: 08:00, 08:30, 09:00, dst)'
+            ])->withInput();
+        }
+        
+        if ($tanggal_selesai->minute % 30 !== 0) {
+            return back()->withErrors([
+                'waktu_kembali' => 'Waktu kembali harus dalam kelipatan 30 menit (contoh: 10:00, 10:30, 11:00, dst)'
+            ])->withInput();
+        }
+
+        if ($tanggal_selesai->lte($tanggal_mulai)) {
+            return back()->withErrors(['waktu_kembali' => 'Waktu kembali harus setelah waktu pinjam.'])->withInput();
+        }
+
+        // ATURAN BARU #2: Validasi Durasi Minimum - 2 Jam
+        $durasiJam = $tanggal_mulai->diffInHours($tanggal_selesai, true);
+        if ($durasiJam < 2) {
+            return back()->withErrors([
+                'waktu_kembali' => 'Durasi peminjaman minimal 2 jam'
+            ])->withInput();
+        }
+
+        // ATURAN BARU #4: Validasi Durasi Maksimum - 6 Hari
+        $durasiHari = $tanggal_mulai->diffInDays($tanggal_selesai, true);
+        if ($durasiHari > 6) {
+            return back()->withErrors([
+                'tanggal_kembali' => 'Durasi peminjaman maksimal 6 hari'
+            ])->withInput();
+        }
+
+        // Validasi Kapasitas Ruangan
         $ruangan = Ruangan::find($validatedData['ruangan_id']);
         if ($validatedData['jml_peserta'] > $ruangan->jml_peserta) {
             return back()
@@ -213,22 +285,41 @@ class PengajuanController extends Controller
                 ->withInput();
         }
 
-        $tanggal_mulai = Carbon::parse($validatedData['tanggal_pinjam'] . ' ' . $validatedData['waktu_pinjam']);
-        $tanggal_selesai = Carbon::parse($validatedData['tanggal_kembali'] . ' ' . $validatedData['waktu_kembali']);
-
-        if ($tanggal_selesai->lte($tanggal_mulai)) {
-            return back()->withErrors(['waktu_kembali' => 'Waktu kembali harus setelah waktu pinjam.'])->withInput();
-        }
-
-        $isRuanganAvailable = Pengajuan::where('ruangan_id', $validatedData['ruangan_id'])
-            ->where('status', 'disetujui') // Hanya cek jadwal yang sudah disetujui
+        // ATURAN BARU #7 & #8: Validasi Konflik Jadwal - Termasuk PENDING dan Overlap Detail
+        $conflictingBookings = Pengajuan::where('ruangan_id', $validatedData['ruangan_id'])
+            ->whereIn('status', ['disetujui', 'pending']) // Cek APPROVED dan PENDING
             ->where(function ($query) use ($tanggal_mulai, $tanggal_selesai) {
-                $query->where('tanggal_mulai', '<', $tanggal_selesai)
-                    ->where('tanggal_selesai', '>', $tanggal_mulai);
-            })->doesntExist();
+                // Case 1: New starts during existing [09:00-11:00] vs [10:00-12:00]
+                $query->where(function ($q) use ($tanggal_mulai, $tanggal_selesai) {
+                    $q->where('tanggal_mulai', '<=', $tanggal_mulai)
+                      ->where('tanggal_selesai', '>', $tanggal_mulai);
+                })
+                // Case 2: New ends during existing [08:00-10:00] vs [09:00-11:00]
+                ->orWhere(function ($q) use ($tanggal_mulai, $tanggal_selesai) {
+                    $q->where('tanggal_mulai', '<', $tanggal_selesai)
+                      ->where('tanggal_selesai', '>=', $tanggal_selesai);
+                })
+                // Case 3: New covers existing [08:00-12:00] vs [09:00-11:00]
+                ->orWhere(function ($q) use ($tanggal_mulai, $tanggal_selesai) {
+                    $q->where('tanggal_mulai', '>=', $tanggal_mulai)
+                      ->where('tanggal_selesai', '<=', $tanggal_selesai);
+                })
+                // Case 4: New inside existing [09:30-10:30] vs [09:00-11:00]
+                ->orWhere(function ($q) use ($tanggal_mulai, $tanggal_selesai) {
+                    $q->where('tanggal_mulai', '<=', $tanggal_mulai)
+                      ->where('tanggal_selesai', '>=', $tanggal_selesai);
+                });
+            })
+            ->first();
 
-        if (!$isRuanganAvailable) {
-            return back()->withErrors(['ruangan_id' => 'Ruangan ini sudah dipesan untuk jadwal tersebut.'])->withInput();
+        if ($conflictingBookings) {
+            $statusText = $conflictingBookings->status === 'pending' ? 'menunggu persetujuan' : 'sudah disetujui';
+            $conflictStart = Carbon::parse($conflictingBookings->tanggal_mulai)->format('d M Y H:i');
+            $conflictEnd = Carbon::parse($conflictingBookings->tanggal_selesai)->format('d M Y H:i');
+            
+            return back()->withErrors([
+                'ruangan_id' => "Ruangan ini sudah dipesan untuk jadwal yang bertabrakan ({$conflictStart} - {$conflictEnd}, status: {$statusText}). Silakan pilih waktu lain."
+            ])->withInput();
         }
 
         Pengajuan::create([
@@ -270,6 +361,78 @@ class PengajuanController extends Controller
             'waktu_kembali' => 'required|date_format:H:i',
         ]);
 
+        // ATURAN BARU #5: Validasi Lead Time - Minimal 2 hari sebelum kegiatan
+        $now = Carbon::now();
+        $tanggalPinjam = Carbon::parse($validatedData['tanggal_pinjam']);
+        $daysUntilEvent = $now->startOfDay()->diffInDays($tanggalPinjam->startOfDay(), false);
+        
+        if ($daysUntilEvent < 2) {
+            return back()->withErrors([
+                'tanggal_pinjam' => 'Pengajuan harus dilakukan minimal 2 hari sebelum kegiatan. Anda hanya dapat mengajukan untuk tanggal ' . $now->copy()->addDays(2)->format('d M Y') . ' atau setelahnya.'
+            ])->withInput();
+        }
+
+        // ATURAN BARU #6: Validasi Maximum Advance Booking - Maksimal 1 tahun ke depan
+        $maxBookingDate = $now->copy()->addYear();
+        if ($tanggalPinjam->gt($maxBookingDate)) {
+            return back()->withErrors([
+                'tanggal_pinjam' => 'Booking maksimal untuk 1 tahun ke depan. Tanggal maksimal: ' . $maxBookingDate->format('d M Y')
+            ])->withInput();
+        }
+
+        $tanggal_mulai = Carbon::parse($validatedData['tanggal_pinjam'] . ' ' . $validatedData['waktu_pinjam']);
+        $tanggal_selesai = Carbon::parse($validatedData['tanggal_kembali'] . ' ' . $validatedData['waktu_kembali']);
+
+        // ATURAN BARU #1: Validasi Jam Operasional - Hanya 06:00 - 18:00 WIB
+        $jamMulai = $tanggal_mulai->hour + ($tanggal_mulai->minute / 60);
+        $jamSelesai = $tanggal_selesai->hour + ($tanggal_selesai->minute / 60);
+        
+        if ($jamMulai < 6 || $jamMulai >= 18) {
+            return back()->withErrors([
+                'waktu_pinjam' => 'Jam mulai harus antara 06:00 - 18:00 WIB'
+            ])->withInput();
+        }
+        
+        if ($jamSelesai < 6 || $jamSelesai > 18) {
+            return back()->withErrors([
+                'waktu_kembali' => 'Jam selesai harus antara 06:00 - 18:00 WIB'
+            ])->withInput();
+        }
+
+        // ATURAN BARU #3: Validasi Kelipatan 30 Menit
+        if ($tanggal_mulai->minute % 30 !== 0) {
+            return back()->withErrors([
+                'waktu_pinjam' => 'Waktu pinjam harus dalam kelipatan 30 menit (contoh: 08:00, 08:30, 09:00, dst)'
+            ])->withInput();
+        }
+        
+        if ($tanggal_selesai->minute % 30 !== 0) {
+            return back()->withErrors([
+                'waktu_kembali' => 'Waktu kembali harus dalam kelipatan 30 menit (contoh: 10:00, 10:30, 11:00, dst)'
+            ])->withInput();
+        }
+
+        if ($tanggal_selesai->lte($tanggal_mulai)) {
+            return back()->withErrors(['waktu_kembali' => 'Waktu kembali harus setelah waktu pinjam.'])->withInput();
+        }
+
+        // ATURAN BARU #2: Validasi Durasi Minimum - 2 Jam
+        $durasiJam = $tanggal_mulai->diffInHours($tanggal_selesai, true);
+        if ($durasiJam < 2) {
+            return back()->withErrors([
+                'waktu_kembali' => 'Durasi peminjaman minimal 2 jam'
+            ])->withInput();
+        }
+
+        // ATURAN BARU #4: Validasi Durasi Maksimum - 6 Hari
+        $durasiHari = $tanggal_mulai->diffInDays($tanggal_selesai, true);
+        if ($durasiHari > 6) {
+            return back()->withErrors([
+                'tanggal_kembali' => 'Durasi peminjaman maksimal 6 hari'
+            ])->withInput();
+        }
+
+        // Validasi Kapasitas Ruangan
         $ruangan = Ruangan::find($validatedData['ruangan_id']);
         if ($validatedData['jml_peserta'] > $ruangan->jml_peserta) {
             return back()
@@ -277,23 +440,42 @@ class PengajuanController extends Controller
                 ->withInput();
         }
 
-        $tanggal_mulai = Carbon::parse($validatedData['tanggal_pinjam'] . ' ' . $validatedData['waktu_pinjam']);
-        $tanggal_selesai = Carbon::parse($validatedData['tanggal_kembali'] . ' ' . $validatedData['waktu_kembali']);
-
-        if ($tanggal_selesai->lte($tanggal_mulai)) {
-            return back()->withErrors(['waktu_kembali' => 'Waktu kembali harus setelah waktu pinjam.'])->withInput();
-        }
-
-        $isRuanganAvailable = Pengajuan::where('ruangan_id', $validatedData['ruangan_id'])
-            ->where('id', '!=', $pengajuan->id)
-            ->where('status', 'disetujui')
+        // ATURAN BARU #7 & #8: Validasi Konflik Jadwal - Termasuk PENDING dan Overlap Detail
+        $conflictingBookings = Pengajuan::where('ruangan_id', $validatedData['ruangan_id'])
+            ->where('id', '!=', $pengajuan->id) // Exclude pengajuan yang sedang diedit
+            ->whereIn('status', ['disetujui', 'pending']) // Cek APPROVED dan PENDING
             ->where(function ($query) use ($tanggal_mulai, $tanggal_selesai) {
-                $query->where('tanggal_mulai', '<', $tanggal_selesai)
-                    ->where('tanggal_selesai', '>', $tanggal_mulai);
-            })->doesntExist();
+                // Case 1: New starts during existing [09:00-11:00] vs [10:00-12:00]
+                $query->where(function ($q) use ($tanggal_mulai, $tanggal_selesai) {
+                    $q->where('tanggal_mulai', '<=', $tanggal_mulai)
+                      ->where('tanggal_selesai', '>', $tanggal_mulai);
+                })
+                // Case 2: New ends during existing [08:00-10:00] vs [09:00-11:00]
+                ->orWhere(function ($q) use ($tanggal_mulai, $tanggal_selesai) {
+                    $q->where('tanggal_mulai', '<', $tanggal_selesai)
+                      ->where('tanggal_selesai', '>=', $tanggal_selesai);
+                })
+                // Case 3: New covers existing [08:00-12:00] vs [09:00-11:00]
+                ->orWhere(function ($q) use ($tanggal_mulai, $tanggal_selesai) {
+                    $q->where('tanggal_mulai', '>=', $tanggal_mulai)
+                      ->where('tanggal_selesai', '<=', $tanggal_selesai);
+                })
+                // Case 4: New inside existing [09:30-10:30] vs [09:00-11:00]
+                ->orWhere(function ($q) use ($tanggal_mulai, $tanggal_selesai) {
+                    $q->where('tanggal_mulai', '<=', $tanggal_mulai)
+                      ->where('tanggal_selesai', '>=', $tanggal_selesai);
+                });
+            })
+            ->first();
 
-        if (!$isRuanganAvailable) {
-            return back()->withErrors(['ruangan_id' => 'Ruangan ini sudah dipesan untuk jadwal tersebut.'])->withInput();
+        if ($conflictingBookings) {
+            $statusText = $conflictingBookings->status === 'pending' ? 'menunggu persetujuan' : 'sudah disetujui';
+            $conflictStart = Carbon::parse($conflictingBookings->tanggal_mulai)->format('d M Y H:i');
+            $conflictEnd = Carbon::parse($conflictingBookings->tanggal_selesai)->format('d M Y H:i');
+            
+            return back()->withErrors([
+                'ruangan_id' => "Ruangan ini sudah dipesan untuk jadwal yang bertabrakan ({$conflictStart} - {$conflictEnd}, status: {$statusText}). Silakan pilih waktu lain."
+            ])->withInput();
         }
 
         $pengajuan->update([
@@ -391,21 +573,42 @@ class PengajuanController extends Controller
 
     /**
      * Sediakan data event untuk FullCalendar.
+     * Menampilkan booking dengan status APPROVED (hijau) dan PENDING (kuning/oranye)
      */
     public function calendarEvents()
     {
         $pengajuans = Pengajuan::with('ruangan')
-            ->where('status', 'disetujui')
+            ->whereIn('status', ['disetujui', 'pending'])
             ->get();
 
         $events = $pengajuans->map(function ($pengajuan) {
+            // Tentukan warna berdasarkan status
+            if ($pengajuan->status === 'disetujui') {
+                // APPROVED: Hijau
+                $backgroundColor = 'rgba(40, 167, 69, 0.2)'; // Light green background
+                $borderColor = '#28a745'; // Solid green border
+                $textColor = '#0f5132'; // Dark green text
+                $statusLabel = '✓';
+            } else {
+                // PENDING: Kuning/Oranye
+                $backgroundColor = 'rgba(255, 193, 7, 0.2)'; // Light yellow/amber background
+                $borderColor = '#ffc107'; // Solid yellow border
+                $textColor = '#856404'; // Dark yellow text
+                $statusLabel = '⏳';
+            }
+
             return [
-                'title' => $pengajuan->judul_kegiatan . ' (' . ($pengajuan->ruangan->nama_ruangan ?? 'N/A') . ')',
+                'title' => $statusLabel . ' ' . $pengajuan->judul_kegiatan . ' (' . ($pengajuan->ruangan->nama_ruangan ?? 'N/A') . ')',
                 'start' => $pengajuan->tanggal_mulai,
                 'end' => $pengajuan->tanggal_selesai,
-                'backgroundColor' => 'rgba(40, 167, 69, 0.2)', // Light green background
-                'borderColor' => '#28a745', // Solid green border
-                'textColor' => '#0f5132' // Dark green text for contrast
+                'backgroundColor' => $backgroundColor,
+                'borderColor' => $borderColor,
+                'textColor' => $textColor,
+                'extendedProps' => [
+                    'status' => $pengajuan->status,
+                    'kegiatan' => $pengajuan->kegiatan,
+                    'jml_peserta' => $pengajuan->jml_peserta
+                ]
             ];
         });
 

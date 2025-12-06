@@ -218,6 +218,19 @@
         <div class="calendar-container">
         <h4 class="mb-3" style="color:#010D26;font-weight:bold;font-family:'Montserrat',sans-serif;">Kalender Pengajuan</h4>
             <div id='calendar'></div>
+            
+            <!-- Calendar Legend -->
+            <div class="mt-3 d-flex justify-content-center gap-4" style="font-family:'Montserrat',sans-serif;">
+                <div class="d-flex align-items-center">
+                    <span class="me-2" style="display:inline-block;width:20px;height:20px;background-color:rgba(40, 167, 69, 0.3);border:2px solid #28a745;border-radius:3px;"></span>
+                    <span style="font-size:14px;font-weight:500;color:#0f5132;">✓ Disetujui (Approved)</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <span class="me-2" style="display:inline-block;width:20px;height:20px;background-color:rgba(255, 193, 7, 0.3);border:2px solid #ffc107;border-radius:3px;"></span>
+                    <span style="font-size:14px;font-weight:500;color:#856404;">⏳ Menunggu Persetujuan (Pending)</span>
+                </div>
+            </div>
+            <!-- End Calendar Legend -->
         </div>
         <!-- End Calendar Section -->
 

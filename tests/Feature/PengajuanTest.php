@@ -785,32 +785,48 @@ class PengajuanTest extends TestCase
     }
 
     /**
-     * Test 25: Kalender tidak menampilkan booking pending
+     * Test 25: Kalender menampilkan booking pending dengan warna berbeda
      * 
      * @test
      */
-    public function test_kalender_tidak_menampilkan_booking_pending()
+    public function test_kalender_menampilkan_booking_pending_dengan_warna_berbeda()
     {
-        // Arrange: Create pending pengajuan
-        $pengajuan = $this->createDummyPengajuan([
+        // Arrange: Create pending and approved pengajuan
+        $pendingPengajuan = $this->createDummyPengajuan([
             'judul_kegiatan' => 'Pending Meeting',
             'status' => 'pending',
+        ]);
+
+        $approvedPengajuan = $this->createDummyPengajuan([
+            'judul_kegiatan' => 'Approved Meeting',
+            'status' => 'disetujui',
         ]);
 
         // Act: Get calendar events
         $response = $this->actingAsRole('Admin')
             ->get(route('calendar.events'));
 
-        // Assert: Should not include pending
+        // Assert: Should include both pending and approved
         $response->assertStatus(200);
         $json = $response->json();
         
-        // Check that pending meeting is not in events
-        $hasPendingMeeting = collect($json)->contains(function ($event) {
+        // Check that pending meeting is in events with yellow color
+        $pendingEvent = collect($json)->first(function ($event) {
             return str_contains($event['title'], 'Pending Meeting');
         });
         
-        $this->assertFalse($hasPendingMeeting);
+        $this->assertNotNull($pendingEvent, 'Pending event should be in calendar');
+        $this->assertEquals('rgba(255, 193, 7, 0.2)', $pendingEvent['backgroundColor'], 'Pending should have yellow background');
+        $this->assertEquals('#ffc107', $pendingEvent['borderColor'], 'Pending should have yellow border');
+        
+        // Check that approved meeting is in events with green color
+        $approvedEvent = collect($json)->first(function ($event) {
+            return str_contains($event['title'], 'Approved Meeting');
+        });
+        
+        $this->assertNotNull($approvedEvent, 'Approved event should be in calendar');
+        $this->assertEquals('rgba(40, 167, 69, 0.2)', $approvedEvent['backgroundColor'], 'Approved should have green background');
+        $this->assertEquals('#28a745', $approvedEvent['borderColor'], 'Approved should have green border');
     }
 
     /**
