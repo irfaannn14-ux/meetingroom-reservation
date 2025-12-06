@@ -11,7 +11,7 @@ class RuanganController extends Controller
 {
     public function index()
     {
-        $ruangans = Ruangan::all();
+        $ruangans = Ruangan::latest()->get();
         return view('ruangan.index', compact('ruangans'));
     }
 

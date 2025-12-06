@@ -18,7 +18,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $all = User::with('organization')->get();
+        $all = User::with('organization')->latest()->get();
         return view('user.index', ['all' => $all]);
     }
 
@@ -75,65 +75,62 @@ class UserController extends Controller
     /**
      * Tampilkan formulir edit untuk pengguna tertentu.
      */
-    public function edit(User $user)
+    public function edit($id)
     {
+        $user = User::findOrFail($id);
         $organizations = Organization::all();
-        return view('user.tambah', compact('user', 'organizations'));
+        $isEdit = true; // Flag untuk menentukan mode edit
+        
+        return view('user.tambah', compact('user', 'organizations', 'isEdit'));
     }
 
     /**
      * Perbarui pengguna yang ada.
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request, $id)
     {
-        $validatedData = $request->validate([
+        $user = User::findOrFail($id);
+        
+        // Validasi data
+        $request->validate([
             'nama' => 'required|string|max:255',
-            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'no_wa' => 'required|string|max:15',
-            'username' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'password' => 'nullable|string|min:8',
-            'organization_id' => 'required|string|exists:organization,bkd_organization_id',
-            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'email' => 'required|email|unique:users,email,'.$id,
+            'no_wa' => 'required|string|max:20',
+            'username' => 'required|string|max:255|unique:users,username,'.$id,
+            'role' => 'required|string',
+            'organization_id' => 'nullable|exists:organizations,bkd_organization_id',
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'password' => 'nullable|min:8|confirmed'
         ]);
-
-        // Tentukan role baru berdasarkan organization_id
-        $organization = Organization::where('bkd_organization_id', $request->organization_id)->first();
-        $role = 'OPD'; // Default role
-        if ($organization) {
-            if ($organization->organization_name === 'ADMIN') {
-                $role = 'Admin';
-            } elseif ($organization->organization_name === 'SUPER ADMIN') {
-                $role = 'Super Admin';
-            }
-        }
-        $validatedData['role'] = $role;
-
-        // Periksa apakah password diisi
+        
+        // Update data user
+        $user->update([
+            'nama' => $request->nama,
+            'email' => $request->email,
+            'no_wa' => $request->no_wa,
+            'username' => $request->username,
+            'role' => $request->role,
+            'organization_id' => $request->role == 'OPD' ? $request->organization_id : null
+        ]);
+        
+        // Jika ada password yang diisi
         if ($request->filled('password')) {
-            $validatedData['password'] = Hash::make($request->password);
-        } else {
-            unset($validatedData['password']);
+            $user->password = bcrypt($request->password);
+            $user->save();
         }
-
-        // Handle update foto profil
+        
+        // Jika ada foto profil yang diupload
         if ($request->hasFile('foto_profil')) {
             // Hapus foto lama jika ada
             if ($user->foto_profil) {
                 Storage::disk('public')->delete($user->foto_profil);
             }
-            // Simpan foto baru
-            $validatedData['foto_profil'] = $request->file('foto_profil')->store('foto_profil', 'public');
+            
+            $path = $request->file('foto_profil')->store('profile', 'public');
+            $user->foto_profil = $path;
+            $user->save();
         }
-
-        $user->update($validatedData);
-
-        ActivityLog::create([
-            'user_id' => session('user_id'),
-            'activity' => 'Mengedit pengguna: ' . $user->nama,
-            'resource_type' => 'user',
-            'resource_id' => $user->id,
-        ]);
-
+        
         return redirect()->route('user.index')->with('success', 'User berhasil diperbarui!');
     }
 
@@ -170,15 +167,16 @@ class UserController extends Controller
 
     /**
      * Tampilkan halaman edit profil untuk pengguna yang sedang login.
+     * Menggunakan view tambah.blade.php dengan pre-filled data.
      */
-    public function showProfile()
+    public function editProfile()
     {
-        $user = User::find(session('user_id'));
-        if (!$user) {
-            abort(404, 'User tidak ditemukan.');
-        }
-        // Organisasi tidak diperlukan untuk edit profil sendiri
-        return view('user.profile', compact('user'));
+        $userId = session('user_id');
+        $user = User::findOrFail($userId);
+        $organizations = Organization::all();
+        $isEdit = true; // Flag untuk menentukan mode edit
+        
+        return view('user.tambah', compact('user', 'organizations', 'isEdit'));
     }
 
     /**
@@ -187,47 +185,68 @@ class UserController extends Controller
     public function updateProfile(Request $request)
     {
         $userId = session('user_id');
-        $user = User::find($userId);
+        $user = User::findOrFail($userId);
 
-        if (!$user) {
-            abort(404, 'User tidak ditemukan.');
-        }
-
-        $validatedData = $request->validate([
+        // Validasi data
+        $request->validate([
             'nama' => 'required|string|max:255',
-            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'no_wa' => 'required|string|max:15',
-            'username' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'password' => 'nullable|string|min:8|confirmed', // Menambahkan konfirmasi password
-            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'email' => 'required|email|unique:users,email,'.$userId,
+            'no_wa' => 'required|string|max:20',
+            'username' => 'required|string|max:255|unique:users,username,'.$userId,
+            'role' => 'required|string',
+            'organization_id' => 'nullable|exists:organization,bkd_organization_id',
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'password' => 'nullable|min:8'
         ]);
-
-        // Periksa apakah password diisi
+        
+        // Update data user
+        $user->update([
+            'nama' => $request->nama,
+            'email' => $request->email,
+            'no_wa' => $request->no_wa,
+            'username' => $request->username,
+            'role' => $request->role,
+            'organization_id' => $request->role == 'OPD' ? $request->organization_id : null
+        ]);
+        
+        // Jika ada password yang diisi
         if ($request->filled('password')) {
-            $validatedData['password'] = Hash::make($request->password);
-        } else {
-            unset($validatedData['password']);
+            $user->password = Hash::make($request->password);
+            $user->save();
         }
-
-        // Handle update foto profil
+        
+        // Jika ada foto profil yang diupload
         if ($request->hasFile('foto_profil')) {
             // Hapus foto lama jika ada
             if ($user->foto_profil) {
                 Storage::disk('public')->delete($user->foto_profil);
             }
-            // Simpan foto baru dan perbarui session
+            
             $path = $request->file('foto_profil')->store('foto_profil', 'public');
-            $validatedData['foto_profil'] = $path;
+            $user->foto_profil = $path;
+            $user->save();
+            
+            // Update session foto
             session(['user_foto' => $path]);
         }
-
-        $user->update($validatedData);
         
-        // Perbarui nama di session jika berubah
-        if($user->wasChanged('nama')){
+        // Update session nama jika berubah
+        if ($user->wasChanged('nama')) {
             session(['user_nama' => $user->nama]);
         }
+        
+        // Update session role jika berubah
+        if ($user->wasChanged('role')) {
+            session(['user_role' => $user->role]);
+        }
 
-        return redirect()->route('profile.show')->with('success', 'Profil berhasil diperbarui!');
+        ActivityLog::create([
+            'user_id' => $userId,
+            'activity' => 'Memperbarui profil',
+            'resource_type' => 'user',
+            'resource_id' => $userId,
+        ]);
+
+        return redirect()->route('dashboard')->with('success', 'Profil berhasil diperbarui!');
     }
 }

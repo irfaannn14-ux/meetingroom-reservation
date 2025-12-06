@@ -2,209 +2,325 @@
 @section('title', 'Log Aktivitas')
 @section('content')
 <style>
-    .main-content {
-        padding: 80px 20px 20px;
-        min-height: 100vh;
-    }
-    .page-title {
-        font-size: 2rem;
-        font-weight: bold;
-        color: #ffffff;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-        margin-bottom: 20px;
-    }
-    .table-container {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        padding: 2rem;
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 15px;
-    }
-    th, td {
-        padding: 0.85rem 1rem;
-        text-align: left;
-        vertical-align: middle;
-        border-bottom: 1px solid #e0e0e0;
-    }
-    th {
-        background-color: #010D26 !important;
-        color: #ffffff !important;
-        font-weight: 700;
-    }
-    tr:last-child td {
-        border-bottom: none;
-    }
-    .btn-log {
-        border: none;
-        padding: 6px 18px;
-        border-radius: 5px;
-        font-weight: 600;
-        cursor: pointer;
-        color: #fff;
-        transition: all 0.3s ease;
-    }
-    .btn-approve { 
-        background: #28a745; 
-        color: #fff;
-    }
-    .btn-approve:hover {
-        background: #218838;
-        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.4);
-    }
-    .btn-deny { 
-        background: #dc3545; 
-        color: #fff;
-    }
-    .btn-deny:hover {
-        background: #c82333;
-        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.4);
-    }
-    .btn-edit { 
-        background: #ffc107; 
-        color: #000;
-    }
-    .btn-edit:hover {
-        background: #e0a800;
-        box-shadow: 0 2px 8px rgba(255, 193, 7, 0.4);
-    }
-    .btn-delete { 
-        background: #6c757d; 
-        color: #fff;
-        cursor: not-allowed;
-        opacity: 0.6;
-    }
-    .btn-add { 
-        background: #2196F3; 
-        color: #fff;
-    }
-    .btn-add:hover {
-        background: #0b7dda;
-        box-shadow: 0 2px 8px rgba(33, 150, 243, 0.4);
-    }
-    /* Icon indicators */
-    .btn-log i {
-        margin-right: 4px;
-        font-size: 14px;
-    }
-    /* Standardized search styles (matching other index pages) */
-    .search-container {
-        position: relative;
-        margin-bottom: 18px;
-        max-width: 350px;
-    }
-    .search-icon {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #6c757d;
-        pointer-events: none;
-    }
-    #searchInput {
-        padding-left: 40px;
-        border-radius: 8px;
-        height: 40px;
-        width: 100%;
-        border: 1px solid #ced4da;
-        font-size: 15px;
-    }
-    /* Modal styles */
-    .modal-log {
-        display: none;
-        position: fixed;
-        z-index: 9999;
-        left: 0; top: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.3);
-        justify-content: center;
-        align-items: center;
-    }
-    .modal-content-log {
-        background: #fff;
-        padding: 2rem;
-        border-radius: 8px;
-        min-width: 350px;
-        max-width: 500px;
-        position: relative;
-    }
-    .close-modal-log {
-        position: absolute;
-        top: 12px;
-        right: 18px;
-        font-size: 1.5rem;
-        cursor: pointer;
-        color: #222;
-        border: none;
-        background: none;
-    }
-    .compare-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-    }
-    .compare-table th, .compare-table td {
-        border: 1px solid #e0e0e0;
-        padding: 6px 10px;
-        text-align: left;
-    }
-    .compare-table th {
-        background: #f5f5f5;
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+        --primary-color: #1e3a8a;
+        --secondary-color: #3b82f6;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
+        --light-color: #f8fafc;
+        --dark-color: #1e293b;
+        --border-radius: 12px;
+        --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
     }
     
-    /* Standardized Modal Styling */
-    .modal-dialog {
-        max-width: 900px !important;
-        width: 900px !important;
-        margin: 1.75rem auto;
+    body {
+        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(135deg, #e6f0ff 0%, #f0f7ff 100%);
+        color: var(--dark-color);
+        padding-top: 60px;
+        padding-left: 80px;
+        min-height: 100vh;
     }
-    .modal-content {
-        width: 100% !important;
+    
+    .page-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
     }
-    .modal-header {
-        background: linear-gradient(135deg, #010D26 0%, #1a2b4a 100%);
-        color: white;
-        border-bottom: none;
-        padding: 1.5rem;
+    
+    .page-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+        gap: 16px;
     }
-    .modal-title {
+    
+    .page-title {
+        font-size: 2.2rem;
         font-weight: 700;
-        font-size: 1.25rem;
+        color: var(--primary-color);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
     }
-    .modal-header .btn-close {
-        filter: brightness(0) invert(1);
+    
+    .page-title i {
+        color: var(--secondary-color);
     }
+    
+    .search-container {
+        position: relative;
+        flex: 1;
+        max-width: 400px;
+    }
+    
+    .search-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        font-size: 1.1rem;
+    }
+    
+    #searchInput {
+        width: 100%;
+        padding: 12px 16px 12px 44px;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        font-family: 'Poppins', sans-serif;
+        font-size: 1rem;
+        transition: var(--transition);
+        background-color: white;
+    }
+    
+    #searchInput:focus {
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        outline: none;
+    }
+    
+    .card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 32px;
+    }
+    
+    .card-header {
+        background: linear-gradient(90deg, var(--primary-color) 0%, #2563eb 100%);
+        color: white;
+        padding: 18px 24px;
+        position: relative;
+    }
+    
+    .card-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--secondary-color);
+    }
+    
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .card-body {
+        padding: 0;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+        min-width: 100%;
+    }
+    
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+    }
+    
+    .table th,
+    .table td {
+        padding: 16px 20px;
+        text-align: left;
+        vertical-align: middle;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .table thead th {
+        background-color: #f1f5f9;
+        color: var(--primary-color);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .table tbody tr {
+        transition: var(--transition);
+    }
+    
+    .table tbody tr:hover {
+        background-color: #f8fafc;
+    }
+    
+    .table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .log-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .log-approve { 
+        background-color: #dcfce7;
+        color: #166534;
+    }
+    
+    .log-deny { 
+        background-color: #fee2e2;
+        color: #b91c1c;
+    }
+    
+    .log-delete { 
+        background-color: #f3f4f6;
+        color: #4b5563;
+        opacity: 0.7;
+    }
+    
+    .log-edit { 
+        background-color: #ffedd5;
+        color: #c2410c;
+    }
+    
+    .log-add { 
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .log-default { 
+        background-color: #e0e7ff;
+        color: #4338ca;
+    }
+    
+    .no-data-row td {
+        text-align: center;
+        padding: 40px 0;
+        font-style: italic;
+        color: #64748b;
+        font-size: 1.1rem;
+    }
+    
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1050;
+    }
+    
+    .modal-content {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 900px;
+        overflow: hidden;
+        transform: translateY(20px);
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .modal-content.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    
+    .modal-header {
+        background: linear-gradient(90deg, var(--primary-color) 0%, #2563eb 100%);
+        color: white;
+        padding: 20px 24px;
+        position: relative;
+    }
+    
+    .modal-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--secondary-color);
+    }
+    
+    .modal-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .btn-close {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: white;
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: var(--transition);
+    }
+    
+    .btn-close:hover {
+        opacity: 1;
+    }
+    
     .modal-body {
-        padding: 2rem;
+        padding: 28px;
         max-height: 70vh;
         overflow-y: auto;
     }
+    
     .modal-body h5 {
-        color: #010D26;
+        color: var(--primary-color);
         font-weight: 700;
-        margin-bottom: 1rem;
+        margin-bottom: 1.25rem;
         padding-bottom: 0.5rem;
-        border-bottom: 2px solid #010D26;
+        border-bottom: 2px solid #e2e8f0;
+        font-size: 1.25rem;
     }
+    
     .modal-body .table {
         margin-bottom: 0;
     }
+    
     .modal-body .table th {
-        background-color: #f8f9fa !important;
-        color: #010D26 !important;
+        background-color: #f8fafc !important;
+        color: var(--dark-color) !important;
         font-weight: 600;
         width: 30%;
-        padding: 0.75rem;
+        padding: 12px 16px;
     }
+    
     .modal-body .table td {
-        padding: 0.75rem;
+        padding: 12px 16px;
         vertical-align: middle;
     }
+    
     .modal-body img {
         max-width: 100%;
         max-height: 200px;
@@ -212,386 +328,697 @@
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         object-fit: cover;
+        border: 1px solid #e2e8f0;
     }
+    
     .modal-footer {
-        background-color: #f8f9fa;
-        border-top: 1px solid #dee2e6;
-        padding: 1rem 1.5rem;
+        padding: 16px 28px;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
     }
-    .modal-body .no-data {
+    
+    .btn-modal {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: var(--transition);
+        cursor: pointer;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-secondary {
+        background-color: #64748b;
+        color: white;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #475569;
+    }
+    
+    .empty-state {
         text-align: center;
-        padding: 2rem;
-        color: #6c757d;
-        font-style: italic;
+        padding: 60px 20px;
+        color: #64748b;
     }
-    .modal-body pre {
-        background-color: #f8f9fa;
-        padding: 1rem;
-        border-radius: 6px;
-        border: 1px solid #dee2e6;
-        overflow-x: auto;
-        font-size: 0.875rem;
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: #cbd5e1;
+        margin-bottom: 20px;
+    }
+    
+    .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: var(--dark-color);
+    }
+    
+    .time-badge {
+        background-color: #dbeafe;
+        color: var(--primary-color);
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    
+    .detail-row {
+        display: flex;
+        margin-bottom: 12px;
+    }
+    
+    .detail-label {
+        flex: 1;
+        font-weight: 500;
+        color: var(--primary-color);
+    }
+    
+    .detail-value {
+        flex: 2;
+        color: var(--dark-color);
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+    
+    .status-pending {
+        background-color: #f59e0b;
+        color: white;
+    }
+    
+    .status-disetujui {
+        background-color: #10b981;
+        color: white;
+    }
+    
+    .status-ditolak {
+        background-color: #ef4444;
+        color: white;
+    }
+    
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .search-container {
+            max-width: 100%;
+        }
+        
+        .table-container {
+            font-size: 0.85rem;
+        }
+        
+        .table th,
+        .table td {
+            padding: 12px 15px;
+        }
+        
+        .modal-content {
+            max-width: 95%;
+            margin: 10px;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 16px 20px;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .btn-modal {
+            width: 100%;
+            justify-content: center;
+        }
     }
 </style>
 
-<div class="main-content">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="page-title">Log Aktivitas</h1>
+<div class="page-container py-4">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="bi bi-journal-text"></i>
+            Log Aktivitas
+        </h1>
         <div class="search-container">
             <i class="bi bi-search search-icon"></i>
-            <input type="search" id="searchInput" onkeyup="filterTable()" class="form-control" placeholder="Cari: Nama Pengguna, Role, Aktivitas, Waktu, ..." style="width:280px;">
+            <input type="search" id="searchInput" onkeyup="filterTable()" class="form-control" 
+                   placeholder="Cari: Nama Pengguna, Role, Aktivitas...">
         </div>
     </div>
 
-    <div class="table-container">
-        <table id="logTable">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Nama Pengguna</th>
-                    <th>Role Pengguna</th>
-                    <th>Aktivitas</th>
-                    <th>Waktu Kejadian</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($logs as $log)
-                <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>{{ $log->user->nama ?? 'N/A' }}</td>
-                    <td>{{ $log->user->role ?? 'N/A' }}</td>
-                    <td>
-                        @php
-                            $activity = strtolower($log->activity);
-                            $btnClass = '';
-                            $btnLabel = '';
-                            $btnIcon = '';
-                            $isDisabled = false;
-                            
-                            // Approve Pengajuan (Hijau)
-                            if(str_contains($activity, 'approve') || 
-                               str_contains($activity, 'menyetujui') || 
-                               str_contains($activity, 'disetujui')) {
-                                $btnClass = 'btn-approve';
-                                $btnLabel = 'Approve Pengajuan';
-                                $btnIcon = '<i class="bi bi-check-circle"></i>';
-                            }
-                            // Deny Pengajuan (Merah)
-                            elseif(str_contains($activity, 'deny') || 
-                                   str_contains($activity, 'menolak') || 
-                                   str_contains($activity, 'ditolak')) {
-                                $btnClass = 'btn-deny';
-                                $btnLabel = 'Deny Pengajuan';
-                                $btnIcon = '<i class="bi bi-x-circle"></i>';
-                            }
-                            // Menghapus (Abu-abu - Disabled)
-                            elseif(str_contains($activity, 'delete') || 
-                                   str_contains($activity, 'menghapus') || 
-                                   str_contains($activity, 'dihapus')) {
-                                $btnClass = 'btn-delete';
-                                $btnIcon = '<i class="bi bi-trash"></i>';
-                                $isDisabled = true;
-                                
-                                // Tentukan label berdasarkan jenis yang dihapus
-                                if(str_contains($activity, 'ruangan')) {
-                                    $btnLabel = 'Menghapus Ruangan';
-                                } elseif(str_contains($activity, 'user') || str_contains($activity, 'pengguna')) {
-                                    $btnLabel = 'Menghapus User';
-                                } elseif(str_contains($activity, 'pengajuan') || str_contains($activity, 'permohonan')) {
-                                    $btnLabel = 'Menghapus Pengajuan';
-                                } else {
-                                    $btnLabel = 'Menghapus Data';
-                                }
-                            }
-                            // Edit Ruangan (Kuning) - Harus sebelum Edit Pengajuan
-                            elseif(str_contains($activity, 'edit ruangan') || 
-                                   str_contains($activity, 'mengedit ruangan') ||
-                                   str_contains($activity, 'mengubah ruangan')) {
-                                $btnClass = 'btn-edit';
-                                $btnLabel = 'Mengedit Ruangan';
-                                $btnIcon = '<i class="bi bi-pencil-square"></i>';
-                            }
-                            // Edit User (Kuning) - Harus sebelum Edit Pengajuan
-                            elseif(str_contains($activity, 'edit user') || 
-                                   str_contains($activity, 'mengedit user') ||
-                                   str_contains($activity, 'mengubah user') ||
-                                   str_contains($activity, 'edit pengguna') ||
-                                   str_contains($activity, 'mengedit pengguna')) {
-                                $btnClass = 'btn-edit';
-                                $btnLabel = 'Mengedit User';
-                                $btnIcon = '<i class="bi bi-pencil-square"></i>';
-                            }
-                            // Edit Pengajuan (Kuning)
-                            elseif(str_contains($activity, 'edit pengajuan') || 
-                                   str_contains($activity, 'mengedit pengajuan') ||
-                                   str_contains($activity, 'edit') ||
-                                   str_contains($activity, 'mengedit') || 
-                                   str_contains($activity, 'mengubah') || 
-                                   str_contains($activity, 'mengupdate')) {
-                                $btnClass = 'btn-edit';
-                                $btnLabel = 'Mengedit Pengajuan';
-                                $btnIcon = '<i class="bi bi-pencil-square"></i>';
-                            }
-                            // Tambah Data (Biru)
-                            elseif(str_contains($activity, 'add') || 
-                                   str_contains($activity, 'menambah') || 
-                                   str_contains($activity, 'menambahkan')) {
-                                $btnClass = 'btn-add';
-                                $btnLabel = 'Tambah Data';
-                                $btnIcon = '<i class="bi bi-plus-circle"></i>';
-                            }
-                            else {
-                                $btnClass = 'btn-log';
-                                $btnLabel = $log->activity;
-                                $btnIcon = '<i class="bi bi-info-circle"></i>';
-                            }
-                        @endphp
-                        @php
-                            $resource = $log->resource();
-                            $resourceType = $log->resource_type;
-                        @endphp
-                        <button 
-                            class="btn-log {{ $btnClass }} log-modal-btn" 
-                            data-log-id="{{ $log->id }}"
-                            data-log="{{ htmlspecialchars(json_encode($log), ENT_QUOTES, 'UTF-8') }}"
-                            data-resource="{{ htmlspecialchars(json_encode($resource), ENT_QUOTES, 'UTF-8') }}"
-                            data-resource-type="{{ $resourceType }}"
-                            @if(!$isDisabled)
-                                data-bs-toggle="modal" 
-                                data-bs-target="#modalLogBootstrap"
-                            @else
-                                disabled 
-                                title="Log aktivitas penghapusan tidak dapat dibuka"
-                                style="pointer-events: none;"
-                            @endif
-                        >{!! $btnIcon !!} {{ $btnLabel }}</button>
-                    </td>
-                    <td>{{ $log->created_at->format('d M Y, H:i:s') }}</td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="5" style="text-align: center;">Tidak ada aktivitas yang tercatat.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="bi bi-list-ul"></i>
+                Daftar Aktivitas Sistem
+            </h2>
+        </div>
+        
+        <div class="card-body">
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">No</th>
+                            <th style="width: 18%;">Nama Pengguna</th>
+                            <th style="width: 15%;">Role</th>
+                            <th style="width: 35%;">Aktivitas</th>
+                            <th style="width: 20%;">Waktu</th>
+                            <th style="width: 7%;">Detail</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logTableBody">
+                        @forelse($logs as $log)
+                        <tr>
+                            <td class="fw-bold">{{ $loop->iteration }}</td>
+                            <td>{{ $log->user->nama ?? 'N/A' }}</td>
+                            <td>
+                                <span class="time-badge">{{ $log->user->role ?? 'N/A' }}</span>
+                            </td>
+                            <td>
+                                @php
+                                    $activity = strtolower($log->activity);
+                                    $badgeClass = 'log-default';
+                                    $badgeText = 'Aktivitas Lainnya';
+                                    $badgeIcon = 'bi-info-circle';
+                                    
+                                    // Approve Pengajuan (Hijau)
+                                    if(str_contains($activity, 'approve') || 
+                                       str_contains($activity, 'menyetujui') || 
+                                       str_contains($activity, 'disetujui')) {
+                                        $badgeClass = 'log-approve';
+                                        $badgeText = 'Approve Pengajuan';
+                                        $badgeIcon = 'bi-check-circle';
+                                    }
+                                    // Deny Pengajuan (Merah)
+                                    elseif(str_contains($activity, 'deny') || 
+                                           str_contains($activity, 'menolak') || 
+                                           str_contains($activity, 'ditolak')) {
+                                        $badgeClass = 'log-deny';
+                                        $badgeText = 'Deny Pengajuan';
+                                        $badgeIcon = 'bi-x-circle';
+                                    }
+                                    // Menghapus (Abu-abu - Disabled)
+                                    elseif(str_contains($activity, 'delete') || 
+                                           str_contains($activity, 'menghapus') || 
+                                           str_contains($activity, 'dihapus')) {
+                                        $badgeClass = 'log-delete';
+                                        $badgeIcon = 'bi-trash';
+                                        
+                                        // Tentukan label berdasarkan jenis yang dihapus
+                                        if(str_contains($activity, 'ruangan')) {
+                                            $badgeText = 'Menghapus Ruangan';
+                                        } elseif(str_contains($activity, 'user') || str_contains($activity, 'pengguna')) {
+                                            $badgeText = 'Menghapus User';
+                                        } elseif(str_contains($activity, 'pengajuan') || str_contains($activity, 'permohonan')) {
+                                            $badgeText = 'Menghapus Pengajuan';
+                                        } else {
+                                            $badgeText = 'Menghapus Data';
+                                        }
+                                    }
+                                    // Edit Ruangan (Kuning) - Harus sebelum Edit Pengajuan
+                                    elseif(str_contains($activity, 'edit ruangan') || 
+                                           str_contains($activity, 'mengedit ruangan') ||
+                                           str_contains($activity, 'mengubah ruangan')) {
+                                        $badgeClass = 'log-edit';
+                                        $badgeText = 'Mengedit Ruangan';
+                                        $badgeIcon = 'bi-pencil-square';
+                                    }
+                                    // Edit User (Kuning) - Harus sebelum Edit Pengajuan
+                                    elseif(str_contains($activity, 'edit user') || 
+                                           str_contains($activity, 'mengedit user') ||
+                                           str_contains($activity, 'mengubah user') ||
+                                           str_contains($activity, 'edit pengguna') ||
+                                           str_contains($activity, 'mengedit pengguna')) {
+                                        $badgeClass = 'log-edit';
+                                        $badgeText = 'Mengedit User';
+                                        $badgeIcon = 'bi-pencil-square';
+                                    }
+                                    // Edit Pengajuan (Kuning)
+                                    elseif(str_contains($activity, 'edit pengajuan') || 
+                                           str_contains($activity, 'mengedit pengajuan') ||
+                                           str_contains($activity, 'edit') ||
+                                           str_contains($activity, 'mengedit') || 
+                                           str_contains($activity, 'mengubah') || 
+                                           str_contains($activity, 'mengupdate')) {
+                                        $badgeClass = 'log-edit';
+                                        $badgeText = 'Mengedit Pengajuan';
+                                        $badgeIcon = 'bi-pencil-square';
+                                    }
+                                    // Tambah Data (Biru)
+                                    elseif(str_contains($activity, 'add') || 
+                                           str_contains($activity, 'menambah') || 
+                                           str_contains($activity, 'menambahkan')) {
+                                        $badgeClass = 'log-add';
+                                        $badgeText = 'Tambah Data';
+                                        $badgeIcon = 'bi-plus-circle';
+                                    }
+                                @endphp
+                                <span class="log-badge {{ $badgeClass }}">
+                                    <i class="bi {{ $badgeIcon }}"></i>
+                                    {{ $badgeText }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="time-badge">
+                                    {{ $log->created_at->format('d/m/Y H:i') }}
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                @php
+                                    $resource = $log->resource();
+                                    $canView = $resource !== null && !str_contains(strtolower($log->activity), 'delete');
+                                @endphp
+                                @if($canView)
+                                <button class="btn-icon btn-info" data-bs-toggle="modal" data-bs-target="#modalLogBootstrap"
+                                        data-log-id="{{ $log->id }}"
+                                        data-log="{{ htmlspecialchars(json_encode($log), ENT_QUOTES, 'UTF-8') }}"
+                                        data-resource="{{ htmlspecialchars(json_encode($resource), ENT_QUOTES, 'UTF-8') }}"
+                                        data-resource-type="{{ $log->resource_type }}"
+                                        title="Lihat Detail">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                @else
+                                <span class="text-muted" title="Tidak tersedia untuk aktivitas penghapusan">-</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @empty
+                        <tr class="no-data-row">
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <i class="bi bi-journal-x"></i>
+                                    <h3>Belum Ada Log Aktivitas</h3>
+                                    <p>Belum ada data aktivitas yang tercatat dalam sistem.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
+                        <tr id="noResultsRow" style="display: none;" class="no-data-row">
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <i class="bi bi-search"></i>
+                                    <h3>Tidak Ada Hasil</h3>
+                                    <p>Tidak ada aktivitas yang sesuai dengan pencarian Anda.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- Bootstrap Modal -->
-<div class="modal fade" id="modalLogBootstrap" tabindex="-1" aria-labelledby="modalLogLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalLogLabel">Detail Aktivitas</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- Modal Detail Aktivitas -->
+<div id="modalLogBootstrap" class="modal-backdrop">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="bi bi-journal-text"></i>
+                <span id="modalTitle">Detail Aktivitas</span>
+            </h3>
+            <button class="btn-close" onclick="closeModal('modalLogBootstrap')">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBodyLog">
+            <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-muted">Memuat detail aktivitas...</p>
             </div>
-            <div class="modal-body" id="modalBodyLog">
-                <!-- populated by JS -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-modal btn-secondary" onclick="closeModal('modalLogBootstrap')">
+                <i class="bi bi-x"></i> Tutup
+            </button>
         </div>
     </div>
 </div>
 
 <script>
-    // Standardized filter function (compatible with other index pages)
     function filterTable() {
-        const input = document.getElementById('searchInput');
-        const filter = input.value.toLowerCase();
-        const rows = document.querySelectorAll('#logTable tbody tr');
-        let visible = 0;
-        rows.forEach(row => {
-            if(row.querySelector('td[colspan]')) return; // skip no-data rows
-            const text = row.textContent.toLowerCase();
-            if(text.indexOf(filter) > -1) {
-                row.style.display = '';
-                visible++;
-            } else {
-                row.style.display = 'none';
+        const input = document.getElementById("searchInput");
+        const filter = input.value.toLowerCase().trim();
+        const tableBody = document.getElementById("logTableBody");
+        const rows = tableBody.getElementsByTagName("tr");
+        let visibleRows = 0;
+        let hasDataRows = false;
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            // Skip special rows (empty state, no results)
+            if (row.classList.contains('no-data-row') || row.id === 'noResultsRow') {
+                continue;
             }
-        });
-        const noResults = document.getElementById('noResultsRowLog');
-        if(!noResults) {
-            const tr = document.createElement('tr');
-            tr.id = 'noResultsRowLog';
-            tr.innerHTML = '<td colspan="5" class="text-center py-4">Tidak ada aktivitas yang cocok dengan pencarian Anda.</td>';
-            document.querySelector('#logTable tbody').appendChild(tr);
+            
+            hasDataRows = true;
+            const cells = row.getElementsByTagName("td");
+            if (cells.length < 5) continue;
+
+            const pengguna = cells[1].textContent || cells[1].innerText;
+            const role = cells[2].textContent || cells[2].innerText;
+            const aktivitas = cells[3].textContent || cells[3].innerText;
+            
+            const rowText = (pengguna + role + aktivitas).toLowerCase();
+            
+            if (rowText.includes(filter)) {
+                row.style.display = "";
+                visibleRows++;
+            } else {
+                row.style.display = "none";
+            }
         }
-        document.getElementById('noResultsRowLog').style.display = visible === 0 ? 'table-row' : 'none';
-    }
 
-    // Populate Bootstrap modal when it's shown
-    var modalLog = document.getElementById('modalLogBootstrap');
-    if (modalLog) {
-        modalLog.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget; // Button that triggered the modal
-            if (!button) return;
-            
-            // Helper function to decode HTML entities
-            function decodeHtml(html) {
-                var txt = document.createElement("textarea");
-                txt.innerHTML = html;
-                return txt.value;
-            }
-            
-            var raw = button.getAttribute('data-log') || button.dataset.log || null;
-            var resRaw = button.getAttribute('data-resource') || button.dataset.resource || null;
-            var resourceType = button.getAttribute('data-resource-type') || button.dataset.resourceType || null;
-            
-            var log = null;
-            var resource = null;
-            
-            try { 
-                if (raw) {
-                    raw = decodeHtml(raw);
-                    log = JSON.parse(raw);
-                }
-            } catch (err) { 
-                console.error('Error parsing log:', err);
-                log = null; 
-            }
-            
-            try { 
-                if (resRaw) {
-                    resRaw = decodeHtml(resRaw);
-                    resource = JSON.parse(resRaw);
-                }
-            } catch (err) { 
-                console.error('Error parsing resource:', err);
-                resource = null; 
-            }
-
-            var modalBody = document.getElementById('modalBodyLog');
-            var modalTitle = document.getElementById('modalLogLabel');
-            var html = '';
-            var title = 'Detail Aktivitas';
-
-            // If resource object provided, render resource details depending on type
-            if(resource && resourceType) {
-                if(resourceType === 'pengajuan') {
-                    title = 'Detail Pengajuan';
-                    html += '<h5>Informasi Pengajuan</h5>';
-                    html += '<table class="table table-bordered"><tbody>';
-                    html += '<tr><th>Judul Kegiatan</th><td>' + (resource.judul_kegiatan || '-') + '</td></tr>';
-                    html += '<tr><th>Nama Pengaju</th><td>' + (resource.nama_pengaju || (resource.user && resource.user.nama) || '-') + '</td></tr>';
-                    html += '<tr><th>Ruangan</th><td>' + (resource.ruangan && resource.ruangan.nama_ruangan ? resource.ruangan.nama_ruangan : '-') + '</td></tr>';
-                    html += '<tr><th>Tanggal Mulai</th><td>' + (resource.tanggal_mulai || '-') + '</td></tr>';
-                    html += '<tr><th>Tanggal Selesai</th><td>' + (resource.tanggal_selesai || '-') + '</td></tr>';
-                    html += '<tr><th>Jumlah Peserta</th><td>' + (resource.jml_peserta || '-') + '</td></tr>';
-                    html += '<tr><th>Status</th><td><span class="badge bg-' + (resource.status === 'disetujui' ? 'success' : resource.status === 'ditolak' ? 'danger' : 'warning') + '">' + (resource.status || '-') + '</span></td></tr>';
-                    html += '</tbody></table>';
-                } else if(resourceType === 'ruangan') {
-                    title = 'Detail Ruangan';
-                    html += '<h5>Informasi Ruangan</h5>';
-                    html += '<table class="table table-bordered"><tbody>';
-                    html += '<tr><th>Nama Ruangan</th><td>' + (resource.nama_ruangan || '-') + '</td></tr>';
-                    html += '<tr><th>Kapasitas</th><td>' + (resource.jml_peserta || '-') + ' orang</td></tr>';
-                    html += '<tr><th>Fasilitas</th><td>' + (resource.fasilitas || '-') + '</td></tr>';
-                    if(resource.foto_ruangan) {
-                        html += '<tr><th>Foto Ruangan</th><td><img src="/storage/' + resource.foto_ruangan + '" alt="Foto Ruangan"></td></tr>';
-                    }
-                    html += '</tbody></table>';
-                } else if(resourceType === 'user') {
-                    title = 'Detail Pengguna';
-                    html += '<h5>Informasi Pengguna</h5>';
-                    html += '<table class="table table-bordered"><tbody>';
-                    html += '<tr><th>Nama</th><td>' + (resource.nama || '-') + '</td></tr>';
-                    html += '<tr><th>Email</th><td>' + (resource.email || '-') + '</td></tr>';
-                    html += '<tr><th>Username</th><td>' + (resource.username || '-') + '</td></tr>';
-                    html += '<tr><th>Role</th><td><span class="badge bg-primary">' + (resource.role || '-') + '</span></td></tr>';
-                    html += '<tr><th>No. WhatsApp</th><td>' + (resource.no_wa || '-') + '</td></tr>';
-                    if(resource.foto_profil) {
-                        html += '<tr><th>Foto Profil</th><td><img src="/storage/' + resource.foto_profil + '" alt="Foto Profil" style="max-width:150px;"></td></tr>';
-                    }
-                    html += '</tbody></table>';
-                }
-            } else if(log) {
-                // fallback previous behavior: render old/new data or details based on activity
-                var activity = (log.activity || '').toLowerCase();
-                if(activity.includes('deny') || activity.includes('approve')) {
-                    title = activity.includes('approve') ? 'Detail Persetujuan' : 'Detail Penolakan';
-                    html += '<h5>Informasi Aktivitas</h5>';
-                    if(log.details) {
-                        try { 
-                            html += '<pre>' + JSON.stringify(log.details, null, 2) + '</pre>'; 
-                        } catch(e) { 
-                            html += '<div class="no-data">Tidak ada detail pengajuan.</div>'; 
-                        }
-                    } else {
-                        html += '<div class="no-data">Tidak ada detail pengajuan.</div>';
-                    }
-                } else if(activity.includes('edit')) {
-                    title = 'Detail Perubahan Data';
-                    html += '<h5>Perbandingan Data Lama & Baru</h5>';
-                    if(log.old_data && log.new_data) {
-                        html += '<table class="table table-bordered"><thead><tr><th style="width:33%">Field</th><th style="width:33%">Nilai Lama</th><th style="width:34%">Nilai Baru</th></tr></thead><tbody>';
-                        for(var key in log.new_data) {
-                            var oldVal = log.old_data[key] ?? '-';
-                            var newVal = log.new_data[key] ?? '-';
-                            var isChanged = oldVal !== newVal;
-                            html += '<tr' + (isChanged ? ' class="table-warning"' : '') + '>';
-                            html += '<th>' + key + '</th>';
-                            html += '<td>' + oldVal + '</td>';
-                            html += '<td>' + newVal + (isChanged ? ' <i class="bi bi-arrow-left text-warning"></i>' : '') + '</td>';
-                            html += '</tr>';
-                        }
-                        html += '</tbody></table>';
-                    } else {
-                        html += '<div class="no-data">Data lama dan baru tidak tersedia.</div>';
-                    }
-                } else if(activity.includes('add')) {
-                    title = 'Detail Data Baru';
-                    html += '<h5>Data Baru Ditambahkan</h5>';
-                    if(log.new_data) {
-                        html += '<table class="table table-bordered"><thead><tr><th style="width:40%">Field</th><th style="width:60%">Nilai</th></tr></thead><tbody>';
-                        for(var key in log.new_data) {
-                            html += '<tr><th>' + key + '</th><td>' + (log.new_data[key] ?? '-') + '</td></tr>';
-                        }
-                        html += '</tbody></table>';
-                    } else {
-                        html += '<div class="no-data">Data baru tidak tersedia.</div>';
-                    }
-                } else {
-                    html += '<h5>Detail Aktivitas</h5>';
-                    html += '<div class="no-data">Detail aktivitas tidak tersedia.</div>';
-                }
-            } else {
-                html += '<h5>Detail Aktivitas</h5>';
-                html += '<div class="no-data">Data detail tidak tersedia.</div>';
-            }
-
-            modalBody.innerHTML = html;
-        });
-    }
-
-    // Fallback: tambahkan click listener untuk semua button log (tidak disabled)
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Page loaded, initializing log buttons...');
+        const noResultsRow = document.getElementById('noResultsRow');
+        const emptyStateRow = tableBody.querySelector('.no-data-row:not(#noResultsRow)');
         
-        const logButtons = document.querySelectorAll('.log-modal-btn:not([disabled])');
-        console.log('Found ' + logButtons.length + ' active log buttons');
-        
-        logButtons.forEach(function(btn) {
-            // Pastikan Bootstrap modal bisa ter-trigger
-            btn.addEventListener('click', function(e) {
-                console.log('Button clicked:', {
-                    logId: this.dataset.logId,
-                    hasLog: !!this.dataset.log,
-                    hasResource: !!this.dataset.resource,
-                    resourceType: this.dataset.resourceType
-                });
-            });
-        });
-        
-        // Check if Bootstrap is loaded
-        if (typeof bootstrap !== 'undefined') {
-            console.log('Bootstrap loaded successfully');
+        if (!hasDataRows) {
+            // No data at all
+            emptyStateRow.style.display = "";
+            noResultsRow.style.display = "none";
+        } else if (visibleRows === 0) {
+            // No matching results
+            emptyStateRow.style.display = "none";
+            noResultsRow.style.display = "table-row";
         } else {
-            console.error('Bootstrap not loaded!');
+            // Normal display
+            emptyStateRow.style.display = "none";
+            noResultsRow.style.display = "none";
+        }
+    }
+
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        
+        // Trigger animation
+        setTimeout(() => {
+            const content = modal.querySelector('.modal-content');
+            content.classList.add('show');
+        }, 10);
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        
+        // Reset modal animation
+        setTimeout(() => {
+            const content = modal.querySelector('.modal-content');
+            content.classList.remove('show');
+        }, 300);
+    }
+
+    // Close modal when clicking outside
+    document.querySelectorAll('.modal-backdrop').forEach(modal => {
+        modal.addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeModal(this.id);
+            }
+        });
+    });
+
+    // Handle modal show
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('modalLogBootstrap');
+        if (modal) {
+            modal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                if (!button) return;
+                
+                // Get data attributes
+                const logId = button.getAttribute('data-log-id');
+                const logData = button.getAttribute('data-log');
+                const resourceData = button.getAttribute('data-resource');
+                const resourceType = button.getAttribute('data-resource-type');
+                
+                // Parse data
+                let log = null;
+                let resource = null;
+                
+                try {
+                    if (logData) {
+                        log = JSON.parse(logData);
+                    }
+                } catch (e) {
+                    console.error('Error parsing log data:', e);
+                }
+                
+                try {
+                    if (resourceData) {
+                        resource = JSON.parse(resourceData);
+                    }
+                } catch (e) {
+                    console.error('Error parsing resource data:', e);
+                }
+                
+                // Populate modal
+                populateModal(log, resource, resourceType);
+            });
         }
     });
+
+    function populateModal(log, resource, resourceType) {
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBodyLog');
+        
+        if (!resource || !resourceType) {
+            modalTitle.textContent = 'Detail Aktivitas';
+            modalBody.innerHTML = `
+                <div class="empty-state">
+                    <i class="bi bi-info-circle fs-1 text-muted"></i>
+                    <h4 class="mt-3">Detail Tidak Tersedia</h4>
+                    <p class="text-muted">Detail aktivitas ini tidak dapat ditampilkan.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        let title = 'Detail Aktivitas';
+        let content = '';
+        
+        // Handle different resource types
+        if (resourceType === 'pengajuan') {
+            title = 'Detail Pengajuan';
+            content = generatePengajuanContent(resource, log);
+        } else if (resourceType === 'ruangan') {
+            title = 'Detail Ruangan';
+            content = generateRuanganContent(resource, log);
+        } else if (resourceType === 'user') {
+            title = 'Detail Pengguna';
+            content = generateUserContent(resource, log);
+        } else {
+            title = 'Detail Aktivitas';
+            content = generateDefaultContent(log);
+        }
+        
+        modalTitle.textContent = title;
+        modalBody.innerHTML = content;
+    }
+
+    function generatePengajuanContent(resource, log) {
+        return `
+            <h5>Informasi Pengajuan</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label detail-label">Judul Kegiatan</label>
+                        <div class="detail-value fw-bold">${resource.judul_kegiatan || '-'}</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label detail-label">Nama Pengaju</label>
+                        <div class="detail-value">${resource.nama_pengaju || (resource.user && resource.user.nama) || '-'}</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label detail-label">Ruangan</label>
+                        <div class="detail-value">${resource.ruangan?.nama_ruangan || '-'}</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label detail-label">Tanggal Mulai</label>
+                        <div class="detail-value time-badge">${resource.tanggal_mulai || '-'}</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label detail-label">Tanggal Selesai</label>
+                        <div class="detail-value time-badge">${resource.tanggal_selesai || '-'}</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label detail-label">Jumlah Peserta</label>
+                        <div class="detail-value">${resource.jml_peserta || '-'} orang</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label detail-label">Status</label>
+                        <div class="detail-value">
+                            <span class="status-badge status-${resource.status?.toLowerCase() || 'pending'}">
+                                ${resource.status || '-'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function generateRuanganContent(resource, log) {
+        let fotoHtml = '';
+        if (resource.foto_ruangan) {
+            fotoHtml = `
+                <div class="mb-3">
+                    <label class="form-label detail-label">Foto Ruangan</label>
+                    <div class="detail-value">
+                        <img src="/storage/${resource.foto_ruangan}" alt="Foto Ruangan" class="img-fluid rounded">
+                    </div>
+                </div>
+            `;
+        }
+        
+        return `
+            <h5>Informasi Ruangan</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label detail-label">Nama Ruangan</label>
+                        <div class="detail-value fw-bold">${resource.nama_ruangan || '-'}</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label detail-label">Kapasitas</label>
+                        <div class="detail-value">${resource.jml_peserta || '-'} orang</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label detail-label">Fasilitas</label>
+                        <div class="detail-value">${resource.fasilitas || '-'}</div>
+                    </div>
+                    ${fotoHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    function generateUserContent(resource, log) {
+        let fotoHtml = '';
+        if (resource.foto_profil) {
+            fotoHtml = `
+                <div class="mb-3">
+                    <label class="form-label detail-label">Foto Profil</label>
+                    <div class="detail-value">
+                        <img src="/storage/${resource.foto_profil}" alt="Foto Profil" class="img-fluid rounded-circle" style="max-width: 150px;">
+                    </div>
+                </div>
+            `;
+        }
+        
+        return `
+            <h5>Informasi Pengguna</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label detail-label">Nama Lengkap</label>
+                        <div class="detail-value fw-bold">${resource.nama || '-'}</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label detail-label">Email</label>
+                        <div class="detail-value">${resource.email || '-'}</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label detail-label">Username</label>
+                        <div class="detail-value">${resource.username || '-'}</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label detail-label">Role</label>
+                        <div class="detail-value">
+                            <span class="time-badge">${resource.role || '-'}</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label detail-label">No. WhatsApp</label>
+                        <div class="detail-value">
+                            ${resource.no_wa || '-'}
+                            ${resource.no_wa ? `<a href="https://wa.me/62${resource.no_wa.replace(/^0/, '')}" target="_blank" class="ms-2 btn btn-sm btn-success">
+                                <i class="bi bi-whatsapp"></i> Chat
+                            </a>` : ''}
+                        </div>
+                    </div>
+                    ${fotoHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    function generateDefaultContent(log) {
+        let activity = log?.activity?.toLowerCase() || '';
+        let content = '';
+        
+        if (activity.includes('edit')) {
+            content = `
+                <h5>Perubahan Data</h5>
+                <p class="text-muted">Perbandingan data sebelum dan sesudah perubahan:</p>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Nilai Lama</th>
+                                <th>Nilai Baru</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(log.new_data || {}).map(([key, newVal]) => {
+                                const oldVal = log.old_data?.[key] || '-';
+                                const isChanged = oldVal !== newVal;
+                                return `
+                                <tr ${isChanged ? 'class="table-warning"' : ''}>
+                                    <td><strong>${key}</strong></td>
+                                    <td>${oldVal}</td>
+                                    <td>${newVal}${isChanged ? ' <span class="text-warning"><i class="bi bi-arrow-right"></i></span>' : ''}</td>
+                                </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        } else {
+            content = `
+                <div class="detail-row">
+                    <div class="detail-label">Aktivitas</div>
+                    <div class="detail-value fw-bold">${log.activity || '-'}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Waktu</div>
+                    <div class="detail-value time-badge">${log.created_at || '-'}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Pengguna</div>
+                    <div class="detail-value">${log.user?.nama || '-'}</div>
+                </div>
+            `;
+        }
+        
+        return content;
+    }
 </script>
 @endsection

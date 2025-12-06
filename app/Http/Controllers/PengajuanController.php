@@ -155,7 +155,7 @@ class PengajuanController extends Controller
             $query->where('user_id', $userId);
         }
 
-        $pengajuans = $query->get();
+        $pengajuans = $query->latest()->get();
 
         return view('pengajuan.index', compact('pengajuans'));
     }
@@ -176,7 +176,7 @@ class PengajuanController extends Controller
             $query->where('user_id', $userId);
         }
 
-        $pengajuans = $query->get();
+        $pengajuans = $query->latest()->get();
 
         return view('history', compact('pengajuans'));
     }

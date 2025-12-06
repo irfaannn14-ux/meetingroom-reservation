@@ -19,6 +19,7 @@
 
         /* Card Welcome */
         .welcome-card {
+            margin-top: 20px;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);

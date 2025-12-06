@@ -16,17 +16,6 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Test GD Extension route
-Route::get('/test-gd-check', function() {
-    $isGdLoaded = extension_loaded('gd');
-    return response()->json([
-        'gd_extension' => $isGdLoaded ? 'AKTIF ✅' : 'TIDAK AKTIF ❌',
-        'gd_info' => $isGdLoaded ? gd_info() : null,
-        'php_version' => PHP_VERSION,
-        'instruction' => !$isGdLoaded ? 'Edit C:\xampp\php\php.ini, uncomment extension=gd, restart Apache' : 'GD sudah aktif, TTD akan muncul di PDF!'
-    ]);
-});
-
 // Other auth pages
 Route::get('/forgotpassword', function () {
     return view('auth.forgotpassword');
@@ -43,8 +32,8 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/', [PengajuanController::class, 'dashboard'])->name('dashboard');
 
     // Profile routes (for all logged-in users)
-    Route::get('/profile', [UserController::class, 'showProfile'])->name('profile.show');
-    Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/profile/edit', [UserController::class, 'editProfile'])->name('profile.edit');
+    Route::put('/profile/update', [UserController::class, 'updateProfile'])->name('profile.update');
 
     // default route
     Route::get('/welcome', function () {
