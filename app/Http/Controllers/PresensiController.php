@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\ActivityLog;
 use App\Models\Organization;
+use App\Models\Pengajuan;
 use Illuminate\Support\Facades\DB;
 use App\Models\Presensi;
 use Dompdf\Dompdf;
@@ -133,201 +134,364 @@ class PresensiController extends Controller
         ]);
     }
 
-    public function downloadAllTtd(int $pengajuanId)
-    {   
-        // Check if GD extension is loaded (needed for image processing in PDF)
-        if (!extension_loaded('gd')) {
-            return back()->with('warning', 
-                'PHP GD extension belum aktif. PDF akan dibuat tanpa gambar tanda tangan. ' .
-                'Untuk menampilkan tanda tangan di PDF, aktifkan extension=gd di php.ini dan restart Apache.');
-        }
-        
-        $items = Presensi::where('pengajuan_id', $pengajuanId)
-            ->whereNotNull('ttd_path')
-            ->orderBy('id')
-            ->get();
-
-        if ($items->isEmpty()) {
-            return back()->with('error', 'Tidak ada TTD untuk diunduh.');
-        }
-
-        $orgMap = Organization::pluck('organization_name', 'bkd_organization_id')->all();
-
-        $organization_name = DB::selectOne("SELECT
-            organization_name
-        FROM pengajuans
-        JOIN users ON pengajuans.user_id=users.id
-        JOIN organization ON organization.bkd_organization_id=users.organization_id;");
-        $instansi = 'PEMERINTAH KABUPATEN PROBOLINGGO';
-        $tanggalCetak = now()->format('d F Y');
-
-        $rows = '';
-        foreach ($items as $i => $p) {
-            $relPath = ltrim(str_replace('public/', '', (string) $p->ttd_path), '/');
-            if (!Storage::disk('public')->exists($relPath)) continue;
-
-            $fullPath = storage_path('app/public/' . $relPath);
-            $pngData  = @file_get_contents($fullPath);
-            if ($pngData === false) continue;
-
-            $src  = 'data:image/png;base64,' . base64_encode($pngData);
-
-            $nama = e($p->nama ?? '');
-            $jab  = e($p->jabatan ?? '');
-            $orgRaw  = $p->organisasi ?? '';
-            $orgName = $orgMap[$orgRaw] ?? ($orgMap[(int)$orgRaw] ?? $orgRaw);
-            $org  = e($orgName);
-            $waktu = $p->created_at ? $p->created_at->format('d-m-Y H:i') . ' WIB' : '';
-
-            $rows .= '
-            <tr>
-                <td style="text-align:center;">' . ($i + 1) . '</td>
-                <td>
-                    <strong>' . $nama . '</strong><br>
-                    ' . ($jab ? '<em>' . $jab . '</em><br>' : '') . '
-                    ' . ($org ? '<small>' . $org . '</small><br>' : '') . '
-                    ' . ($waktu ? '<small>' . $waktu . '</small>' : '') . '
-                </td>
-                <td style="text-align:center;">
-                    <img src="' . $src . '" alt="TTD" style="max-width: 150px; height:auto;">
-                </td>
-            </tr>';
-        }
-
-        if (empty($rows)) {
-            return back()->with('error', 'Semua file TTD tidak ditemukan.');
-        }
-
-        $html = '
-        <html>
-        <head>
-            <style>
-                body {
-                    font-family: DejaVu Sans, sans-serif;
-                    font-size: 12px;
-                    margin: 40px;
-                }
-
-                h2 {
-                    text-align: center;
-                    margin: 0;
-                    text-transform: uppercase;
-                }
-
-                .header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 25px;
-                    border-bottom: 2px solid #000;
-                    padding-bottom: 10px;
-                }
-
-                .header-left {
-                    flex: 1;
-                    text-align: left;
-                }
-
-                .header-center {
-                    flex: 2;
-                    text-align: center;
-                }
-
-                .header p {
-                    margin: 2px 0;
-                }
-
-                .logo {
-                    width: 70px;
-                    height: auto;
-                }
-
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin-top: 15px;
-                }
-
-                th, td {
-                    border: 1px solid #000;
-                    padding: 8px;
-                    vertical-align: top;
-                }
-
-                th {
-                    background-color: #f2f2f2;
-                    text-align: center;
-                }
-
-                .info {
-                    text-align: center;
-                    margin-top: 25px;
-                    font-size: 11px;
-                    font-style: italic;
-                }
-            </style>
-        </head>
-
-        <body>
-            <div class="header">
-                <div class="header-left"></div>
-
-                <div class="header-center">
-                    <p><strong style="font-size:18px;">' . e($instansi) . '</strong></p>
-                    <p style="font-size:16px;">' . e($organization_name->organization_name) . '</p>
-                    <p style="font-size:16px;"><strong>DAFTAR LIST PRESENSI</strong></p>
-                    <p style="font-size:14px;margin-top:5px;">Tanggal Cetak: ' . e($tanggalCetak) . '</p>
-                </div>
-
-            </div>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width:5%;">No</th>
-                        <th style="width:45%;">Data Pegawai</th>
-                        <th style="width:50%;">Tanda Tangan</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ' . $rows . '
-                </tbody>
-            </table>
-
-            <div class="info">
-                <p>Dicetak otomatis dari sistem presensi pada ' . e($tanggalCetak) . '.</p>
-            </div>
-        </body>
-        </html>';
-
-        $options = new Options();
-        $options->set('isHtml5ParserEnabled', true);
-        $options->set('isRemoteEnabled', true);
-        
-        // Disable image rendering if GD extension is not available
-        if (!extension_loaded('gd')) {
-            $options->set('isPhpEnabled', false);
-            // Replace images with placeholder text in HTML
-            $html = preg_replace('/<img[^>]*src="data:image\/png;base64,[^"]*"[^>]*>/i', 
-                '<div style="border:1px solid #ccc;padding:10px;text-align:center;color:#666;">[Tanda Tangan Digital]</div>', 
-                $html);
-        }
-        
-        $dompdf = new Dompdf($options);
-
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'portrait');
-        
-        try {
-            $dompdf->render();
-        } catch (\Exception $e) {
-            return back()->with('error', 'Gagal generate PDF: ' . $e->getMessage() . 
-                '. Pastikan PHP GD extension sudah diaktifkan di php.ini');
-        }
-
-        $filename = 'TTD_Pengajuan_' . $pengajuanId . '.pdf';
-        return response($dompdf->output(), 200)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+public function downloadAllTtd(int $pengajuanId)
+{   
+    // Set Carbon locale to Indonesian
+    \Carbon\Carbon::setLocale('id');
+    
+    $pengajuan = Pengajuan::with(['user.organization', 'ruangan'])->find($pengajuanId);
+    
+    if (!$pengajuan) {
+        return back()->with('error', 'Pengajuan tidak ditemukan.');
     }
+    
+    $items = Presensi::where('pengajuan_id', $pengajuanId)
+        ->orderBy('created_at', 'asc')
+        ->get();
+
+    if ($items->isEmpty()) {
+        return back()->with('error', 'Tidak ada data presensi untuk diunduh.');
+    }
+
+    $orgMap = Organization::pluck('organization_name', 'bkd_organization_id')->all();
+    
+    // Pengajuan information
+    $judulKegiatan = e($pengajuan->judul_kegiatan ?? 'Kegiatan');
+    $ruanganNama = e($pengajuan->ruangan->nama_ruangan ?? 'Ruangan');
+    
+    // Format tanggal kegiatan dalam bahasa Indonesia
+    $tanggalKegiatan = '';
+    if ($pengajuan->tanggal_mulai) {
+        $dt = \Carbon\Carbon::parse($pengajuan->tanggal_mulai);
+        $tanggalKegiatan = $dt->translatedFormat('l, d F Y') . ' pukul ' . $dt->format('H:i') . ' WIB';
+    }
+    
+    $tanggalCetak = now()->translatedFormat('d F Y');
+    
+    // Load logo image
+    $logoPath = public_path('storage/LogoKabProbolinggo.png');
+    $logoBase64 = '';
+    if (file_exists($logoPath)) {
+        $logoData = file_get_contents($logoPath);
+        $logoBase64 = 'data:image/png;base64,' . base64_encode($logoData);
+    }
+
+    // Prepare table rows
+    $rows = '';
+    foreach ($items as $i => $p) {
+        $nama = e($p->nama ?? '');
+        $jab  = e($p->jabatan ?? '');
+        $orgRaw  = $p->organisasi ?? '';
+        $orgName = $orgMap[$orgRaw] ?? ($orgMap[(int)$orgRaw] ?? $orgRaw);
+        $org  = e($orgName);
+        
+        $waktuObj = isset($p->presensi_at) && $p->presensi_at ? $p->presensi_at : $p->created_at;
+        $waktu = $waktuObj ? $waktuObj->timezone('Asia/Jakarta')->translatedFormat('d F Y H:i') . ' WIB' : '';
+
+        // Handle TTD image
+        $ttdHtml = '';
+        if ($p->ttd_path) {
+            $relPath = ltrim(str_replace('public/', '', (string) $p->ttd_path), '/');
+            
+            if (Storage::disk('public')->exists($relPath)) {
+                $fullPath = storage_path('app/public/' . $relPath);
+                $pngData  = @file_get_contents($fullPath);
+                
+                if ($pngData !== false) {
+                    $src  = 'data:image/png;base64,' . base64_encode($pngData);
+                    $ttdHtml = '<img src="' . $src . '" alt="TTD" style="max-width: 120px; max-height: 60px; height:auto; display:block; margin:0 auto;">';
+                } else {
+                    $ttdHtml = '<div style="padding:5px;text-align:center;color:#666;font-size:10px;">[Gagal Memuat]</div>';
+                }
+            } else {
+                $ttdHtml = '<div style="padding:5px;text-align:center;color:#999;font-size:10px;">-</div>';
+            }
+        } else {
+            $ttdHtml = '<div style="padding:5px;text-align:center;color:#999;font-size:10px;">-</div>';
+        }
+
+        $rows .= '
+        <tr>
+            <td class="text-center">' . ($i + 1) . '</td>
+            <td>' . $nama . '</td>
+            <td>' . $jab . '</td>
+            <td>' . $org . '</td>
+            <td class="text-center">' . $waktu . '</td>
+            <td class="text-center">' . $ttdHtml . '</td>
+        </tr>';
+    }
+
+    $html = '
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            @page {
+                margin: 2.5cm 2cm;
+                header: page-header;
+                footer: page-footer;
+            }
+            
+            body {
+                font-family: "Times New Roman", Times, serif;
+                font-size: 12pt;
+                color: #000;
+                line-height: 1.6;
+            }
+            
+            .kop-surat {
+                text-align: center;
+                margin-bottom: 25px;
+                padding-bottom: 15px;
+                border-bottom: 4px double #000;
+                position: relative;
+            }
+            
+            .logo-container {
+                position: absolute;
+                top: -15px;
+                right: 0;
+                width: 80px;
+                height: 80px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: #fff;
+            }
+            
+            .logo-container img {
+                max-width: 70px;
+                max-height: 70px;
+            }
+            
+            .kop-surat .instansi {
+                font-size: 18pt;
+                font-weight: bold;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin: 0 0 5px 0;
+            }
+            
+            .kop-surat .instansi-sub {
+                font-size: 16pt;
+                font-weight: bold;
+                text-transform: uppercase;
+                margin: 0 0 10px 0;
+            }
+            
+            .kop-surat .alamat {
+                font-size: 11pt;
+                margin: 5px 0;
+            }
+            
+            .kop-surat .kontak {
+                font-size: 11pt;
+                margin: 3px 0;
+            }
+            
+            .info-kegiatan {
+                margin: 20px 0;
+                padding: 15px;
+                background-color: #f8f9fa;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+            
+            .info-kegiatan table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            
+            .info-kegiatan td {
+                padding: 8px 5px;
+                vertical-align: top;
+            }
+            
+            .info-kegiatan td:first-child {
+                width: 30%;
+                font-weight: bold;
+                padding-right: 15px;
+            }
+            
+            .judul-dokumen {
+                text-align: center;
+                font-size: 16pt;
+                font-weight: bold;
+                margin: 25px 0 20px;
+                text-transform: uppercase;
+                text-decoration: underline;
+                letter-spacing: 1px;
+            }
+            
+            table.data-presensi {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+                page-break-inside: avoid;
+            }
+            
+            table.data-presensi th,
+            table.data-presensi td {
+                border: 1px solid #000;
+                padding: 10px 8px;
+                vertical-align: top;
+            }
+            
+            table.data-presensi th {
+                background-color: #f2f2f2;
+                text-align: center;
+                font-weight: bold;
+                font-size: 11pt;
+            }
+            
+            table.data-presensi td {
+                font-size: 11pt;
+            }
+            
+            .text-center {
+                text-align: center;
+            }
+            
+            .footer-info {
+                text-align: center;
+                margin-top: 40px;
+                font-size: 11pt;
+                padding-top: 15px;
+            }
+            
+            .ttd-container {
+                margin-top: 40px;
+                text-align: center;
+            }
+            
+            .ttd-box {
+                display: inline-block;
+                min-width: 350px;
+                border-top: 2px solid #000;
+                padding-top: 10px;
+                margin-top: 5px;
+                font-weight: bold;
+            }
+            
+            .signature-line {
+                text-align: right;
+                margin-top: 30px;
+                width: 350px;
+                float: right;
+            }
+            
+            .clear {
+                clear: both;
+            }
+        </style>
+    </head>
+
+    <body>
+        <!-- Header -->
+        <div class="kop-surat">
+            <div class="logo-container">
+                ' . ($logoBase64 ? '<img src="' . $logoBase64 . '" alt="Logo Kabupaten Probolinggo">' : '<span style="font-size:8pt;color:#666">LOGO</span>') . '
+            </div>
+            <div class="instansi">PEMERINTAH KABUPATEN PROBOLINGGO</div>
+            <div class="instansi-sub">Dinas Komunikasi, Informatika, Statistik, dan Persandian</div>
+            <div class="alamat">Jl. Raya Panglima Sudirman No.134, Patokan, Kec. Kraksaan, Kabupaten Probolinggo, Jawa Timur 67282</div>
+            <div class="kontak">Telp. (0335) 846667</div>
+        </div>
+
+        <!-- Document Title -->
+        <div class="judul-dokumen">
+            DAFTAR HADIR
+        </div>
+
+        <!-- Event Information -->
+        <div class="info-kegiatan">
+            <table>
+                <tr>
+                    <td>Nama Kegiatan</td>
+                    <td>: ' . $judulKegiatan . '</td>
+                </tr>
+                <tr>
+                    <td>Ruangan</td>
+                    <td>: ' . $ruanganNama . '</td>
+                </tr>
+                <tr>
+                    <td>Tanggal dan Waktu</td>
+                    <td>: ' . $tanggalKegiatan . '</td>
+                </tr>
+                <tr>
+                    <td>Tanggal Cetak</td>
+                    <td>: ' . $tanggalCetak . '</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Attendance Table -->
+        <table class="data-presensi">
+            <thead>
+                <tr>
+                    <th style="width:5%;">No</th>
+                    <th style="width:25%;">Nama</th>
+                    <th style="width:20%;">Jabatan</th>
+                    <th style="width:25%;">Organisasi</th>
+                    <th style="width:15%;">Waktu Hadir</th>
+                    <th style="width:10%;">Tanda Tangan</th>
+                </tr>
+            </thead>
+            <tbody>
+                ' . $rows . '
+            </tbody>
+        </table>
+
+        <div class="clear"></div>
+
+        <!-- Signature Section -->
+        <div class="signature-line">
+            <div style="text-align: center; margin-bottom: 150px;">
+                Probolinggo, ' . now()->translatedFormat('d F Y') . '
+            </div>
+            <div class="ttd-box" style="text-align: center">
+                Mengetahui,<br>
+                Kepala DisKominfo
+            </div>
+        </div>
+
+        <div class="clear"></div>
+
+        <!-- Footer -->
+        <div class="footer-info">
+            <p>Dokumen ini dicetak secara otomatis melalui Sistem Presensi BKD Kabupaten Probolinggo</p>
+        </div>
+    </body>
+    </html>';
+
+    // PDF Generation
+    $options = new Options([
+        'isHtml5ParserEnabled' => true,
+        'isRemoteEnabled' => true,
+        'isPhpEnabled' => false,
+        'isFontSubsettingEnabled' => true,
+        'defaultFont' => 'DejaVu Sans',
+        'dpi' => 150,
+        'isJavascriptEnabled' => false,
+        'debugKeepTemp' => false,
+        'logOutputFile' => storage_path('logs/dompdf.log'),
+    ]);
+
+    $dompdf = new Dompdf($options);
+    $dompdf->loadHtml($html);
+    $dompdf->setPaper('A4', 'portrait');
+    
+    try {
+        $dompdf->render();
+    } catch (\Exception $e) {
+        \Log::error('PDF Generation Error: ' . $e->getMessage());
+        return back()->with('error', 'Gagal generate PDF: ' . $e->getMessage());
+    }
+
+    $filename = 'Daftar_Hadir_' . $pengajuanId . '_' . date('YmdHis') . '.pdf';
+    return response($dompdf->output(), 200)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+}
 }
