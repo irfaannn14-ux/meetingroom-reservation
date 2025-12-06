@@ -18,15 +18,14 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
 
-        // Tambahkan Super Admin
         User::create([
             'nama' => 'Super Admin',
-            'email' => 'superadmin@example.com', // Email dummy
-            'username' => 'superadmin', // Username dummy
-            'no_wa' => '081234567890', // Nomor WhatsApp dummy
-            'role' => 'Super Admin', // Sesuaikan dengan nilai di form
-            'organization_id' => '2', // Kaitkan dengan organization SUPER ADMIN
-            'password' => Hash::make('admin'), // Password 5 karakter
+            'email' => 'superadmin@example.com',
+            'username' => 'superadmin',
+            'no_wa' => '081234567890', 
+            'role' => 'Super Admin', 
+            'organization_id' => '2',
+            'password' => Hash::make('admin'), 
         ]);
 
         Organization::create([

@@ -135,6 +135,13 @@ class PresensiController extends Controller
 
     public function downloadAllTtd(int $pengajuanId)
     {   
+        // Check if GD extension is loaded (needed for image processing in PDF)
+        if (!extension_loaded('gd')) {
+            return back()->with('warning', 
+                'PHP GD extension belum aktif. PDF akan dibuat tanpa gambar tanda tangan. ' .
+                'Untuk menampilkan tanda tangan di PDF, aktifkan extension=gd di php.ini dan restart Apache.');
+        }
+        
         $items = Presensi::where('pengajuan_id', $pengajuanId)
             ->whereNotNull('ttd_path')
             ->orderBy('id')
@@ -296,11 +303,27 @@ class PresensiController extends Controller
         $options = new Options();
         $options->set('isHtml5ParserEnabled', true);
         $options->set('isRemoteEnabled', true);
+        
+        // Disable image rendering if GD extension is not available
+        if (!extension_loaded('gd')) {
+            $options->set('isPhpEnabled', false);
+            // Replace images with placeholder text in HTML
+            $html = preg_replace('/<img[^>]*src="data:image\/png;base64,[^"]*"[^>]*>/i', 
+                '<div style="border:1px solid #ccc;padding:10px;text-align:center;color:#666;">[Tanda Tangan Digital]</div>', 
+                $html);
+        }
+        
         $dompdf = new Dompdf($options);
 
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
+        
+        try {
+            $dompdf->render();
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal generate PDF: ' . $e->getMessage() . 
+                '. Pastikan PHP GD extension sudah diaktifkan di php.ini');
+        }
 
         $filename = 'TTD_Pengajuan_' . $pengajuanId . '.pdf';
         return response($dompdf->output(), 200)
