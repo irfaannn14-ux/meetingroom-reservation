@@ -10,7 +10,7 @@ class Pengajuan extends Model
     use HasFactory;
     protected $table = "pengajuans";
     protected $primarykey = "id";
-    public $timestamps = false; // Menonaktifkan timestamps (created_at, updated_at)
+    public $timestamps = true; // Mengaktifkan timestamps (created_at, updated_at)
     protected $fillable = [
         'user_id',
         'ruangan_id',
@@ -22,7 +22,7 @@ class Pengajuan extends Model
         'jam_mulai',
         'jam_selesai',
         'jml_peserta',
-        'status'
+        'status',
     ];
 
      /**

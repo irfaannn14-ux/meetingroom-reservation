@@ -32,7 +32,8 @@
         position: fixed;
         left: 0;
         top: 0;
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: auto;
         padding: 1.2rem 0.8rem;
         transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 1000;
@@ -169,28 +170,51 @@
         justify-content: space-between;
         align-items: center;
         width: 100%;
+        cursor: pointer;
+        border: none;
+        background: none;
+        outline: none;
     }
     
+    /* Dropdown menu - hidden by default */
     .sidebar-dropdown-menu {
-        max-height: 0;
-        opacity: 0;
-        overflow: hidden;
-        display: flex;
+        display: none;
+        position: absolute;
+        left: 100%;
+        top: 0;
+        min-width: 250px;
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 0.5rem;
+        margin-left: 0.5rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        z-index: 9999;
         flex-direction: column;
-        gap: 0.5rem;
-        padding-left: 2.5rem;
-        margin-top: 0.5rem;
-        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
-                    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                    padding 0.3s ease;
+        gap: 0.4rem;
     }
     
+    /* Show dropdown on hover OR when has .open class */
+    .sidebar-dropdown:hover > .sidebar-dropdown-menu,
     .sidebar-dropdown.open > .sidebar-dropdown-menu {
-        max-height: 500px;
-        opacity: 1;
-        padding-left: 2.8rem;
-        padding-top: 0.3rem;
-        padding-bottom: 0.8rem;
+        display: flex;
+    }
+    
+    /* When sidebar is expanded (hovered), show dropdown below instead */
+    .sidebar:hover .sidebar-dropdown-menu {
+        position: relative;
+        left: 0;
+        margin-left: 0;
+        padding-left: 2.5rem;
+        padding-right: 0;
+        box-shadow: none;
+        background: transparent;
+        min-width: auto;
+        margin-top: 0.5rem;
+    }
+    
+    .sidebar:hover .sidebar-dropdown:hover > .sidebar-dropdown-menu,
+    .sidebar:hover .sidebar-dropdown.open > .sidebar-dropdown-menu {
+        display: flex;
     }
     
     .sidebar-dropdown-menu .sidebar-link {
@@ -199,14 +223,20 @@
         background: #f8fafc;
         color: var(--dark-color);
         border: 1px solid #e2e8f0;
-        box-shadow: none;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        white-space: nowrap;
     }
     
     .sidebar-dropdown-menu .sidebar-link:hover {
         background: var(--secondary-color);
         color: white;
         border-color: var(--secondary-color);
-        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+        transform: translateX(2px);
+    }
+    
+    .sidebar-dropdown-menu .sidebar-link .sidebar-link-text {
+        opacity: 1 !important;
     }
     
     .sidebar-dropdown-menu .sidebar-link.active {
@@ -315,7 +345,7 @@
                     </span>
                     <span class="sidebar-link-text">Daftar Ruangan</span>
                 </a>
-                <a href="/pengajuan/index" class="sidebar-link {{ request()->is('pengajuan*') ? 'active' : '' }}">
+                <a href="/index" class="sidebar-link {{ request()->is('pengajuan*') ? 'active' : '' }}">
                     <span class="sidebar-icon">
                         <i class="bi bi-clipboard-check"></i>
                     </span>
@@ -361,52 +391,31 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('Sidebar script loaded');
+        
         // Manajemen Pengajuan dropdown toggle
         const dropdownToggle = document.querySelector('.sidebar-dropdown .dropdown-toggle');
-        const dropdownContainer = dropdownToggle ? dropdownToggle.closest('.sidebar-dropdown') : null;
+        const dropdownContainer = document.querySelector('.sidebar-dropdown');
+        
+        console.log('Dropdown toggle:', dropdownToggle);
+        console.log('Dropdown container:', dropdownContainer);
         
         if (dropdownToggle && dropdownContainer) {
+            // Click to toggle
             dropdownToggle.addEventListener('click', function(e) {
                 e.preventDefault();
+                e.stopPropagation();
+                console.log('Dropdown clicked');
                 dropdownContainer.classList.toggle('open');
-                const isExpanded = dropdownContainer.classList.contains('open');
-                dropdownToggle.setAttribute('aria-expanded', isExpanded);
+                console.log('Has open class:', dropdownContainer.classList.contains('open'));
             });
         }
         
         // Close dropdown when clicking outside
         document.addEventListener('click', function(e) {
-            if (dropdownContainer && dropdownContainer.classList.contains('open')) {
-                const isClickInside = dropdownContainer.contains(e.target) || dropdownToggle.contains(e.target);
-                if (!isClickInside) {
-                    dropdownContainer.classList.remove('open');
-                    dropdownToggle.setAttribute('aria-expanded', 'false');
-                }
-            }
-        });
-        
-        // Close dropdown when Esc key is pressed
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && dropdownContainer && dropdownContainer.classList.contains('open')) {
+            if (dropdownContainer && !dropdownContainer.contains(e.target)) {
                 dropdownContainer.classList.remove('open');
-                dropdownToggle.setAttribute('aria-expanded', 'false');
             }
-        });
-        
-        // Add hover effect for sidebar items
-        const sidebarLinks = document.querySelectorAll('.sidebar-link');
-        sidebarLinks.forEach(link => {
-            link.addEventListener('mouseenter', function() {
-                if (!this.classList.contains('active')) {
-                    this.style.transform = 'translateX(4px)';
-                }
-            });
-            
-            link.addEventListener('mouseleave', function() {
-                if (!this.classList.contains('active')) {
-                    this.style.transform = 'translateX(0)';
-                }
-            });
         });
         
         // Automatically open dropdown if current page is in dropdown items
@@ -416,10 +425,9 @@
         dropdownMenuLinks.forEach(link => {
             const href = link.getAttribute('href');
             if (currentPath.includes(href)) {
-                const dropdown = link.closest('.sidebar-dropdown');
-                if (dropdown) {
-                    dropdown.classList.add('open');
-                    dropdown.querySelector('.dropdown-toggle').setAttribute('aria-expanded', 'true');
+                if (dropdownContainer) {
+                    dropdownContainer.classList.add('open');
+                    console.log('Auto-opened dropdown for current page');
                 }
             }
         });

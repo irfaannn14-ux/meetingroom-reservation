@@ -155,7 +155,8 @@ class PengajuanController extends Controller
             $query->where('user_id', $userId);
         }
 
-        $pengajuans = $query->latest()->get();
+        // Urutkan dari yang terbaru ke yang terlama
+        $pengajuans = $query->orderBy('created_at', 'desc')->get();
 
         return view('pengajuan.index', compact('pengajuans'));
     }
@@ -176,7 +177,8 @@ class PengajuanController extends Controller
             $query->where('user_id', $userId);
         }
 
-        $pengajuans = $query->latest()->get();
+        // Urutkan dari yang terbaru ke yang terlama
+        $pengajuans = $query->orderBy('created_at', 'desc')->get();
 
         return view('history', compact('pengajuans'));
     }
