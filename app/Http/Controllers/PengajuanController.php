@@ -262,10 +262,11 @@ class PengajuanController extends Controller
         }
 
         // ATURAN BARU #2: Validasi Durasi Minimum - 2 Jam
-        $durasiJam = $tanggal_mulai->diffInHours($tanggal_selesai, true);
-        if ($durasiJam < 2) {
+        $durasiMenit = $tanggal_mulai->diffInMinutes($tanggal_selesai, false);
+        if ($durasiMenit < 120) { // 2 jam = 120 menit
+            $waktuMinimal = $tanggal_mulai->copy()->addHours(2);
             return back()->withErrors([
-                'waktu_kembali' => 'Durasi peminjaman minimal 2 jam'
+                'waktu_kembali' => 'Waktu kembali harus minimal 2 jam setelah waktu pinjam. Minimal: ' . $waktuMinimal->format('d M Y H:i')
             ])->withInput();
         }
 
@@ -417,10 +418,11 @@ class PengajuanController extends Controller
         }
 
         // ATURAN BARU #2: Validasi Durasi Minimum - 2 Jam
-        $durasiJam = $tanggal_mulai->diffInHours($tanggal_selesai, true);
-        if ($durasiJam < 2) {
+        $durasiMenit = $tanggal_mulai->diffInMinutes($tanggal_selesai, false);
+        if ($durasiMenit < 120) { // 2 jam = 120 menit
+            $waktuMinimal = $tanggal_mulai->copy()->addHours(2);
             return back()->withErrors([
-                'waktu_kembali' => 'Durasi peminjaman minimal 2 jam'
+                'waktu_kembali' => 'Waktu kembali harus minimal 2 jam setelah waktu pinjam. Minimal: ' . $waktuMinimal->format('d M Y H:i')
             ])->withInput();
         }
 
