@@ -23,7 +23,7 @@
         background: linear-gradient(135deg, #e6f0ff 0%, #f0f7ff 100%);
         color: var(--dark-color);
         padding-top: 60px;
-        padding-left: 60px;
+        padding-left: 80px;
         min-height: 100vh;
     }
     
