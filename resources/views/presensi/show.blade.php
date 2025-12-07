@@ -126,6 +126,7 @@
                             <th>No</th>
                             <th>Nama</th>
                             <th>Jabatan</th>
+                            <th>No. WhatsApp</th>
                             <th>Organisasi</th>
                             <th>Waktu Presensi</th>
                             <th>TTD</th>
@@ -138,6 +139,7 @@
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $presensi->nama }}</td>
                                 <td>{{ $presensi->jabatan }}</td>
+                                <td>{{ $presensi->no_wa ?? '-' }}</td>
                                 <td>{{ $presensi->organisasi_nama ?? $presensi->organisasi }}</td>
                                 <td>{{ optional(
                                     isset($presensi->presensi_at) && $presensi->presensi_at
@@ -161,7 +163,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center py-4">Belum ada data presensi untuk pengajuan ID:
+                                <td colspan="7" class="text-center py-4">Belum ada data presensi untuk pengajuan ID:
                                     {{ $pengajuanId }}.</td>
                             </tr>
                         @endforelse

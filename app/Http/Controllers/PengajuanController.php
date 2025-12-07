@@ -40,11 +40,10 @@ class PengajuanController extends Controller
             'ditolak' => $ditolakQuery->where('status', 'ditolak')->count(),
         ];
 
-        // Get top 5 most booked rooms
+        // Get all booked rooms (not just top 5)
         $topRoomsQuery = Pengajuan::select('ruangan_id', DB::raw('count(*) as total'))
             ->groupBy('ruangan_id')
             ->orderBy('total', 'desc')
-            ->limit(5)
             ->with('ruangan');
 
         // Apply same filter for OPD users
@@ -57,11 +56,16 @@ class PengajuanController extends Controller
         // Prepare data for chart
         $roomNames = [];
         $roomCounts = [];
-        $roomColors = ['#6366F1', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981']; // Modern colors
-
+        
+        // Generate gradient colors for all rooms
+        $roomColors = [];
+        $baseColors = ['#6366F1', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#06B6D4', '#EF4444', '#F97316', '#84CC16', '#14B8A6'];
+        
         foreach ($topRooms as $index => $room) {
             $roomNames[] = $room->ruangan ? $room->ruangan->nama_ruangan : 'Unknown';
             $roomCounts[] = $room->total;
+            // Cycle through colors if more rooms than colors available
+            $roomColors[] = $baseColors[$index % count($baseColors)];
         }
 
         // Get heatmap data - booking count by time slots (2 hour intervals)

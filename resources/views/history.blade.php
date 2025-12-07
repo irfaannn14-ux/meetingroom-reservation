@@ -359,6 +359,45 @@
         font-weight: 600;
     }
     
+    /* Download QR Button Styles */
+    #downloadQrPdfBtn {
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    #downloadQrPdfBtn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(30, 58, 138, 0.4) !important;
+    }
+    
+    #downloadQrPdfBtn:active {
+        transform: translateY(0);
+    }
+    
+    #downloadQrPdfBtn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+    
+    #downloadQrPdfBtn:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+    
+    #downloadQrPdfBtn i {
+        position: relative;
+        z-index: 1;
+    }
+    
     .time-badge {
         background-color: #dbeafe;
         color: var(--primary-color);
@@ -403,7 +442,7 @@
         <div class="search-container">
             <i class="bi bi-search search-icon"></i>
             <input type="search" id="searchInput" onkeyup="filterTable()" class="form-control" 
-                   placeholder="Cari pengaju, kegiatan, ruangan...">
+                   placeholder="Cari organisasi, kegiatan, ruangan...">
         </div>
     </div>
 
@@ -421,7 +460,7 @@
                     <thead>
                         <tr>
                             <th style="width: 5%;">No</th>
-                            <th style="width: 15%;">Pengaju</th>
+                            <th style="width: 15%;">Role/Organisasi</th>
                             <th style="width: 20%;">Kegiatan</th>
                             <th style="width: 15%;">Ruangan</th>
                             <th style="width: 12%;">Waktu Mulai</th>
@@ -435,7 +474,7 @@
                         @forelse($pengajuans as $pengajuan)
                             <tr>
                                 <td class="fw-bold">{{ $loop->iteration }}</td>
-                                <td>{{ $pengajuan->nama_pengaju }}</td>
+                                <td>{{ $pengajuan->user->organization->organization_name ?? 'N/A' }}</td>
                                 <td class="fw-medium">{{ $pengajuan->judul_kegiatan }}</td>
                                 <td>{{ $pengajuan->ruangan->nama_ruangan ?? 'N/A' }}</td>
                                 <td>
@@ -516,6 +555,14 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Download Button -->
+            <div class="text-center mt-4">
+                <button id="downloadQrPdfBtn" onclick="downloadQrAsPdf()" class="btn" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; padding: 12px 32px; border-radius: 10px; font-weight: 600; border: none; box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3); transition: all 0.3s ease;">
+                    <i class="bi bi-download me-2"></i>Download QR Code (PDF)
+                </button>
+            </div>
+            
             <div class="mt-4 p-3 bg-blue-50 rounded-lg text-center">
                 <p class="mb-2 fw-medium">Petunjuk Penggunaan:</p>
                 <p class="mb-0 text-muted small">Buka kamera ponsel Anda, arahkan ke QR code di atas, atau gunakan aplikasi WhatsApp untuk scan QR code.</p>
@@ -544,12 +591,12 @@
             const cells = row.getElementsByTagName("td");
             if (cells.length < 8) continue;
 
-            const pengaju = cells[1].textContent || cells[1].innerText;
+            const organisasi = cells[1].textContent || cells[1].innerText;
             const kegiatan = cells[2].textContent || cells[2].innerText;
             const ruangan = cells[3].textContent || cells[3].innerText;
             const status = cells[7].textContent || cells[7].innerText;
             
-            const rowText = (pengaju + kegiatan + ruangan + status).toLowerCase();
+            const rowText = (organisasi + kegiatan + ruangan + status).toLowerCase();
             
             if (rowText.includes(filter)) {
                 row.style.display = "";
@@ -581,6 +628,20 @@
 
     function showQrCode(pengajuanId) {
         openModal('qrModal');
+        
+        // Find pengajuan data from table
+        const row = document.querySelector(`button[onclick="showQrCode(${pengajuanId})"]`).closest('tr');
+        if (row) {
+            const cells = row.querySelectorAll('td');
+            currentPengajuanInfo = {
+                id: pengajuanId,
+                judul: cells[0]?.textContent.trim() || 'Kegiatan',
+                ruangan: cells[1]?.textContent.trim() || 'Ruangan',
+                tanggal: cells[2]?.textContent.trim() || 'Tanggal',
+                waktu: cells[3]?.textContent.trim() || 'Waktu'
+            };
+        }
+        
         loadQrCode(pengajuanId);
     }
 
@@ -687,6 +748,166 @@
             };
             document.head.appendChild(script);
         }
+        
+        // Load jsPDF library for PDF generation
+        if (typeof jspdf === 'undefined') {
+            const jsPdfScript = document.createElement('script');
+            jsPdfScript.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+            jsPdfScript.onload = function() {
+                console.log('jsPDF library loaded');
+            };
+            jsPdfScript.onerror = function() {
+                console.error('Failed to load jsPDF library');
+            };
+            document.head.appendChild(jsPdfScript);
+        }
     });
+    
+    // Variable to store current pengajuan info for PDF
+    let currentPengajuanInfo = null;
+    
+    // Function to download QR Code as PDF
+    function downloadQrAsPdf() {
+        const canvas = document.querySelector('#qrCodeContainer canvas');
+        
+        if (!canvas) {
+            alert('QR Code belum dimuat. Silakan tunggu sebentar.');
+            return;
+        }
+        
+        if (typeof jspdf === 'undefined') {
+            alert('Library PDF belum dimuat. Silakan coba lagi.');
+            return;
+        }
+        
+        try {
+            const { jsPDF } = jspdf;
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+            
+            // PDF Dimensions
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const margin = 20;
+            
+            // Header
+            pdf.setFillColor(30, 58, 138); // Primary blue color
+            pdf.rect(0, 0, pageWidth, 40, 'F');
+            
+            // Title
+            pdf.setTextColor(255, 255, 255);
+            pdf.setFontSize(24);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('QR CODE PRESENSI', pageWidth / 2, 20, { align: 'center' });
+            
+            pdf.setFontSize(12);
+            pdf.setFont(undefined, 'normal');
+            pdf.text('Sistem Reservasi Meeting Room', pageWidth / 2, 30, { align: 'center' });
+            
+            // Reset text color for body
+            pdf.setTextColor(30, 41, 59);
+            
+            // Event Information Box
+            let yPos = 55;
+            pdf.setFillColor(248, 250, 252); // Light background
+            pdf.roundedRect(margin, yPos, pageWidth - (margin * 2), 50, 3, 3, 'F');
+            
+            // Event Details
+            yPos += 10;
+            pdf.setFontSize(11);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('INFORMASI KEGIATAN', margin + 5, yPos);
+            
+            yPos += 8;
+            pdf.setFont(undefined, 'normal');
+            pdf.setFontSize(10);
+            
+            if (currentPengajuanInfo) {
+                pdf.text(`Judul Kegiatan: ${currentPengajuanInfo.judul}`, margin + 5, yPos);
+                yPos += 7;
+                pdf.text(`Ruangan: ${currentPengajuanInfo.ruangan}`, margin + 5, yPos);
+                yPos += 7;
+                pdf.text(`Tanggal: ${currentPengajuanInfo.tanggal}`, margin + 5, yPos);
+                yPos += 7;
+                pdf.text(`Waktu: ${currentPengajuanInfo.waktu}`, margin + 5, yPos);
+            }
+            
+            // QR Code Section
+            yPos += 20;
+            
+            // QR Code Label
+            pdf.setFontSize(14);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Scan QR Code untuk Presensi:', pageWidth / 2, yPos, { align: 'center' });
+            
+            yPos += 10;
+            
+            // Add QR Code Image
+            const qrDataUrl = canvas.toDataURL('image/png');
+            const qrSize = 80; // Size in mm
+            const qrX = (pageWidth - qrSize) / 2;
+            
+            pdf.addImage(qrDataUrl, 'PNG', qrX, yPos, qrSize, qrSize);
+            
+            yPos += qrSize + 15;
+            
+            // Instructions Box
+            pdf.setFillColor(239, 246, 255); // Light blue background
+            pdf.roundedRect(margin, yPos, pageWidth - (margin * 2), 30, 3, 3, 'F');
+            
+            yPos += 8;
+            pdf.setFontSize(10);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('PETUNJUK PENGGUNAAN:', margin + 5, yPos);
+            
+            yPos += 6;
+            pdf.setFont(undefined, 'normal');
+            pdf.setFontSize(9);
+            const instructions = [
+                '1. Buka kamera ponsel Anda',
+                '2. Arahkan kamera ke Kode QR di atas',
+                '3. Ikuti link yang muncul untuk melakukan presensi',
+                '4. Isi formulir presensi yang tersedia'
+            ];
+            
+            instructions.forEach(instruction => {
+                pdf.text(instruction, margin + 7, yPos);
+                yPos += 5;
+            });
+            
+            // Footer
+            yPos = pageHeight - 25;
+            pdf.setDrawColor(200, 200, 200);
+            pdf.line(margin, yPos, pageWidth - margin, yPos);
+            
+            yPos += 7;
+            pdf.setFontSize(8);
+            pdf.setTextColor(107, 114, 128);
+            pdf.text('Dicetak pada: ' + new Date().toLocaleString('id-ID'), margin, yPos);
+            pdf.text('Meeting Room Reservation System', pageWidth - margin, yPos, { align: 'right' });
+            
+            // Save PDF
+            const filename = `QR-Presensi-${currentPengajuanInfo?.judul.replace(/[^a-z0-9]/gi, '-') || 'Kegiatan'}-${Date.now()}.pdf`;
+            pdf.save(filename);
+            
+            // Show success message
+            const btn = document.getElementById('downloadQrPdfBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Downloaded!';
+            btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)';
+            }, 2000);
+            
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Terjadi kesalahan saat membuat PDF. Silakan coba lagi.');
+        }
+    }
 </script>
 @endsection

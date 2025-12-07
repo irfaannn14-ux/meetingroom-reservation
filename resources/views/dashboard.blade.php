@@ -252,9 +252,9 @@
                 <div class="card info-card h-100">
                     <div class="card-body">
                         <h5 class="mb-3" style="color:#010D26;font-weight:bold;font-family:'Montserrat',sans-serif;">
-                            <i class="fas fa-chart-pie me-2"></i>Top 5 Ruangan Terpopuler
+                            <i class="fas fa-chart-bar me-2"></i>Statistik Peminjaman Ruangan
                         </h5>
-                        <div id="roomPieChart"></div>
+                        <div id="roomBarChart"></div>
                     </div>
                 </div>
             </div>
@@ -350,116 +350,156 @@
 
         calendar.render();
 
-        // ApexCharts - Room Pie Chart
+        // ApexCharts - Room Bar Chart (All Rooms)
         var roomNames = @json($roomNames);
         var roomCounts = @json($roomCounts);
         var roomColors = @json($roomColors);
         
         var totalBookings = roomCounts.reduce((a, b) => a + b, 0);
 
-        var pieChartOptions = {
-            series: roomCounts,
+        var barChartOptions = {
+            series: [{
+                name: 'Jumlah Peminjaman',
+                data: roomCounts
+            }],
             chart: {
-                type: 'donut',
-                height: 380,
+                type: 'bar',
+                height: 400,
                 fontFamily: 'Montserrat, sans-serif',
-            },
-            labels: roomNames,
-            colors: roomColors,
-            legend: {
-                position: 'right',
-                fontSize: '14px',
-                fontWeight: 600,
-                markers: {
-                    width: 12,
-                    height: 12,
-                    radius: 6,
+                toolbar: {
+                    show: false
                 },
-                itemMargin: {
-                    horizontal: 5,
-                    vertical: 8
-                }
-            },
-            states: {
-                hover: {
-                    filter: {
-                        type: 'none'
-                    }
-                },
-                active: {
-                    filter: {
-                        type: 'none'
-                    }
+                animations: {
+                    enabled: true,
+                    easing: 'easeinout',
+                    speed: 800
                 }
             },
             plotOptions: {
-                pie: {
-                    donut: {
-                        size: '70%',
-                        labels: {
-                            show: true,
-                            name: {
-                                show: true,
-                                fontSize: '18px',
-                                fontWeight: 700,
-                                color: '#010D26',
-                                offsetY: -10,
-                            },
-                            value: {
-                                show: true,
-                                fontSize: '32px',
-                                fontWeight: 700,
-                                color: '#010D26',
-                                offsetY: 10,
-                                formatter: function (val) {
-                                    return val + ' kali'
-                                }
-                            },
-                            total: {
-                                show: true,
-                                label: 'Total Booking',
-                                fontSize: '16px',
-                                fontWeight: 600,
-                                color: '#6c757d',
-                                formatter: function (w) {
-                                    return totalBookings + ' kali'
-                                }
-                            }
-                        }
+                bar: {
+                    horizontal: true,
+                    distributed: true,
+                    borderRadius: 8,
+                    barHeight: '75%',
+                    dataLabels: {
+                        position: 'top'
                     }
                 }
             },
+            colors: roomColors,
             dataLabels: {
-                enabled: false
+                enabled: true,
+                offsetX: 35,
+                style: {
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    colors: ['#010D26']
+                },
+                formatter: function(val) {
+                    var percentage = ((val / totalBookings) * 100).toFixed(1);
+                    return val + ' kali (' + percentage + '%)';
+                }
+            },
+            legend: {
+                show: true,
+                position: 'bottom',
+                horizontalAlign: 'center',
+                fontSize: '13px',
+                fontWeight: 600,
+                markers: {
+                    width: 14,
+                    height: 14,
+                    radius: 4,
+                },
+                itemMargin: {
+                    horizontal: 12,
+                    vertical: 8
+                },
+                formatter: function(seriesName, opts) {
+                    return roomNames[opts.seriesIndex] + ': ' + roomCounts[opts.seriesIndex] + ' kali';
+                }
+            },
+            xaxis: {
+                categories: roomNames,
+                labels: {
+                    show: true,
+                    style: {
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        colors: '#010D26'
+                    }
+                },
+                axisBorder: {
+                    show: false
+                },
+                axisTicks: {
+                    show: false
+                }
+            },
+            yaxis: {
+                labels: {
+                    show: true,
+                    maxWidth: 180,
+                    style: {
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        colors: roomColors
+                    }
+                }
+            },
+            grid: {
+                borderColor: '#f1f1f1',
+                strokeDashArray: 3,
+                xaxis: {
+                    lines: {
+                        show: true
+                    }
+                },
+                yaxis: {
+                    lines: {
+                        show: false
+                    }
+                }
             },
             tooltip: {
                 enabled: true,
                 y: {
-                    formatter: function(value, { seriesIndex }) {
+                    formatter: function(value) {
                         var percentage = ((value / totalBookings) * 100).toFixed(1);
-                        return value + ' kali (' + percentage + '%)'
+                        return value + ' kali peminjaman (' + percentage + '% dari total)';
                     }
                 },
                 style: {
-                    fontSize: '14px',
+                    fontSize: '13px',
                     fontFamily: 'Montserrat, sans-serif'
                 }
             },
             responsive: [{
-                breakpoint: 480,
+                breakpoint: 768,
                 options: {
                     chart: {
-                        height: 300
+                        height: 350
+                    },
+                    plotOptions: {
+                        bar: {
+                            barHeight: '65%'
+                        }
                     },
                     legend: {
-                        position: 'bottom'
+                        position: 'bottom',
+                        fontSize: '11px'
+                    },
+                    dataLabels: {
+                        style: {
+                            fontSize: '11px'
+                        }
                     }
                 }
             }]
         };
 
-        var pieChart = new ApexCharts(document.querySelector("#roomPieChart"), pieChartOptions);
-        pieChart.render();
+        var barChart = new ApexCharts(document.querySelector("#roomBarChart"), barChartOptions);
+        barChart.render();
 
         // ApexCharts - Booking Heatmap
         var heatmapData = @json($heatmapData);
