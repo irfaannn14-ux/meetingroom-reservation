@@ -1,111 +1,294 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk.svg" width="400"></a></p>
+# 📅 Meeting Room Reservation System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=flat&logo=laravel)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=flat&logo=php)](https://php.net)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-## About Laravel
+A comprehensive web-based meeting room reservation system built with Laravel 12. This application streamlines the process of booking meeting rooms, managing approvals, and tracking attendance with QR code integration.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## ✨ Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 👥 User Management
+- **Role-based Access Control**: Super Admin and Admin roles with different permission levels
+- **User Profile Management**: Users can update their profiles, including contact information and profile pictures
+- **Organization Integration**: Multi-organization support with organizational hierarchy
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 🏢 Room Management
+- **Meeting Room Catalog**: Complete room information with facilities, capacity, and photos
+- **Room Details**: View room specifications including amenities (projectors, AC, WiFi, etc.)
+- **Capacity Management**: Automatic validation to prevent over-booking
 
-## Learning Laravel
+### 📝 Reservation System
+- **Easy Booking**: Intuitive interface for creating meeting room reservations
+- **Approval Workflow**: Three-state approval system (pending, approved, rejected)
+- **Calendar Integration**: Visual calendar view with FullCalendar for easy schedule management
+- **Conflict Detection**: Automatic detection of scheduling conflicts
+- **Multi-day Support**: Book rooms for events spanning multiple days
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 📊 Dashboard & Monitoring
+- **Interactive Dashboard**: Overview of all reservations and room availability
+- **Real-time Notifications**: Get notified about booking status changes
+- **Activity Logging**: Comprehensive audit trail of all system activities
+- **History Tracking**: Complete history of past and upcoming reservations
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### ✅ Attendance Management
+- **QR Code Generation**: Automatic QR code generation for approved meetings
+- **Digital Attendance**: QR-based check-in system for meeting participants
+- **Signature Collection**: Digital signature capture for attendees
+- **Attendance Reports**: Download attendance records with signatures (PDF format)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript.
+### 📱 Additional Features
+- **Responsive Design**: Mobile-friendly interface built with Tailwind CSS
+- **DataTables Integration**: Advanced table features with search, sort, and pagination
+- **Comment System**: Leave and view comments on reservations
+- **PDF Export**: Generate reports and documents in PDF format
 
-## Laravel Sponsors
+## 🛠️ Technology Stack
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Backend
+- **Framework**: Laravel 12.x
+- **Language**: PHP 8.2+
+- **Database**: MySQL/PostgreSQL/SQLite
+- **PDF Generation**: mPDF, DomPDF
+- **QR Code**: SimpleSoftwareIO QR Code
 
-### Premium Partners
+### Frontend
+- **CSS Framework**: Tailwind CSS 4.x
+- **JavaScript**: Vite 7.x
+- **Calendar**: FullCalendar
+- **Tables**: Yajra DataTables
+- **Icons & UI**: Modern, responsive components
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Development Tools
+- **Build Tool**: Vite
+- **Package Manager**: Composer, NPM
+- **Code Quality**: Laravel Pint (PSR-12)
+- **Testing**: PHPUnit
 
-## Contributing
+## 📋 Prerequisites
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Before you begin, ensure you have the following installed:
+- **PHP** >= 8.2
+- **Composer** >= 2.0
+- **Node.js** >= 18.x and NPM
+- **Database**: MySQL 5.7+, PostgreSQL 10+, or SQLite 3.8+
+- **Web Server**: Apache/Nginx (for production)
 
-## Code of Conduct
+## 🚀 Installation
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 1. Clone the Repository
+```bash
+git clone https://github.com/dvlpdiskominfokabprob/meetingroom-reservation.git
+cd meetingroom-reservation
+```
 
-## Security Vulnerabilities
+### 2. Install PHP Dependencies
+```bash
+composer install
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 3. Install JavaScript Dependencies
+```bash
+npm install
+```
 
-## License
+### 4. Environment Configuration
+Copy the example environment file and generate an application key:
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 5. Database Configuration
+Edit the `.env` file and configure your database connection:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=meeting_room_db
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
+
+### 6. Run Database Migrations
+```bash
+php artisan migrate
+```
+
+### 7. Seed Database (Optional)
+Load sample data including a super admin account and demo reservations:
+```bash
+php artisan db:seed
+```
+
+**Default Super Admin Credentials:**
+- Username: `superadmin`
+- Email: `superadmin@example.com`
+- Password: `admin`
+
+### 8. Storage Link
+Create a symbolic link for public storage:
+```bash
+php artisan storage:link
+```
+
+### 9. Build Frontend Assets
+For development:
+```bash
+npm run dev
+```
+
+For production:
+```bash
+npm run build
+```
+
+### 10. Start the Application
+```bash
+php artisan serve
+```
+
+The application will be available at `http://localhost:8000`
+
+## ⚙️ Configuration
+
+### Email Configuration (Optional)
+To enable email notifications, configure the mail settings in `.env`:
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=your_username
+MAIL_PASSWORD=your_password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=noreply@example.com
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+### File Upload Configuration
+Ensure the following directories are writable:
+```bash
+chmod -R 775 storage
+chmod -R 775 bootstrap/cache
+chmod -R 775 public/images
+```
+
+### Queue Configuration (Optional)
+For better performance with notifications and email:
+```bash
+php artisan queue:work
+```
+
+## 💻 Usage
+
+### For Regular Users
+1. **Login**: Access the system with your credentials
+2. **Browse Rooms**: View available meeting rooms and their facilities
+3. **Create Reservation**: Select a room, date, time, and submit your request
+4. **Track Status**: Monitor your reservation status (pending/approved/rejected)
+5. **QR Code**: Once approved, use the QR code for attendance tracking
+
+### For Administrators
+1. **Manage Rooms**: Add, edit, or remove meeting rooms
+2. **Review Requests**: Approve or reject reservation requests
+3. **Manage Users**: Create and manage user accounts
+4. **View Reports**: Access activity logs and reservation history
+5. **Monitor System**: Track all activities through the dashboard
+
+### For Super Admins
+- Full access to all features
+- User management across all organizations
+- System-wide settings and configurations
+- Complete activity audit trail
+
+## 📁 Project Structure
+
+```
+meetingroom-reservation/
+├── app/
+│   ├── Http/Controllers/      # Application controllers
+│   │   ├── AuthController.php
+│   │   ├── PengajuanController.php
+│   │   ├── RuanganController.php
+│   │   ├── UserController.php
+│   │   └── ...
+│   └── Models/                # Eloquent models
+│       ├── Pengajuan.php
+│       ├── Ruangan.php
+│       ├── User.php
+│       └── ...
+├── database/
+│   ├── migrations/            # Database migrations
+│   └── seeders/               # Database seeders
+├── public/
+│   └── images/                # Uploaded images
+├── resources/
+│   ├── views/                 # Blade templates
+│   └── css/                   # Stylesheets
+├── routes/
+│   └── web.php                # Web routes
+├── composer.json              # PHP dependencies
+├── package.json               # Node dependencies
+└── vite.config.js             # Vite configuration
+```
+
+## 🧪 Testing
+
+Run the test suite:
+```bash
+php artisan test
+```
+
+Or with PHPUnit directly:
+```bash
+vendor/bin/phpunit
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how you can help:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+### Coding Standards
+- Follow PSR-12 coding standards
+- Write descriptive commit messages
+- Add tests for new features
+- Update documentation as needed
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👥 Authors & Maintainers
+
+Maintained by **Dinas Komunikasi dan Informatika Kabupaten Probolinggo**
+
+## 🐛 Bug Reports & Feature Requests
+
+If you encounter any issues or have suggestions:
+- Open an issue on [GitHub Issues](https://github.com/dvlpdiskominfokabprob/meetingroom-reservation/issues)
+- Provide detailed information about the bug or feature
+- Include steps to reproduce (for bugs)
+
+## 📞 Support
+
+For questions or support:
+- Check the [Laravel Documentation](https://laravel.com/docs)
+- Review existing [GitHub Issues](https://github.com/dvlpdiskominfokabprob/meetingroom-reservation/issues)
+- Contact the repository maintainers
+
+## 🙏 Acknowledgments
+
+- Built with [Laravel Framework](https://laravel.com)
+- UI powered by [Tailwind CSS](https://tailwindcss.com)
+- Calendar integration by [FullCalendar](https://fullcalendar.io)
+- QR Code generation by [SimpleSoftwareIO](https://www.simplesoftware.io)
 
 ---
 
-## Cara Clone & Setup Repository
-
-Ikuti langkah-langkah berikut untuk clone dan setup repository ini:
-
-1. **Clone repository**
-   ```bash
-   git clone https://github.com/dvlpdiskominfokabprob/meetingroom-reservation.git
-   cd meetingroom-reservation
-   ```
-
-2. **Install dependencies**  
-   Pastikan sudah terinstall [Composer](https://getcomposer.org/) dan [Node.js](https://nodejs.org/).
-   ```bash
-   composer install
-   npm install
-   ```
-
-3. **Copy file environment dan generate key**
-   ```bash
-   cp .env.example .env
-   php artisan key:generate
-   ```
-
-4. **Setting database**  
-   Edit file `.env` dan sesuaikan konfigurasi database Anda.
-
-5. **Jalankan migration**
-   ```bash
-   php artisan migrate
-   ```
-
-6. **(Opsional) Seed data dummy**
-   ```bash
-   php artisan db:seed
-   ```
-
-7. **Jalankan aplikasi**
-   ```bash
-   php artisan serve
-   ```
-
-8. **(Opsional) Konfigurasi email**  
-   Edit pengaturan mail di `.env` agar aplikasi dapat mengirim email (misal untuk notifikasi).
-
----
-
-Jika ada kendala setup, silakan cek dokumentasi Laravel atau hubungi maintainer repository ini.
+<p align="center">Made with ❤️ by Diskominfo Kabupaten Probolinggo</p>
