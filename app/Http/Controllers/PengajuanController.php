@@ -206,11 +206,11 @@ class PengajuanController extends Controller
             'waktu_kembali' => 'required|date_format:H:i',
         ]);
 
-        // ATURAN BARU #5: Validasi Lead Time - Minimal 2 hari sebelum kegiatan
-        // $now = Carbon::now();
-        // $tanggalPinjam = Carbon::parse($validatedData['tanggal_pinjam']);
-        // $daysUntilEvent = $now->startOfDay()->diffInDays($tanggalPinjam->startOfDay(), false);
+        $now = Carbon::now();
+        $tanggalPinjam = Carbon::parse($validatedData['tanggal_pinjam']);
+        $daysUntilEvent = $now->startOfDay()->diffInDays($tanggalPinjam->startOfDay(), false);
         
+        // ATURAN BARU #5: Validasi Lead Time - Minimal 2 hari sebelum kegiatan
         // if ($daysUntilEvent < 2) {
         //     return back()->withErrors([
         //         'tanggal_pinjam' => 'Pengajuan harus dilakukan minimal 2 hari sebelum kegiatan. Anda hanya dapat mengajukan untuk tanggal ' . $now->copy()->addDays(2)->format('d M Y') . ' atau setelahnya.'
