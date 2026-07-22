@@ -639,4 +639,74 @@ class PengajuanController extends Controller
 
         return response()->json(['token' => $token]);
     }
+
+    /**
+     * Cek ruangan yang tersedia berdasarkan waktu yang diinputkan via AJAX
+     */
+    public function checkAvailableRooms(Request $request)
+    {
+        $request->validate([
+            'tanggal_mulai' => 'required|date',
+            'waktu_mulai' => 'required|date_format:H:i',
+            'tanggal_selesai' => 'required|date',
+            'waktu_selesai' => 'required|date_format:H:i',
+            'pengajuan_id' => 'nullable|integer'
+        ]);
+
+        $tanggal_mulai = Carbon::parse($request->tanggal_mulai . ' ' . $request->waktu_mulai);
+        $tanggal_selesai = Carbon::parse($request->tanggal_selesai . ' ' . $request->waktu_selesai);
+
+        // Validasi dasar (harus dikembalikan dalam bentuk JSON response jika error)
+        if ($tanggal_selesai->lte($tanggal_mulai)) {
+            return response()->json(['error' => 'Waktu kembali harus setelah waktu pinjam.'], 400);
+        }
+
+        $durasiMenit = $tanggal_mulai->diffInMinutes($tanggal_selesai, false);
+        if ($durasiMenit < 120) {
+            return response()->json(['error' => 'Durasi minimal adalah 2 jam.'], 400);
+        }
+
+        // Dapatkan semua ruangan
+        $semuaRuangan = Ruangan::all();
+
+        // Dapatkan ID ruangan yang BENTROK
+        $ruanganBentrokQuery = Pengajuan::select('ruangan_id')
+            ->whereIn('status', ['disetujui', 'pending'])
+            ->where(function ($query) use ($tanggal_mulai, $tanggal_selesai) {
+                $query->where(function ($q) use ($tanggal_mulai, $tanggal_selesai) {
+                    $q->where('tanggal_mulai', '<=', $tanggal_mulai)
+                      ->where('tanggal_selesai', '>', $tanggal_mulai);
+                })
+                ->orWhere(function ($q) use ($tanggal_mulai, $tanggal_selesai) {
+                    $q->where('tanggal_mulai', '<', $tanggal_selesai)
+                      ->where('tanggal_selesai', '>=', $tanggal_selesai);
+                })
+                ->orWhere(function ($q) use ($tanggal_mulai, $tanggal_selesai) {
+                    $q->where('tanggal_mulai', '>=', $tanggal_mulai)
+                      ->where('tanggal_selesai', '<=', $tanggal_selesai);
+                })
+                ->orWhere(function ($q) use ($tanggal_mulai, $tanggal_selesai) {
+                    $q->where('tanggal_mulai', '<=', $tanggal_mulai)
+                      ->where('tanggal_selesai', '>=', $tanggal_selesai);
+                });
+            });
+
+        // Jika mode edit, abaikan pengajuan yang sedang diedit
+        if ($request->filled('pengajuan_id')) {
+            $ruanganBentrokQuery->where('id', '!=', $request->pengajuan_id);
+        }
+
+        $ruanganBentrokIds = $ruanganBentrokQuery->pluck('ruangan_id')->toArray();
+
+        // Filter ruangan yang tersedia (tidak ada dalam daftar bentrok)
+        $ruanganTersedia = $semuaRuangan->filter(function ($ruangan) use ($ruanganBentrokIds) {
+            return !in_array($ruangan->id, $ruanganBentrokIds);
+        })->values();
+
+        return response()->json([
+            'success' => true,
+            'tersedia' => $ruanganTersedia,
+            'bentrok_ids' => $ruanganBentrokIds
+        ]);
+    }
 }

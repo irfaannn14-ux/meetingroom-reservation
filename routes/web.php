@@ -65,6 +65,7 @@ Route::middleware(['auth.custom'])->group(function () {
 
     // pengajuan
     Route::get('/index', [PengajuanController::class, 'index'])->name('pengajuan.index');
+    Route::post('pengajuan/check-rooms', [PengajuanController::class, 'checkAvailableRooms'])->name('pengajuan.checkRooms');
     Route::get('pengajuan/tambah', [PengajuanController::class, 'tambah'])->name('pengajuan.tambah');
     Route::post('pengajuan/tambah', [PengajuanController::class, 'store'])->name('pengajuan.store');
     Route::get('pengajuan/{pengajuan}/edit', [PengajuanController::class, 'edit'])->name('pengajuan.edit');

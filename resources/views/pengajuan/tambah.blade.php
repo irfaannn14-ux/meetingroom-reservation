@@ -472,48 +472,6 @@ if ($selectedRuanganId) {
                 </div>
 
                 <div class="form-section">
-                    <div class="form-grid">
-                        <div class="mb-4">
-                            <label for="jml_peserta" class="form-label">Jumlah Peserta <span class="required-badge">*</span></label>
-                            <div class="input-group">
-                                <input type="number" name="jml_peserta" id="jml_peserta" class="form-control" 
-                                       placeholder="Masukkan jumlah peserta" 
-                                       value="{{ old('jml_peserta', $pengajuan->jml_peserta ?? '') }}" 
-                                       required min="1" oninput="handlePesertaChange()">
-                                <span class="input-hint">Masukkan jumlah peserta untuk rekomendasi ruangan terbaik</span>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label for="ruangan_id" class="form-label">Ruangan <span class="required-badge">*</span></label>
-                            <input type="hidden" name="ruangan_id" id="ruangan-id-input" value="{{ old('ruangan_id', $pengajuan->ruangan_id ?? '') }}" required>
-                            <div class="custom-dropdown-container" id="ruangan-dropdown-container">
-                                <div class="custom-dropdown-button" onclick="toggleDropdown()" id="dropdown-button">
-                                    <span id="selected-ruangan">
-                                        {{ $selectedRuanganName }}
-                                    </span>
-                                    <i class="bi bi-chevron-down"></i>
-                                </div>
-                                <div id="ruangan-dropdown-content" class="custom-dropdown-content">
-                                    <input type="text" class="custom-dropdown-input" onkeyup="filterRuangan()" placeholder="Cari ruangan...">
-                                    @foreach($ruangans as $ruangan)
-                                        <a href="#" 
-                                           data-value="{{ $ruangan->id }}" 
-                                           data-nama="{{ $ruangan->nama_ruangan }}"
-                                           data-kapasitas="{{ $ruangan->jml_peserta }}"
-                                           class="ruangan-item{{ $selectedRuanganId == $ruangan->id ? ' selected' : '' }}">
-                                           {{ $ruangan->nama_ruangan }}
-                                           <span class="ruangan-capacity-badge">{{ $ruangan->jml_peserta }} orang</span>
-                                        </a>
-                                    @endforeach
-                                </div>
-                            </div>
-                            <span id="ruangan-hint" class="input-hint">Pilih ruangan sesuai dengan kapasitas peserta</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-section">
                     <div class="date-time-grid">
                         <div class="mb-4">
                             <label for="tanggal_pinjam" class="form-label">Tanggal Mulai <span class="required-badge">*</span></label>
@@ -575,6 +533,50 @@ if ($selectedRuanganId) {
                     </div>
                 </div>
 
+                <div class="form-section">
+                    <div class="form-grid">
+                        <div class="mb-4">
+                            <label for="jml_peserta" class="form-label">Jumlah Peserta <span class="required-badge">*</span></label>
+                            <div class="input-group">
+                                <input type="number" name="jml_peserta" id="jml_peserta" class="form-control" 
+                                       placeholder="Masukkan jumlah peserta" 
+                                       value="{{ old('jml_peserta', $pengajuan->jml_peserta ?? '') }}" 
+                                       required min="1" oninput="handlePesertaChange()">
+                                <span class="input-hint">Masukkan jumlah peserta untuk rekomendasi ruangan terbaik</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="ruangan_id" class="form-label">Ruangan <span class="required-badge">*</span></label>
+                            <input type="hidden" name="ruangan_id" id="ruangan-id-input" value="{{ old('ruangan_id', $pengajuan->ruangan_id ?? '') }}" required>
+                            <div class="custom-dropdown-container" id="ruangan-dropdown-container">
+                                <div class="custom-dropdown-button" onclick="toggleDropdown()" id="dropdown-button">
+                                    <span id="selected-ruangan">
+                                        {{ $selectedRuanganName }}
+                                    </span>
+                                    <i class="bi bi-chevron-down"></i>
+                                </div>
+                                <div id="ruangan-dropdown-content" class="custom-dropdown-content">
+                                    <input type="text" class="custom-dropdown-input" onkeyup="filterRuangan()" placeholder="Cari ruangan...">
+                                    @foreach($ruangans as $ruangan)
+                                        <a href="#" 
+                                           data-value="{{ $ruangan->id }}" 
+                                           data-nama="{{ $ruangan->nama_ruangan }}"
+                                           data-kapasitas="{{ $ruangan->jml_peserta }}"
+                                           class="ruangan-item{{ $selectedRuanganId == $ruangan->id ? ' selected' : '' }}">
+                                           {{ $ruangan->nama_ruangan }}
+                                           <span class="ruangan-capacity-badge">{{ $ruangan->jml_peserta }} orang</span>
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                            <span id="ruangan-hint" class="input-hint">Pilih ruangan sesuai dengan kapasitas peserta</span>
+                        </div>
+                    </div>
+                </div>
+
+
+
                 <div class="btn-group">
                     <a href="{{ route('pengajuan.index') }}" class="btn btn-outline-dark">
                         <i class="bi bi-arrow-left"></i> Kembali
@@ -596,8 +598,19 @@ if ($selectedRuanganId) {
 
     function toggleDropdown() {
         const dropdownContainer = document.getElementById('ruangan-dropdown-container');
-        const jmlPeserta = parseInt(document.getElementById('jml_peserta').value);
         
+        const tglMulai = document.getElementById('tanggal_pinjam').value;
+        const wktMulai = document.getElementById('waktu_pinjam').value;
+        const tglSelesai = document.getElementById('tanggal_kembali').value;
+        const wktSelesai = document.getElementById('waktu_kembali').value;
+        
+        if (!tglMulai || !wktMulai || !tglSelesai || !wktSelesai) {
+            showToast('Silakan lengkapi Tanggal & Waktu terlebih dahulu!', 'warning');
+            document.getElementById('tanggal_pinjam').focus();
+            return;
+        }
+
+        const jmlPeserta = parseInt(document.getElementById('jml_peserta').value);
         if (!jmlPeserta || jmlPeserta < 1) {
             showToast('Silakan isi jumlah peserta terlebih dahulu!', 'warning');
             document.getElementById('jml_peserta').focus();
@@ -617,11 +630,113 @@ if ($selectedRuanganId) {
         });
     }
 
+    function updateRuanganList(tersedia) {
+        // Hapus elemen ruangan yang ada
+        const dropdownContent = document.getElementById('ruangan-dropdown-content');
+        // Sisakan input pencarian
+        const searchInput = dropdownContent.querySelector('.custom-dropdown-input');
+        dropdownContent.innerHTML = '';
+        dropdownContent.appendChild(searchInput);
+        
+        // Update data array
+        ruangansArray.length = 0; // kosongkan
+        ruangansArray.push(...tersedia); // isi dengan yang baru
+        
+        // Tambahkan elemen ruangan yang baru
+        tersedia.forEach(ruangan => {
+            const isSelected = selectedRuanganId == ruangan.id ? ' selected' : '';
+            const a = document.createElement('a');
+            a.href = '#';
+            a.className = 'ruangan-item' + isSelected;
+            a.setAttribute('data-value', ruangan.id);
+            a.setAttribute('data-nama', ruangan.nama_ruangan);
+            a.setAttribute('data-kapasitas', ruangan.jml_peserta);
+            a.innerHTML = `${ruangan.nama_ruangan} <span class="ruangan-capacity-badge">${ruangan.jml_peserta} orang</span>`;
+            dropdownContent.appendChild(a);
+        });
+        
+        // Trigger perubahan peserta untuk me-reset state rekomendasi/disabled
+        handlePesertaChange();
+    }
+
+    async function checkAvailableRooms() {
+        const tglMulai = document.getElementById('tanggal_pinjam').value;
+        const wktMulai = document.getElementById('waktu_pinjam').value;
+        const tglSelesai = document.getElementById('tanggal_kembali').value;
+        const wktSelesai = document.getElementById('waktu_kembali').value;
+        const ruanganHint = document.getElementById('ruangan-hint');
+        
+        if (!tglMulai || !wktMulai || !tglSelesai || !wktSelesai) {
+            return; // Belum lengkap
+        }
+        
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') 
+            || document.querySelector('input[name="_token"]').value;
+
+        const pengajuanId = {{ $pengajuan->id ?? 'null' }};
+
+        ruanganHint.innerHTML = `<span class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></span> Mengecek ketersediaan ruangan...`;
+        ruanganHint.className = 'input-hint';
+
+        try {
+            const response = await fetch('{{ route('pengajuan.checkRooms') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    tanggal_mulai: tglMulai,
+                    waktu_mulai: wktMulai,
+                    tanggal_selesai: tglSelesai,
+                    waktu_selesai: wktSelesai,
+                    pengajuan_id: pengajuanId
+                })
+            });
+
+            const data = await response.json();
+            
+            if (response.ok) {
+                // Update dropdown list
+                updateRuanganList(data.tersedia);
+                
+                // Jika ruangan terpilih saat ini masuk daftar bentrok, reset
+                if (data.bentrok_ids.includes(selectedRuanganId)) {
+                    document.getElementById("ruangan-id-input").value = '';
+                    document.getElementById("selected-ruangan").textContent = 'Pilih Ruangan';
+                    selectedRuanganId = null;
+                    showToast('Ruangan yang Anda pilih sebelumnya bentrok dengan jadwal lain. Silakan pilih ruangan baru.', 'warning');
+                }
+            } else {
+                ruanganHint.innerHTML = `<i class="bi bi-exclamation-triangle text-danger me-1"></i> ${data.error || 'Terjadi kesalahan'}`;
+                ruanganHint.className = 'input-hint input-danger';
+                showToast(data.error || 'Gagal mengecek ruangan', 'danger');
+            }
+        } catch (error) {
+            console.error('Error checking rooms:', error);
+            ruanganHint.innerHTML = `<i class="bi bi-exclamation-triangle text-danger me-1"></i> Gagal mengecek ruangan.`;
+        }
+    }
+
     function handlePesertaChange() {
         const jmlPeserta = parseInt(document.getElementById('jml_peserta').value);
         const ruanganHint = document.getElementById('ruangan-hint');
         const submitBtn = document.getElementById('submit-btn');
         
+        const tglMulai = document.getElementById('tanggal_pinjam').value;
+        const wktMulai = document.getElementById('waktu_pinjam').value;
+        const tglSelesai = document.getElementById('tanggal_kembali').value;
+        const wktSelesai = document.getElementById('waktu_kembali').value;
+        
+        if (!tglMulai || !wktMulai || !tglSelesai || !wktSelesai) {
+            ruanganHint.textContent = 'Silakan lengkapi Tanggal & Waktu terlebih dahulu';
+            ruanganHint.className = 'input-hint';
+            resetAllRuangan();
+            submitBtn.disabled = true;
+            return;
+        }
+
         if (!jmlPeserta || jmlPeserta < 1) {
             ruanganHint.textContent = 'Masukkan jumlah peserta untuk melihat rekomendasi ruangan';
             ruanganHint.className = 'input-hint';
@@ -640,7 +755,7 @@ if ($selectedRuanganId) {
             item.querySelector('.ruangan-capacity-badge').textContent = `${kapasitas} orang`;
         });
         
-        // Tandai ruangan yang tidak tersedia
+        // Tandai ruangan yang kapasitasnya kurang
         unavailableRuangan.forEach(ruangan => {
             const item = document.querySelector(`.ruangan-item[data-value="${ruangan.id}"]`);
             if (item) {
@@ -666,8 +781,8 @@ if ($selectedRuanganId) {
                 }
             }
             
-            // Auto-select jika belum ada pilihan
-            if (!selectedRuanganId || unavailableRuangan.some(r => r.id === selectedRuanganId)) {
+            // Auto-select jika belum ada pilihan atau pilihan lama kapasitasnya kurang
+            if (!selectedRuanganId || unavailableRuangan.some(r => r.id === selectedRuanganId) || !ruangansArray.some(r => r.id === selectedRuanganId)) {
                 document.getElementById("ruangan-id-input").value = recommended.id;
                 document.getElementById("selected-ruangan").innerHTML = `${recommended.nama_ruangan} <span class="ruangan-capacity-badge">${recommended.jml_peserta} orang</span>`;
                 selectedRuanganId = recommended.id;
@@ -681,7 +796,11 @@ if ($selectedRuanganId) {
             
             submitBtn.disabled = false;
         } else {
-            ruanganHint.innerHTML = `<i class="bi bi-exclamation-triangle text-warning me-1"></i> Tidak ada ruangan yang dapat menampung ${jmlPeserta} peserta!`;
+            if (ruangansArray.length > 0) {
+                ruanganHint.innerHTML = `<i class="bi bi-exclamation-triangle text-warning me-1"></i> Tidak ada ruangan yang dapat menampung ${jmlPeserta} peserta pada waktu tersebut!`;
+            } else {
+                ruanganHint.innerHTML = `<i class="bi bi-exclamation-triangle text-warning me-1"></i> Tidak ada ruangan yang tersedia sama sekali pada waktu tersebut!`;
+            }
             ruanganHint.className = 'input-hint input-warning';
             document.getElementById("ruangan-id-input").value = '';
             document.getElementById("selected-ruangan").textContent = 'Tidak Ada Ruangan Tersedia';
@@ -693,7 +812,8 @@ if ($selectedRuanganId) {
         document.querySelectorAll('.ruangan-item').forEach(item => {
             item.classList.remove('disabled', 'recommended');
             const kapasitas = parseInt(item.getAttribute('data-kapasitas'));
-            item.querySelector('.ruangan-capacity-badge').textContent = `${kapasitas} orang`;
+            const capacityBadge = item.querySelector('.ruangan-capacity-badge');
+            if(capacityBadge) capacityBadge.textContent = `${kapasitas} orang`;
             const badge = item.querySelector('.ruangan-recommended-badge');
             if (badge) badge.remove();
         });
@@ -800,6 +920,28 @@ if ($selectedRuanganId) {
         const today = new Date().toISOString().split('T')[0];
         if (!startDateInput.value) startDateInput.min = today;
         if (!endDateInput.value) endDateInput.min = today;
+
+        // Add event listeners for date/time changes to fetch available rooms
+        const timeInputs = [
+            'tanggal_pinjam', 
+            'tanggal_kembali', 
+            'waktu_pinjam', 
+            'waktu_kembali'
+        ];
+        
+        timeInputs.forEach(id => {
+            document.getElementById(id).addEventListener('change', checkAvailableRooms);
+        });
+
+        // initial check if all data is present (e.g. edit mode)
+        if (startDateInput.value && endDateInput.value && document.getElementById('waktu_pinjam').value && document.getElementById('waktu_kembali').value) {
+            checkAvailableRooms();
+        } else {
+            // initial state: disable room selection until time is picked
+            document.getElementById("selected-ruangan").textContent = 'Pilih Tanggal & Waktu Dulu';
+            document.getElementById('ruangan-hint').textContent = 'Silakan lengkapi Tanggal & Waktu terlebih dahulu';
+            document.getElementById('submit-btn').disabled = true;
+        }
     });
 </script>
 @endsection
