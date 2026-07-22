@@ -207,15 +207,15 @@ class PengajuanController extends Controller
         ]);
 
         // ATURAN BARU #5: Validasi Lead Time - Minimal 2 hari sebelum kegiatan
-        $now = Carbon::now();
-        $tanggalPinjam = Carbon::parse($validatedData['tanggal_pinjam']);
-        $daysUntilEvent = $now->startOfDay()->diffInDays($tanggalPinjam->startOfDay(), false);
+        // $now = Carbon::now();
+        // $tanggalPinjam = Carbon::parse($validatedData['tanggal_pinjam']);
+        // $daysUntilEvent = $now->startOfDay()->diffInDays($tanggalPinjam->startOfDay(), false);
         
-        if ($daysUntilEvent < 2) {
-            return back()->withErrors([
-                'tanggal_pinjam' => 'Pengajuan harus dilakukan minimal 2 hari sebelum kegiatan. Anda hanya dapat mengajukan untuk tanggal ' . $now->copy()->addDays(2)->format('d M Y') . ' atau setelahnya.'
-            ])->withInput();
-        }
+        // if ($daysUntilEvent < 2) {
+        //     return back()->withErrors([
+        //         'tanggal_pinjam' => 'Pengajuan harus dilakukan minimal 2 hari sebelum kegiatan. Anda hanya dapat mengajukan untuk tanggal ' . $now->copy()->addDays(2)->format('d M Y') . ' atau setelahnya.'
+        //     ])->withInput();
+        // }
 
         // ATURAN BARU #6: Validasi Maximum Advance Booking - Maksimal 1 tahun ke depan
         $maxBookingDate = $now->copy()->addYear();
