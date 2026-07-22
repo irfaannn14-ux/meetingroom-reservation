@@ -546,10 +546,10 @@
             alertBox.classList.add('d-none');
         }
 
-        function toggleOrgDropdown() {
+        window.toggleOrgDropdown = function() {
             const container = document.getElementById('org-dropdown-container');
             container.classList.toggle('dropdown-open');
-        }
+        };
 
         window.filterOrgOptions = function(ev) {
             const filter = (ev.target.value || '').toUpperCase();
