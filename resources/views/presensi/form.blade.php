@@ -521,12 +521,42 @@
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 
 <script>
+    function toggleOrgDropdown() {
+        const container = document.getElementById('org-dropdown-container');
+        container.classList.toggle('dropdown-open');
+    }
+
+    function filterOrgOptions(ev) {
+        const orgList = document.getElementById('org-dropdown-content');
+        const filter = (ev.target.value || '').toUpperCase();
+        const links = orgList.querySelectorAll('.org-item');
+        let count = 0;
+        links.forEach(a => {
+            const txt = (a.getAttribute('data-text') || a.textContent || '').toUpperCase();
+            const show = txt.includes(filter);
+            a.style.display = show ? '' : 'none';
+            if (show) count++;
+        });
+        
+        // Remove existing no-results message if any
+        const existingNoResults = orgList.querySelector('.no-results-message');
+        if (existingNoResults) {
+            existingNoResults.remove();
+        }
+        
+        if (count === 0 && filter) {
+            const noMsg = document.createElement('div');
+            noMsg.className = 'no-results-message org-item text-center py-3 text-muted';
+            noMsg.innerHTML = '<i class="bi bi-search me-1"></i> Tidak ada organisasi yang ditemukan';
+            orgList.appendChild(noMsg);
+        }
+    }
+
     (function() {
         const form = document.getElementById('formPresensi');
         const alertBox = document.getElementById('formAlert');
         const alertMessage = document.getElementById('alertMessage');
 
-        const orgBtn = document.getElementById('org-dropdown-btn'); 
         const orgList = document.getElementById('org-dropdown-content'); 
         const orgInput = document.getElementById('organisasi-input');
         const selectedOrgSpan = document.getElementById('selected-org');
@@ -545,36 +575,6 @@
         function hideError() {
             alertBox.classList.add('d-none');
         }
-
-        window.toggleOrgDropdown = function() {
-            const container = document.getElementById('org-dropdown-container');
-            container.classList.toggle('dropdown-open');
-        };
-
-        window.filterOrgOptions = function(ev) {
-            const filter = (ev.target.value || '').toUpperCase();
-            const links = orgList.querySelectorAll('.org-item');
-            let count = 0;
-            links.forEach(a => {
-                const txt = (a.getAttribute('data-text') || a.textContent || '').toUpperCase();
-                const show = txt.includes(filter);
-                a.style.display = show ? '' : 'none';
-                if (show) count++;
-            });
-            
-            // Remove existing no-results message if any
-            const existingNoResults = orgList.querySelector('.no-results-message');
-            if (existingNoResults) {
-                existingNoResults.remove();
-            }
-            
-            if (count === 0 && filter) {
-                const noMsg = document.createElement('div');
-                noMsg.className = 'no-results-message org-item text-center py-3 text-muted';
-                noMsg.innerHTML = '<i class="bi bi-search me-1"></i> Tidak ada organisasi yang ditemukan';
-                orgList.appendChild(noMsg);
-            }
-        };
 
         // Handle organization selection
         orgList.addEventListener('click', function(event) {
