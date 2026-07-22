@@ -82,13 +82,23 @@ class RuanganController extends Controller
             $validatedData['foto_ruangan'] = $path;
         }
 
+        // Capture old data
+        $oldData = $ruangan->only(['nama_ruangan', 'jml_peserta', 'fasilitas']);
+        
         $ruangan->update($validatedData);
+
+        // Capture new data
+        $newData = $ruangan->only(['nama_ruangan', 'jml_peserta', 'fasilitas']);
 
         ActivityLog::create([
             'user_id' => session('user_id'),
             'activity' => 'Mengedit ruangan: ' . $ruangan->nama_ruangan,
             'resource_type' => 'ruangan',
             'resource_id' => $ruangan->id,
+            'details' => [
+                'old_data' => $oldData,
+                'new_data' => $newData,
+            ]
         ]);
 
         return redirect()->route('ruangan.index')->with('success', 'Ruangan berhasil diperbarui!');

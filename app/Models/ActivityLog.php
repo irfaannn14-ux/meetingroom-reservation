@@ -10,7 +10,12 @@ class ActivityLog extends Model
     use HasFactory;
 
     // Allow mass assignment for main fields and optional resource linkage
-    protected $fillable = ['user_id', 'activity', 'resource_type', 'resource_id'];
+    protected $fillable = ['user_id', 'activity', 'resource_type', 'resource_id', 'details'];
+    
+    // Cast details to array/JSON
+    protected $casts = [
+        'details' => 'array',
+    ];
 
     public function user()
     {

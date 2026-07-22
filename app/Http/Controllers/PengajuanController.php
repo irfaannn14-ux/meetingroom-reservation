@@ -480,6 +480,9 @@ class PengajuanController extends Controller
             ])->withInput();
         }
 
+        // Capture old data
+        $oldData = $pengajuan->only(['judul_kegiatan', 'kegiatan', 'ruangan_id', 'tanggal_mulai', 'tanggal_selesai', 'jml_peserta']);
+
         $pengajuan->update([
             'judul_kegiatan' => $validatedData['judul_kegiatan'],
             'kegiatan' => $validatedData['kegiatan'],
@@ -489,11 +492,18 @@ class PengajuanController extends Controller
             'jml_peserta' => $validatedData['jml_peserta'],
         ]);
 
+        // Capture new data
+        $newData = $pengajuan->only(['judul_kegiatan', 'kegiatan', 'ruangan_id', 'tanggal_mulai', 'tanggal_selesai', 'jml_peserta']);
+
         ActivityLog::create([
             'user_id' => session('user_id'),
             'activity' => 'Mengedit pengajuan ' . $pengajuan->judul_kegiatan,
             'resource_type' => 'pengajuan',
             'resource_id' => $pengajuan->id,
+            'details' => [
+                'old_data' => $oldData,
+                'new_data' => $newData,
+            ]
         ]);
 
         return redirect()->route('pengajuan.index')->with('success', 'Pengajuan berhasil diperbarui!');

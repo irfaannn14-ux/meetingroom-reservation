@@ -977,8 +977,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            ${Object.entries(log.new_data || {}).map(([key, newVal]) => {
-                                const oldVal = log.old_data?.[key] || '-';
+                            ${Object.entries(log.details?.new_data || {}).map(([key, newVal]) => {
+                                const oldVal = log.details?.old_data?.[key] || '-';
                                 const isChanged = oldVal !== newVal;
                                 return `
                                 <tr ${isChanged ? 'class="table-warning"' : ''}>

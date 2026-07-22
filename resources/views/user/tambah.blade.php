@@ -447,6 +447,33 @@ $isEdit = isset($user);
             width: 100%;
         }
     }
+    /* Client-side validation styles */
+    .client-error {
+        color: var(--danger-color);
+        font-size: 0.85rem;
+        margin-top: 6px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        animation: shakeIn 0.3s ease;
+    }
+
+    .is-invalid-client {
+        border-color: var(--danger-color) !important;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+    }
+
+    .field-error-highlight {
+        border: 2px solid var(--danger-color) !important;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+    }
+
+    @keyframes shakeIn {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        50% { transform: translateX(5px); }
+        75% { transform: translateX(-3px); }
+    }
 </style>
 
 <div class="page-container py-4">
@@ -579,7 +606,7 @@ $isEdit = isset($user);
                         @enderror
                         <span class="input-hint">
                             <i class="bi bi-info-circle me-1"></i>
-                            Pilih role pengguna: Admin, Super Admin, atau OPD (Organisasi Perangkat Daerah)
+                            Pilih role pengguna: Admin atau OPD (Organisasi Perangkat Daerah)
                         </span>
                     </div>
                 </div>
@@ -794,13 +821,113 @@ $isEdit = isset($user);
             else return (bytes / 1048576).toFixed(1) + ' MB';
         }
         
-        // Form submission loading state
-        document.getElementById('user-form').addEventListener('submit', function() {
+        // Form submission with client-side validation
+        const userForm = document.getElementById('user-form');
+        const isEdit = {{ $isEdit ? 'true' : 'false' }};
+
+        userForm.addEventListener('submit', function(e) {
+            // Clear previous validation errors
+            document.querySelectorAll('.client-error').forEach(el => el.remove());
+            document.querySelectorAll('.is-invalid-client').forEach(el => el.classList.remove('is-invalid-client'));
+            document.querySelectorAll('.field-error-highlight').forEach(el => el.classList.remove('field-error-highlight'));
+
+            const errors = [];
+
+            // 1. Nama Lengkap
+            const nama = document.getElementById('nama');
+            if (!nama.value.trim()) {
+                errors.push({ field: nama, message: 'Nama lengkap wajib diisi.' });
+            }
+
+            // 2. Email
+            const email = document.getElementById('email');
+            if (!email.value.trim()) {
+                errors.push({ field: email, message: 'Email wajib diisi.' });
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) {
+                errors.push({ field: email, message: 'Format email tidak valid.' });
+            }
+
+            // 3. Role / Organisasi
+            const orgId = document.getElementById('organization-id-input');
+            const roleInput = document.getElementById('role-input');
+            const dropdownBtn = document.querySelector('#role-dropdown-container .custom-dropdown-button');
+            if (!orgId.value || !roleInput.value) {
+                errors.push({ field: dropdownBtn, message: 'Role / Organisasi wajib dipilih.' });
+            }
+
+            // 4. Nomor WhatsApp
+            const noWa = document.getElementById('no_wa');
+            if (!noWa.value.trim()) {
+                errors.push({ field: noWa, message: 'Nomor WhatsApp wajib diisi.' });
+            } else if (!/^[0-9]{10,15}$/.test(noWa.value.trim())) {
+                errors.push({ field: noWa, message: 'Nomor WhatsApp harus 10-15 digit angka.' });
+            }
+
+            // 5. Foto Profil (wajib saat tambah baru)
+            const fileInput = document.getElementById('file-input');
+            if (!isEdit && (!fileInput.files || fileInput.files.length === 0)) {
+                const dropArea = document.getElementById('drop-area');
+                errors.push({ field: dropArea, message: 'Foto profil wajib diunggah.' });
+            }
+
+            // 6. Username
+            const username = document.getElementById('username');
+            if (!username.value.trim()) {
+                errors.push({ field: username, message: 'Username wajib diisi.' });
+            }
+
+            // 7. Password (wajib saat tambah baru)
+            const password = document.getElementById('password');
+            if (!isEdit && !password.value) {
+                errors.push({ field: password, message: 'Password wajib diisi.' });
+            } else if (password.value && password.value.length < 8) {
+                errors.push({ field: password, message: 'Password minimal 8 karakter.' });
+            }
+
+            // If errors found, display them
+            if (errors.length > 0) {
+                e.preventDefault();
+
+                errors.forEach(err => {
+                    // Add red highlight
+                    err.field.classList.add('is-invalid-client');
+                    if (err.field.classList.contains('custom-dropdown-button') || err.field.id === 'drop-area') {
+                        err.field.classList.add('field-error-highlight');
+                    }
+
+                    // Add error message below the field
+                    const errorMsg = document.createElement('div');
+                    errorMsg.className = 'client-error';
+                    errorMsg.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i>' + err.message;
+                    err.field.parentNode.insertBefore(errorMsg, err.field.nextSibling);
+                });
+
+                // Scroll to first error
+                errors[0].field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                return false;
+            }
+
+            // Show loading state
             const btn = document.getElementById('submit-btn');
             btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...`;
             btn.disabled = true;
         });
         
+        // Remove error highlight on input
+        document.querySelectorAll('.form-control, .custom-dropdown-button').forEach(el => {
+            el.addEventListener('input', function() {
+                this.classList.remove('is-invalid-client');
+                const next = this.nextElementSibling;
+                if (next && next.classList.contains('client-error')) next.remove();
+            });
+            el.addEventListener('click', function() {
+                this.classList.remove('is-invalid-client', 'field-error-highlight');
+                const next = this.nextElementSibling;
+                if (next && next.classList.contains('client-error')) next.remove();
+            });
+        });
+
         // Initialize dropdown selection
         const initialRole = document.getElementById('role-input').value;
         const initialOrgId = document.getElementById('organization-id-input').value;

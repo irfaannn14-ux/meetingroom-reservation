@@ -78,7 +78,7 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::findOrFail($id);
-        $organizations = Organization::all();
+        $organizations = Organization::where('organization_name', '!=', 'SUPER ADMIN')->get();
         $isEdit = true; // Flag untuk menentukan mode edit
         
         return view('user.tambah', compact('user', 'organizations', 'isEdit'));
@@ -102,6 +102,9 @@ class UserController extends Controller
             'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'password' => 'nullable|min:8|confirmed'
         ]);
+        
+        // Capture old data
+        $oldData = $user->only(['nama', 'email', 'no_wa', 'username', 'role', 'organization_id']);
         
         // Update data user
         $user->update([
@@ -130,6 +133,21 @@ class UserController extends Controller
             $user->foto_profil = $path;
             $user->save();
         }
+        
+        // Capture new data
+        $newData = $user->only(['nama', 'email', 'no_wa', 'username', 'role', 'organization_id']);
+        
+        // Log Activity
+        ActivityLog::create([
+            'user_id' => session('user_id'),
+            'activity' => 'Mengedit pengguna: ' . $user->nama,
+            'resource_type' => 'user',
+            'resource_id' => $user->id,
+            'details' => [
+                'old_data' => $oldData,
+                'new_data' => $newData,
+            ]
+        ]);
         
         return redirect()->route('user.index')->with('success', 'User berhasil diperbarui!');
     }
@@ -161,7 +179,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        $organizations = Organization::all();
+        $organizations = Organization::where('organization_name', '!=', 'SUPER ADMIN')->get();
         return view('user.tambah', compact('organizations'));
     }
 
@@ -173,7 +191,7 @@ class UserController extends Controller
     {
         $userId = session('user_id');
         $user = User::findOrFail($userId);
-        $organizations = Organization::all();
+        $organizations = Organization::where('organization_name', '!=', 'SUPER ADMIN')->get();
         $isEdit = true; // Flag untuk menentukan mode edit
         
         return view('user.tambah', compact('user', 'organizations', 'isEdit'));
@@ -214,6 +232,9 @@ class UserController extends Controller
         // Tentukan role dan organization_id yang akan disimpan
         $roleToSave = $requestedRole;
         $orgIdToSave = $requestedRole == 'OPD' ? $request->organization_id : null;
+        
+        // Capture old data
+        $oldData = $user->only(['nama', 'email', 'no_wa', 'username', 'role', 'organization_id']);
 
         // Update data user
         $user->update([
@@ -256,11 +277,18 @@ class UserController extends Controller
             session(['user_role' => $user->role]);
         }
 
+        // Capture new data
+        $newData = $user->only(['nama', 'email', 'no_wa', 'username', 'role', 'organization_id']);
+
         ActivityLog::create([
             'user_id' => $userId,
             'activity' => 'Memperbarui profil',
             'resource_type' => 'user',
             'resource_id' => $userId,
+            'details' => [
+                'old_data' => $oldData,
+                'new_data' => $newData,
+            ]
         ]);
 
         return redirect()->route('dashboard')->with('success', 'Profil berhasil diperbarui!');
