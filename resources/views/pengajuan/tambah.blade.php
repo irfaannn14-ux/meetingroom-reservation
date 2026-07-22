@@ -41,7 +41,6 @@ if ($selectedRuanganId) {
         background: white;
         border-radius: var(--border-radius);
         box-shadow: var(--box-shadow);
-        overflow: hidden;
         transition: var(--transition);
         max-width: 650px;
         margin: 0 auto;
@@ -53,6 +52,8 @@ if ($selectedRuanganId) {
         color: white;
         padding: 24px 32px;
         position: relative;
+        border-top-left-radius: var(--border-radius);
+        border-top-right-radius: var(--border-radius);
     }
     
     .form-header::after {
@@ -195,114 +196,244 @@ if ($selectedRuanganId) {
     .custom-dropdown-content {
         display: none;
         position: absolute;
-        background: white;
+        background: #ffffff;
         width: 100%;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.15), 0 4px 12px -4px rgba(0, 0, 0, 0.08);
         z-index: 1000;
-        border-radius: 8px;
+        border-radius: 12px;
         border: 1px solid #e2e8f0;
-        margin-top: 4px;
-        max-height: 300px;
+        margin-top: 6px;
+        max-height: 380px;
         overflow-y: auto;
-        padding: 8px 0;
+        padding: 0;
+    }
+
+    .custom-dropdown-content::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-dropdown-content::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-dropdown-content::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
     }
     
     .dropdown-open .custom-dropdown-content {
         display: block;
-        animation: dropdownSlide 0.2s ease;
+        animation: dropdownSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
     
     @keyframes dropdownSlide {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
+        from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
     }
     
-    .custom-dropdown-input {
-        width: calc(100% - 32px);
-        margin: 0 16px 12px;
+    /* === Group Divider === */
+    .dropdown-divider-title {
+        display: flex;
+        align-items: center;
+        gap: 6px;
         padding: 10px 16px;
-        border: 1px solid #cbd5e1;
-        border-radius: 6px;
-        font-family: 'Poppins', sans-serif;
-        font-size: 0.95rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        background-color: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+        margin: 0;
+        user-select: none;
     }
-    
+    .dropdown-divider-title.divider-available  { color: #16a34a; background: #f0fdf4; border-top-color: #bbf7d0; }
+    .dropdown-divider-title.divider-capacity   { color: #d97706; background: #fffbeb; border-top-color: #fde68a; }
+    .dropdown-divider-title.divider-booked     { color: #dc2626; background: #fef2f2; border-top-color: #fecaca; }
+
+    .dropdown-divider-title .divider-count {
+        margin-left: auto;
+        font-size: 0.65rem;
+        font-weight: 600;
+        opacity: 0.7;
+    }
+
+    /* === Room Card Item === */
     .ruangan-item {
+        display: flex;
+        align-items: stretch;
+        gap: 14px;
         padding: 12px 16px;
-        display: block;
         color: var(--dark-color);
         text-decoration: none;
-        transition: var(--transition);
+        transition: background 0.15s ease, transform 0.1s ease;
         border-bottom: 1px solid #f1f5f9;
-        font-size: 0.95rem;
-    }
-    
-    .ruangan-item:last-child {
-        border-bottom: none;
-    }
-    
-    .ruangan-item:hover {
-        background-color: #f0f7ff;
-        color: var(--primary-color);
-    }
-    
-    .ruangan-item.selected {
-        background-color: #dbeafe;
+        cursor: pointer;
         position: relative;
     }
-    
-    .ruangan-item.selected::after {
-        content: '✓';
-        position: absolute;
-        right: 16px;
-        color: var(--success-color);
-        font-weight: bold;
+    .ruangan-item:last-child { border-bottom: none; }
+
+    .ruangan-item:hover:not(.disabled) {
+        background-color: #eff6ff;
     }
-    
+    .ruangan-item:active:not(.disabled) {
+        transform: scale(0.995);
+    }
+
+    /* Icon column */
+    .ruangan-item-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: #eff6ff;
+        color: var(--primary-color);
+        font-size: 1.15rem;
+        flex-shrink: 0;
+    }
+
+    /* Text column */
+    .ruangan-item-info {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 3px;
+    }
+    .ruangan-item-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--dark-color);
+        line-height: 1.3;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .ruangan-item-meta {
+        font-size: 0.78rem;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .ruangan-item-meta i { font-size: 0.72rem; }
+
+    /* Right side badges */
+    .ruangan-item-badges {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    /* Selected state */
+    .ruangan-item.selected {
+        background-color: #eff6ff;
+    }
+    .ruangan-item.selected .ruangan-item-icon {
+        background: var(--primary-color);
+        color: #ffffff;
+    }
+    .ruangan-item.selected .ruangan-item-name {
+        color: var(--primary-color);
+    }
+    .ruangan-item-check {
+        display: none;
+        color: var(--primary-color);
+        font-size: 1.1rem;
+    }
+    .ruangan-item.selected .ruangan-item-check {
+        display: flex;
+        align-items: center;
+    }
+
+    /* Disabled state */
     .ruangan-item.disabled {
-        background-color: #f8fafc;
-        color: #94a3b8;
+        opacity: 0.55;
         cursor: not-allowed;
-        text-decoration: line-through;
     }
-    
+    .ruangan-item.disabled .ruangan-item-icon {
+        background: #f1f5f9;
+        color: #94a3b8;
+    }
     .ruangan-item.disabled:hover {
-        background-color: #f8fafc;
+        background-color: transparent;
     }
-    
+
+    /* Recommended state */
     .ruangan-item.recommended {
         background-color: #f0fdf4;
-        border-left: 3px solid var(--success-color);
-        font-weight: 500;
     }
-    
-    .ruangan-item.recommended::after {
-        content: '⭐';
-        position: absolute;
-        right: 16px;
-        color: #f59e0b;
+    .ruangan-item.recommended .ruangan-item-icon {
+        background: #dcfce7;
+        color: #16a34a;
     }
-    
+
+    /* Badges */
     .ruangan-capacity-badge {
-        display: inline-block;
-        background: #dbeafe;
-        color: var(--primary-color);
-        padding: 2px 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: #f1f5f9;
+        color: #475569;
+        padding: 3px 10px;
         border-radius: 20px;
-        font-size: 0.75rem;
-        margin-left: 8px;
-        font-weight: 500;
+        font-size: 0.72rem;
+        font-weight: 600;
+        white-space: nowrap;
     }
+    .ruangan-capacity-badge i { font-size: 0.68rem; }
     
     .ruangan-recommended-badge {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
         background: #dcfce7;
         color: #15803d;
-        padding: 2px 8px;
+        padding: 3px 10px;
         border-radius: 20px;
-        font-size: 0.75rem;
-        margin-left: 8px;
+        font-size: 0.72rem;
         font-weight: 600;
+        white-space: nowrap;
+        animation: badgePulse 2s ease-in-out infinite;
+    }
+    @keyframes badgePulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.75; }
+    }
+
+    .ruangan-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 0.68rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    .ruangan-status-badge.status-booked {
+        background: #fef2f2;
+        color: #dc2626;
+    }
+    .ruangan-status-badge.status-capacity {
+        background: #fffbeb;
+        color: #d97706;
+    }
+
+    /* Empty state */
+    .dropdown-empty {
+        padding: 24px 16px;
+        text-align: center;
+        color: #94a3b8;
+    }
+    .dropdown-empty i {
+        font-size: 2rem;
+        margin-bottom: 8px;
+        display: block;
+    }
+    .dropdown-empty span {
+        font-size: 0.85rem;
     }
     
     .date-time-grid {
@@ -446,7 +577,7 @@ if ($selectedRuanganId) {
                 </div>
             @endif
 
-            <form action="{{ $isEdit ? route('pengajuan.update', $pengajuan) : route('pengajuan.store') }}" method="POST" id="pengajuan-form">
+            <form action="{{ $isEdit ? route('pengajuan.update', $pengajuan->id) : route('pengajuan.store') }}" method="POST" id="pengajuan-form" novalidate>
                 @csrf
                 @if($isEdit)
                     @method('PUT')
@@ -556,18 +687,8 @@ if ($selectedRuanganId) {
                                     </span>
                                     <i class="bi bi-chevron-down"></i>
                                 </div>
-                                <div id="ruangan-dropdown-content" class="custom-dropdown-content">
-                                    <input type="text" class="custom-dropdown-input" onkeyup="filterRuangan()" placeholder="Cari ruangan...">
-                                    @foreach($ruangans as $ruangan)
-                                        <a href="#" 
-                                           data-value="{{ $ruangan->id }}" 
-                                           data-nama="{{ $ruangan->nama_ruangan }}"
-                                           data-kapasitas="{{ $ruangan->jml_peserta }}"
-                                           class="ruangan-item{{ $selectedRuanganId == $ruangan->id ? ' selected' : '' }}">
-                                           {{ $ruangan->nama_ruangan }}
-                                           <span class="ruangan-capacity-badge">{{ $ruangan->jml_peserta }} orang</span>
-                                        </a>
-                                    @endforeach
+                                <div class="custom-dropdown-content" id="ruangan-dropdown-content">
+                                    <!-- Options will be injected here -->
                                 </div>
                             </div>
                             <span id="ruangan-hint" class="input-hint">Pilih ruangan sesuai dengan kapasitas peserta</span>
@@ -591,10 +712,109 @@ if ($selectedRuanganId) {
 </div>
 
 <script>
-    // Menyimpan data ruangan dari PHP ke variabel JavaScript untuk akses mudah
+    // State variables
     const ruangansData = @json($ruangans->keyBy('id'));
     const ruangansArray = @json($ruangans->values());
     let selectedRuanganId = {{ $selectedRuanganId ?: 'null' }};
+    let bentrokIds = [];
+    let currentJmlPeserta = parseInt(document.getElementById('jml_peserta').value) || 0;
+
+    function renderRuanganDropdown() {
+        const dropdownContent = document.getElementById("ruangan-dropdown-content");
+        dropdownContent.innerHTML = '';
+        
+        const available = [];
+        const capacityLow = [];
+        const booked = [];
+
+        ruangansArray.forEach(ruangan => {
+            if (bentrokIds.includes(ruangan.id)) {
+                booked.push(ruangan);
+            } else if (currentJmlPeserta && ruangan.jml_peserta < currentJmlPeserta) {
+                capacityLow.push(ruangan);
+            } else {
+                available.push(ruangan);
+            }
+        });
+
+        // Sort available by capacity (ascending)
+        available.sort((a, b) => a.jml_peserta - b.jml_peserta);
+        let recommendedId = available.length > 0 ? available[0].id : null;
+
+        const renderItem = (ruangan, status) => {
+            const isSelected = selectedRuanganId == ruangan.id;
+            const isDisabled = status !== 'available';
+            const isRecommended = (status === 'available' && ruangan.id === recommendedId);
+            
+            const a = document.createElement('a');
+            a.href = '#';
+            a.className = 'ruangan-item' + (isSelected ? ' selected' : '') + (isDisabled ? ' disabled' : '') + (isRecommended ? ' recommended' : '');
+            a.setAttribute('data-value', ruangan.id);
+            a.setAttribute('data-nama', ruangan.nama_ruangan);
+            a.setAttribute('data-kapasitas', ruangan.jml_peserta);
+
+            // Icon berdasarkan status
+            let iconClass = 'bi-door-open';
+            if (status === 'booked') iconClass = 'bi-door-closed';
+            if (status === 'capacity_low') iconClass = 'bi-door-open';
+
+            // Meta info baris kedua
+            let metaHtml = `<i class="bi bi-people"></i> Kapasitas ${ruangan.jml_peserta} orang`;
+
+            // Badges di sisi kanan
+            let badgesHtml = '';
+            if (isRecommended) {
+                badgesHtml += `<span class="ruangan-recommended-badge"><i class="bi bi-star-fill"></i> Terbaik</span>`;
+            }
+            if (status === 'booked') {
+                badgesHtml += `<span class="ruangan-status-badge status-booked"><i class="bi bi-lock-fill"></i> Terpakai</span>`;
+            } else if (status === 'capacity_low') {
+                badgesHtml += `<span class="ruangan-status-badge status-capacity"><i class="bi bi-exclamation-circle"></i> Kurang</span>`;
+            }
+            badgesHtml += `<span class="ruangan-capacity-badge"><i class="bi bi-people-fill"></i> ${ruangan.jml_peserta}</span>`;
+
+            a.innerHTML = `
+                <div class="ruangan-item-icon"><i class="bi ${iconClass}"></i></div>
+                <div class="ruangan-item-info">
+                    <span class="ruangan-item-name">${ruangan.nama_ruangan}</span>
+                    <span class="ruangan-item-meta">${metaHtml}</span>
+                </div>
+                <div class="ruangan-item-badges">${badgesHtml}</div>
+                <span class="ruangan-item-check"><i class="bi bi-check-lg"></i></span>
+            `;
+            return a;
+        };
+
+        const addDivider = (text, icon, cssClass, count) => {
+            const div = document.createElement('div');
+            div.className = 'dropdown-divider-title ' + cssClass;
+            div.innerHTML = `<i class="bi ${icon}"></i> <span>${text}</span> <span class="divider-count">${count} ruangan</span>`;
+            dropdownContent.appendChild(div);
+        };
+
+        if (available.length > 0) {
+            addDivider('Tersedia', 'bi-check-circle-fill', 'divider-available', available.length);
+            available.forEach(r => dropdownContent.appendChild(renderItem(r, 'available')));
+        }
+
+        if (capacityLow.length > 0) {
+            addDivider('Kapasitas Tidak Cukup', 'bi-exclamation-triangle-fill', 'divider-capacity', capacityLow.length);
+            capacityLow.forEach(r => dropdownContent.appendChild(renderItem(r, 'capacity_low')));
+        }
+
+        if (booked.length > 0) {
+            addDivider('Jadwal Bentrok', 'bi-x-circle-fill', 'divider-booked', booked.length);
+            booked.forEach(r => dropdownContent.appendChild(renderItem(r, 'booked')));
+        }
+
+        // Jika tidak ada ruangan sama sekali setelah filter
+        if (available.length === 0 && capacityLow.length === 0 && booked.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'dropdown-empty';
+            empty.innerHTML = `<i class="bi bi-x-circle"></i><span>Tidak ada ruangan tersedia</span>`;
+            dropdownContent.appendChild(empty);
+        }
+    }
 
     function toggleDropdown() {
         const dropdownContainer = document.getElementById('ruangan-dropdown-container');
@@ -620,44 +840,7 @@ if ($selectedRuanganId) {
         dropdownContainer.classList.toggle('dropdown-open');
     }
 
-    function filterRuangan() {
-        const filterText = event.target.value.toLowerCase();
-        const items = document.querySelectorAll('.ruangan-item');
-        
-        items.forEach(item => {
-            const ruanganName = item.getAttribute('data-nama').toLowerCase();
-            item.style.display = ruanganName.includes(filterText) ? 'block' : 'none';
-        });
-    }
-
-    function updateRuanganList(tersedia) {
-        // Hapus elemen ruangan yang ada
-        const dropdownContent = document.getElementById('ruangan-dropdown-content');
-        // Sisakan input pencarian
-        const searchInput = dropdownContent.querySelector('.custom-dropdown-input');
-        dropdownContent.innerHTML = '';
-        dropdownContent.appendChild(searchInput);
-        
-        // Update data array
-        ruangansArray.length = 0; // kosongkan
-        ruangansArray.push(...tersedia); // isi dengan yang baru
-        
-        // Tambahkan elemen ruangan yang baru
-        tersedia.forEach(ruangan => {
-            const isSelected = selectedRuanganId == ruangan.id ? ' selected' : '';
-            const a = document.createElement('a');
-            a.href = '#';
-            a.className = 'ruangan-item' + isSelected;
-            a.setAttribute('data-value', ruangan.id);
-            a.setAttribute('data-nama', ruangan.nama_ruangan);
-            a.setAttribute('data-kapasitas', ruangan.jml_peserta);
-            a.innerHTML = `${ruangan.nama_ruangan} <span class="ruangan-capacity-badge">${ruangan.jml_peserta} orang</span>`;
-            dropdownContent.appendChild(a);
-        });
-        
-        // Trigger perubahan peserta untuk me-reset state rekomendasi/disabled
-        handlePesertaChange();
-    }
+    // Old filterRuangan and updateRuanganList are removed, handled by renderRuanganDropdown
 
     async function checkAvailableRooms() {
         const tglMulai = document.getElementById('tanggal_pinjam').value;
@@ -698,16 +881,22 @@ if ($selectedRuanganId) {
             const data = await response.json();
             
             if (response.ok) {
-                // Update dropdown list
-                updateRuanganList(data.tersedia);
+                // Update bentrokIds state
+                bentrokIds = data.bentrok_ids || [];
+                
+                // Re-render dropdown
+                renderRuanganDropdown();
                 
                 // Jika ruangan terpilih saat ini masuk daftar bentrok, reset
-                if (data.bentrok_ids.includes(selectedRuanganId)) {
+                if (bentrokIds.includes(selectedRuanganId)) {
                     document.getElementById("ruangan-id-input").value = '';
-                    document.getElementById("selected-ruangan").textContent = 'Pilih Ruangan';
+                    document.getElementById("selected-ruangan").innerHTML = `Pilih Ruangan`;
                     selectedRuanganId = null;
                     showToast('Ruangan yang Anda pilih sebelumnya bentrok dengan jadwal lain. Silakan pilih ruangan baru.', 'warning');
                 }
+                
+                // Update rekomendasi
+                updateRekomendasi();
             } else {
                 ruanganHint.innerHTML = `<i class="bi bi-exclamation-triangle text-danger me-1"></i> ${data.error || 'Terjadi kesalahan'}`;
                 ruanganHint.className = 'input-hint input-danger';
@@ -720,7 +909,12 @@ if ($selectedRuanganId) {
     }
 
     function handlePesertaChange() {
-        const jmlPeserta = parseInt(document.getElementById('jml_peserta').value);
+        currentJmlPeserta = parseInt(document.getElementById('jml_peserta').value) || 0;
+        updateRekomendasi();
+    }
+
+    function updateRekomendasi() {
+        const jmlPeserta = currentJmlPeserta;
         const ruanganHint = document.getElementById('ruangan-hint');
         const submitBtn = document.getElementById('submit-btn');
         
@@ -732,63 +926,41 @@ if ($selectedRuanganId) {
         if (!tglMulai || !wktMulai || !tglSelesai || !wktSelesai) {
             ruanganHint.textContent = 'Silakan lengkapi Tanggal & Waktu terlebih dahulu';
             ruanganHint.className = 'input-hint';
-            resetAllRuangan();
             submitBtn.disabled = true;
+            renderRuanganDropdown();
             return;
         }
 
         if (!jmlPeserta || jmlPeserta < 1) {
             ruanganHint.textContent = 'Masukkan jumlah peserta untuk melihat rekomendasi ruangan';
             ruanganHint.className = 'input-hint';
-            resetAllRuangan();
             submitBtn.disabled = true;
+            renderRuanganDropdown();
             return;
         }
         
-        const availableRuangan = ruangansArray.filter(r => r.jml_peserta >= jmlPeserta);
-        const unavailableRuangan = ruangansArray.filter(r => r.jml_peserta < jmlPeserta);
+        // Render dropdown updates the UI
+        renderRuanganDropdown();
         
-        // Reset semua item
-        document.querySelectorAll('.ruangan-item').forEach(item => {
-            item.classList.remove('disabled', 'recommended');
-            const kapasitas = parseInt(item.getAttribute('data-kapasitas'));
-            item.querySelector('.ruangan-capacity-badge').textContent = `${kapasitas} orang`;
-        });
-        
-        // Tandai ruangan yang kapasitasnya kurang
-        unavailableRuangan.forEach(ruangan => {
-            const item = document.querySelector(`.ruangan-item[data-value="${ruangan.id}"]`);
-            if (item) {
-                item.classList.add('disabled');
-            }
-        });
+        const availableRuangan = ruangansArray.filter(r => r.jml_peserta >= jmlPeserta && !bentrokIds.includes(r.id));
+        const unavailableRuangan = ruangansArray.filter(r => r.jml_peserta < jmlPeserta || bentrokIds.includes(r.id));
         
         // Rekomendasi ruangan
         if (availableRuangan.length > 0) {
             availableRuangan.sort((a, b) => a.jml_peserta - b.jml_peserta);
             const recommended = availableRuangan[0];
             
-            const recommendedItem = document.querySelector(`.ruangan-item[data-value="${recommended.id}"]`);
-            if (recommendedItem) {
-                recommendedItem.classList.add('recommended');
-                
-                // Tambahkan badge rekomendasi
-                if (!recommendedItem.querySelector('.ruangan-recommended-badge')) {
-                    const badge = document.createElement('span');
-                    badge.className = 'ruangan-recommended-badge';
-                    badge.textContent = 'Direkomendasikan';
-                    recommendedItem.appendChild(badge);
-                }
-            }
-            
-            // Auto-select jika belum ada pilihan atau pilihan lama kapasitasnya kurang
+            // Auto-select jika belum ada pilihan atau pilihan lama kapasitasnya kurang/bentrok
             if (!selectedRuanganId || unavailableRuangan.some(r => r.id === selectedRuanganId) || !ruangansArray.some(r => r.id === selectedRuanganId)) {
                 document.getElementById("ruangan-id-input").value = recommended.id;
-                document.getElementById("selected-ruangan").innerHTML = `${recommended.nama_ruangan} <span class="ruangan-capacity-badge">${recommended.jml_peserta} orang</span>`;
+                setSelectedDisplay(recommended.nama_ruangan, recommended.jml_peserta);
                 selectedRuanganId = recommended.id;
                 
                 ruanganHint.innerHTML = `<i class="bi bi-check-circle text-success me-1"></i> Ruangan <strong>${recommended.nama_ruangan}</strong> direkomendasikan untuk ${jmlPeserta} peserta`;
                 ruanganHint.className = 'input-hint input-success';
+                
+                // Re-render again to show the checkmark on the new selected item
+                renderRuanganDropdown();
             } else {
                 ruanganHint.innerHTML = `<i class="bi bi-info-circle text-primary me-1"></i> ${availableRuangan.length} ruangan tersedia untuk ${jmlPeserta} peserta`;
                 ruanganHint.className = 'input-hint';
@@ -796,7 +968,7 @@ if ($selectedRuanganId) {
             
             submitBtn.disabled = false;
         } else {
-            if (ruangansArray.length > 0) {
+            if (ruangansArray.length > 0 && ruangansArray.some(r => !bentrokIds.includes(r.id))) {
                 ruanganHint.innerHTML = `<i class="bi bi-exclamation-triangle text-warning me-1"></i> Tidak ada ruangan yang dapat menampung ${jmlPeserta} peserta pada waktu tersebut!`;
             } else {
                 ruanganHint.innerHTML = `<i class="bi bi-exclamation-triangle text-warning me-1"></i> Tidak ada ruangan yang tersedia sama sekali pada waktu tersebut!`;
@@ -804,19 +976,20 @@ if ($selectedRuanganId) {
             ruanganHint.className = 'input-hint input-warning';
             document.getElementById("ruangan-id-input").value = '';
             document.getElementById("selected-ruangan").textContent = 'Tidak Ada Ruangan Tersedia';
+            selectedRuanganId = null;
             submitBtn.disabled = true;
         }
     }
 
-    function resetAllRuangan() {
-        document.querySelectorAll('.ruangan-item').forEach(item => {
-            item.classList.remove('disabled', 'recommended');
-            const kapasitas = parseInt(item.getAttribute('data-kapasitas'));
-            const capacityBadge = item.querySelector('.ruangan-capacity-badge');
-            if(capacityBadge) capacityBadge.textContent = `${kapasitas} orang`;
-            const badge = item.querySelector('.ruangan-recommended-badge');
-            if (badge) badge.remove();
-        });
+    // Helper: update tampilan teks di tombol dropdown
+    function setSelectedDisplay(nama, kapasitas) {
+        document.getElementById("selected-ruangan").innerHTML = `
+            <span style="display:flex; align-items:center; gap:8px;">
+                <i class="bi bi-door-open text-primary"></i>
+                <span>${nama}</span>
+                <span class="ruangan-capacity-badge" style="margin-left:auto;"><i class="bi bi-people-fill"></i> ${kapasitas}</span>
+            </span>
+        `;
     }
 
     document.getElementById("ruangan-dropdown-content").addEventListener('click', function(event) {
@@ -829,15 +1002,12 @@ if ($selectedRuanganId) {
             const selectedKapasitas = target.getAttribute('data-kapasitas');
 
             document.getElementById("ruangan-id-input").value = selectedValue;
-            document.getElementById("selected-ruangan").innerHTML = `${selectedNama} <span class="ruangan-capacity-badge">${selectedKapasitas} orang</span>`;
+            setSelectedDisplay(selectedNama, selectedKapasitas);
             
             selectedRuanganId = parseInt(selectedValue);
             
-            // Update visual selection
-            document.querySelectorAll('.ruangan-item').forEach(item => {
-                item.classList.remove('selected');
-            });
-            target.classList.add('selected');
+            // Render ulang supaya "check" mark pindah
+            renderRuanganDropdown();
             
             document.getElementById('ruangan-dropdown-container').classList.remove('dropdown-open');
             
@@ -860,23 +1030,14 @@ if ($selectedRuanganId) {
         }
     });
 
-    // Form submission loading state
-    document.getElementById('pengajuan-form').addEventListener('submit', function() {
-        const btn = document.getElementById('submit-btn');
-        btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...`;
-        btn.disabled = true;
-    });
-
     // Toast notification
-    function showToast(message, type = 'info') {
-        // Create toast element
-        const toast = document.createElement('div');
+    function showToast(message, type = "info") {
+        const toast = document.createElement("div");
         toast.className = `toast align-items-center text-white bg-${type} border-0 position-fixed`;
-        toast.style = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-        toast.setAttribute('role', 'alert');
-        toast.setAttribute('aria-live', 'assertive');
-        toast.setAttribute('aria-atomic', 'true');
-        
+        toast.style = "top: 20px; right: 20px; z-index: 9999; min-width: 300px;";
+        toast.setAttribute("role", "alert");
+        toast.setAttribute("aria-live", "assertive");
+        toast.setAttribute("aria-atomic", "true");
         toast.innerHTML = `
             <div class="d-flex">
                 <div class="toast-body">
@@ -885,18 +1046,121 @@ if ($selectedRuanganId) {
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         `;
-        
         document.body.appendChild(toast);
-        
-        // Initialize and show toast
         const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
         bsToast.show();
-        
-        // Remove from DOM after hiding
-        toast.addEventListener('hidden.bs.toast', () => {
+        toast.addEventListener("hidden.bs.toast", () => {
             document.body.removeChild(toast);
         });
     }
+    // Form submission loading state and client validation
+    document.getElementById('pengajuan-form').addEventListener('submit', function(e) {
+        // Clear previous validation errors
+        document.querySelectorAll('.client-error').forEach(el => el.remove());
+        document.querySelectorAll('.is-invalid-client').forEach(el => el.classList.remove('is-invalid-client'));
+        document.querySelectorAll('.field-error-highlight').forEach(el => el.classList.remove('field-error-highlight'));
+
+        const errors = [];
+
+        // 1. Judul Kegiatan
+        const judul = document.getElementById('judul_kegiatan');
+        if (!judul.value.trim()) {
+            errors.push({ field: judul, message: 'Judul kegiatan wajib diisi.' });
+        }
+
+        // 2. Deskripsi Kegiatan
+        const kegiatan = document.getElementById('kegiatan');
+        if (!kegiatan.value.trim()) {
+            errors.push({ field: kegiatan, message: 'Deskripsi kegiatan wajib diisi.' });
+        } else if (kegiatan.value.trim().split(/\s+/).length < 10) {
+            errors.push({ field: kegiatan, message: 'Deskripsi minimal 10 kata.' });
+        }
+
+        // 3. Tanggal Pinjam
+        const tglPinjam = document.getElementById('tanggal_pinjam');
+        if (!tglPinjam.value) {
+            errors.push({ field: tglPinjam, message: 'Tanggal mulai wajib diisi.' });
+        }
+
+        // 4. Tanggal Kembali
+        const tglKembali = document.getElementById('tanggal_kembali');
+        if (!tglKembali.value) {
+            errors.push({ field: tglKembali, message: 'Tanggal selesai wajib diisi.' });
+        } else if (tglPinjam.value && new Date(tglKembali.value) < new Date(tglPinjam.value)) {
+            errors.push({ field: tglKembali, message: 'Tanggal selesai harus sama atau setelah tanggal mulai.' });
+        }
+
+        // 5. Waktu Pinjam
+        const waktuPinjam = document.getElementById('waktu_pinjam');
+        if (!waktuPinjam.value) {
+            errors.push({ field: waktuPinjam, message: 'Waktu mulai wajib dipilih.' });
+        }
+
+        // 6. Waktu Kembali
+        const waktuKembali = document.getElementById('waktu_kembali');
+        if (!waktuKembali.value) {
+            errors.push({ field: waktuKembali, message: 'Waktu selesai wajib dipilih.' });
+        } else if (waktuPinjam.value && tglPinjam.value === tglKembali.value && waktuKembali.value <= waktuPinjam.value) {
+            errors.push({ field: waktuKembali, message: 'Waktu selesai harus setelah waktu mulai pada hari yang sama.' });
+        }
+
+        // 7. Jumlah Peserta
+        const jmlPeserta = document.getElementById('jml_peserta');
+        if (!jmlPeserta.value) {
+            errors.push({ field: jmlPeserta, message: 'Jumlah peserta wajib diisi.' });
+        } else if (parseInt(jmlPeserta.value) < 1) {
+            errors.push({ field: jmlPeserta, message: 'Jumlah peserta minimal 1 orang.' });
+        }
+
+        // 8. Ruangan
+        const ruanganId = document.getElementById('ruangan-id-input');
+        const dropdownBtn = document.getElementById('dropdown-button');
+        if (!ruanganId.value) {
+            errors.push({ field: dropdownBtn, message: 'Ruangan wajib dipilih.' });
+        }
+
+        // If errors found, display them
+        if (errors.length > 0) {
+            e.preventDefault();
+
+            errors.forEach(err => {
+                // Add red highlight
+                err.field.classList.add('is-invalid-client');
+                if (err.field.classList.contains('custom-dropdown-button')) {
+                    err.field.classList.add('field-error-highlight');
+                }
+
+                // Add error message below the field
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'client-error text-danger mt-1 fs-sm';
+                errorMsg.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i>' + err.message;
+                err.field.parentNode.insertBefore(errorMsg, err.field.nextSibling);
+            });
+
+            // Scroll to first error
+            errors[0].field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            return false;
+        }
+
+        const btn = document.getElementById('submit-btn');
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...`;
+        btn.disabled = true;
+    });
+
+    // Remove error highlight on input
+    document.querySelectorAll('.form-control, .custom-dropdown-button').forEach(el => {
+        el.addEventListener('input', function() {
+            this.classList.remove('is-invalid-client');
+            const next = this.nextElementSibling;
+            if (next && next.classList.contains('client-error')) next.remove();
+        });
+        el.addEventListener('click', function() {
+            this.classList.remove('is-invalid-client', 'field-error-highlight');
+            const next = this.nextElementSibling;
+            if (next && next.classList.contains('client-error')) next.remove();
+        });
+    });
 
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
