@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ActivityLog;
+use OwenIt\Auditing\Models\Audit;
 use Illuminate\Http\Request;
 
 class ActivityLogController extends Controller
@@ -13,10 +13,9 @@ class ActivityLogController extends Controller
             abort(403, 'ANDA TIDAK MEMILIKI AKSES.');
         }
 
-        $logs = ActivityLog::with('user')
-            ->whereHas('user', function ($query) {
-                $query->whereIn('role', ['Admin', 'Super Admin']);
-            })
+        // Get audits for Pengajuan model
+        $logs = Audit::with(['user', 'auditable.ruangan', 'auditable.approver'])
+            ->where('auditable_type', 'App\\Models\\Pengajuan')
             ->latest()
             ->get();
 

@@ -496,98 +496,53 @@
                     <thead>
                         <tr>
                             <th style="width: 5%;">No</th>
-                            <th style="width: 18%;">Nama Pengguna</th>
-                            <th style="width: 15%;">Role</th>
-                            <th style="width: 35%;">Aktivitas</th>
-                            <th style="width: 20%;">Waktu</th>
-                            <th style="width: 7%;">Detail</th>
+                            <th style="width: 15%;">Pengguna (Role)</th>
+                            <th style="width: 25%;">Aktivitas / Event</th>
+                            <th style="width: 20%;">Ruangan</th>
+                            <th style="width: 15%;">Status Kegiatan</th>
+                            <th style="width: 10%;">Waktu Log</th>
+                            <th style="width: 10%;">Detail</th>
                         </tr>
                     </thead>
                     <tbody id="logTableBody">
                         @forelse($logs as $log)
                         <tr>
                             <td class="fw-bold">{{ $loop->iteration }}</td>
-                            <td>{{ $log->user->nama ?? 'N/A' }}</td>
                             <td>
-                                <span class="time-badge">{{ $log->user->role ?? 'N/A' }}</span>
+                                <div>{{ $log->user->nama ?? 'N/A' }}</div>
+                                <span class="time-badge mt-1">{{ $log->user->role ?? 'N/A' }}</span>
                             </td>
                             <td>
                                 @php
-                                    $activity = strtolower($log->activity);
+                                    $event = strtolower($log->event);
                                     $badgeClass = 'log-default';
-                                    $badgeText = 'Aktivitas Lainnya';
+                                    $badgeText = ucfirst($event) . ' Pengajuan';
                                     $badgeIcon = 'bi-info-circle';
                                     
-                                    // Approve Pengajuan (Hijau)
-                                    if(str_contains($activity, 'approve') || 
-                                       str_contains($activity, 'menyetujui') || 
-                                       str_contains($activity, 'disetujui')) {
-                                        $badgeClass = 'log-approve';
-                                        $badgeText = 'Approve Pengajuan';
-                                        $badgeIcon = 'bi-check-circle';
-                                    }
-                                    // Deny Pengajuan (Merah)
-                                    elseif(str_contains($activity, 'deny') || 
-                                           str_contains($activity, 'menolak') || 
-                                           str_contains($activity, 'ditolak')) {
-                                        $badgeClass = 'log-deny';
-                                        $badgeText = 'Deny Pengajuan';
-                                        $badgeIcon = 'bi-x-circle';
-                                    }
-                                    // Menghapus (Abu-abu - Disabled)
-                                    elseif(str_contains($activity, 'delete') || 
-                                           str_contains($activity, 'menghapus') || 
-                                           str_contains($activity, 'dihapus')) {
-                                        $badgeClass = 'log-delete';
-                                        $badgeIcon = 'bi-trash';
-                                        
-                                        // Tentukan label berdasarkan jenis yang dihapus
-                                        if(str_contains($activity, 'ruangan')) {
-                                            $badgeText = 'Menghapus Ruangan';
-                                        } elseif(str_contains($activity, 'user') || str_contains($activity, 'pengguna')) {
-                                            $badgeText = 'Menghapus User';
-                                        } elseif(str_contains($activity, 'pengajuan') || str_contains($activity, 'permohonan')) {
-                                            $badgeText = 'Menghapus Pengajuan';
-                                        } else {
-                                            $badgeText = 'Menghapus Data';
-                                        }
-                                    }
-                                    // Edit Ruangan (Kuning) - Harus sebelum Edit Pengajuan
-                                    elseif(str_contains($activity, 'edit ruangan') || 
-                                           str_contains($activity, 'mengedit ruangan') ||
-                                           str_contains($activity, 'mengubah ruangan')) {
-                                        $badgeClass = 'log-edit';
-                                        $badgeText = 'Mengedit Ruangan';
-                                        $badgeIcon = 'bi-pencil-square';
-                                    }
-                                    // Edit User (Kuning) - Harus sebelum Edit Pengajuan
-                                    elseif(str_contains($activity, 'edit user') || 
-                                           str_contains($activity, 'mengedit user') ||
-                                           str_contains($activity, 'mengubah user') ||
-                                           str_contains($activity, 'edit pengguna') ||
-                                           str_contains($activity, 'mengedit pengguna')) {
-                                        $badgeClass = 'log-edit';
-                                        $badgeText = 'Mengedit User';
-                                        $badgeIcon = 'bi-pencil-square';
-                                    }
-                                    // Edit Pengajuan (Kuning)
-                                    elseif(str_contains($activity, 'edit pengajuan') || 
-                                           str_contains($activity, 'mengedit pengajuan') ||
-                                           str_contains($activity, 'edit') ||
-                                           str_contains($activity, 'mengedit') || 
-                                           str_contains($activity, 'mengubah') || 
-                                           str_contains($activity, 'mengupdate')) {
-                                        $badgeClass = 'log-edit';
-                                        $badgeText = 'Mengedit Pengajuan';
-                                        $badgeIcon = 'bi-pencil-square';
-                                    }
-                                    // Tambah Data (Biru)
-                                    elseif(str_contains($activity, 'add') || 
-                                           str_contains($activity, 'menambah') || 
-                                           str_contains($activity, 'menambahkan')) {
+                                    if ($event === 'created') {
                                         $badgeClass = 'log-add';
-                                        $badgeText = 'Tambah Data';
+                                        $badgeText = 'Membuat Pengajuan';
                                         $badgeIcon = 'bi-plus-circle';
+                                    } elseif ($event === 'updated') {
+                                        $badgeClass = 'log-edit';
+                                        $badgeText = 'Mengubah Pengajuan';
+                                        $badgeIcon = 'bi-pencil-square';
+                                        if (isset($log->new_values['status'])) {
+                                            $newStatus = strtolower($log->new_values['status']);
+                                            if ($newStatus === 'disetujui') {
+                                                $badgeClass = 'log-approve';
+                                                $badgeText = 'Menyetujui Pengajuan';
+                                                $badgeIcon = 'bi-check-circle';
+                                            } elseif ($newStatus === 'ditolak') {
+                                                $badgeClass = 'log-deny';
+                                                $badgeText = 'Menolak Pengajuan';
+                                                $badgeIcon = 'bi-x-circle';
+                                            }
+                                        }
+                                    } elseif ($event === 'deleted') {
+                                        $badgeClass = 'log-delete';
+                                        $badgeText = 'Menghapus Pengajuan';
+                                        $badgeIcon = 'bi-trash';
                                     }
                                 @endphp
                                 <span class="log-badge {{ $badgeClass }}">
@@ -595,22 +550,40 @@
                                     {{ $badgeText }}
                                 </span>
                             </td>
+                            <td>{{ $log->auditable->ruangan->nama_ruangan ?? 'N/A' }}</td>
+                            <td>
+                                @php
+                                    $statusKegiatan = 'N/A';
+                                    $statusClass = 'text-muted';
+                                    if ($log->auditable) {
+                                        $now = \Carbon\Carbon::now();
+                                        $mulai = \Carbon\Carbon::parse($log->auditable->tanggal_mulai);
+                                        $selesai = \Carbon\Carbon::parse($log->auditable->tanggal_selesai);
+                                        
+                                        if ($now->lt($mulai)) {
+                                            $statusKegiatan = 'Belum Mulai';
+                                            $statusClass = 'text-warning fw-bold';
+                                        } elseif ($now->between($mulai, $selesai)) {
+                                            $statusKegiatan = 'Berjalan';
+                                            $statusClass = 'text-primary fw-bold';
+                                        } else {
+                                            $statusKegiatan = 'Selesai';
+                                            $statusClass = 'text-success fw-bold';
+                                        }
+                                    }
+                                @endphp
+                                <span class="{{ $statusClass }}">{{ $statusKegiatan }}</span>
+                            </td>
                             <td>
                                 <div class="time-badge">
                                     {{ $log->created_at->format('d/m/Y H:i') }}
                                 </div>
                             </td>
                             <td class="text-center">
-                                @php
-                                    $resource = $log->resource();
-                                    $canView = $resource !== null && !str_contains(strtolower($log->activity), 'delete');
-                                @endphp
-                                @if($canView)
+                                @if($log->event !== 'deleted')
                                 <button class="btn-icon btn-info" onclick="openLogDetail(this)"
-                                        data-log-id="{{ $log->id }}"
                                         data-log="{{ json_encode($log) }}"
-                                        data-resource="{{ json_encode($resource) }}"
-                                        data-resource-type="{{ $log->resource_type }}"
+                                        data-resource="{{ json_encode($log->auditable) }}"
                                         title="Lihat Detail">
                                     <i class="bi bi-eye"></i>
                                 </button>
@@ -827,6 +800,27 @@
     }
 
     function generatePengajuanContent(resource, log) {
+        let approverHtml = '';
+        if (resource.status !== 'pending' && resource.approver) {
+            const actionText = resource.status === 'disetujui' ? 'Disetujui Oleh' : 'Ditolak Oleh';
+            approverHtml = `
+                <div class="mb-3">
+                    <label class="form-label detail-label">${actionText}</label>
+                    <div class="detail-value fw-bold text-primary">${resource.approver.name || 'Admin'}</div>
+                </div>
+            `;
+        }
+
+        let alasanHtml = '';
+        if (resource.status === 'ditolak' && resource.alasan_penolakan) {
+            alasanHtml = `
+                <div class="mb-3">
+                    <label class="form-label detail-label text-danger">Alasan Penolakan</label>
+                    <div class="detail-value fw-bold text-danger">${resource.alasan_penolakan}</div>
+                </div>
+            `;
+        }
+
         return `
             <h5>Informasi Pengajuan</h5>
             <div class="row">
@@ -843,6 +837,7 @@
                         <label class="form-label detail-label">Ruangan</label>
                         <div class="detail-value">${resource.ruangan?.nama_ruangan || '-'}</div>
                     </div>
+                    ${approverHtml}
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
@@ -865,6 +860,7 @@
                             </span>
                         </div>
                     </div>
+                    ${alasanHtml}
                 </div>
             </div>
         `;

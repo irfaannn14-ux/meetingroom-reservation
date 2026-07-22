@@ -866,8 +866,29 @@
 
     function executeStatusUpdate() {
         if (pengajuanToUpdate && newStatus) {
+            let alasan = '';
+            if (newStatus === 'ditolak') {
+                alasan = prompt('Silakan masukkan alasan penolakan:');
+                if (alasan === null || alasan.trim() === '') {
+                    alert('Alasan penolakan wajib diisi!');
+                    return; // Cancel submission
+                }
+            }
+
             const statusForm = document.getElementById('statusUpdateForm');
             document.getElementById('newStatusInput').value = newStatus;
+            
+            // Add or update hidden input for alasan_penolakan
+            let alasanInput = document.getElementById('alasanPenolakanInput');
+            if (!alasanInput) {
+                alasanInput = document.createElement('input');
+                alasanInput.type = 'hidden';
+                alasanInput.name = 'alasan_penolakan';
+                alasanInput.id = 'alasanPenolakanInput';
+                statusForm.appendChild(alasanInput);
+            }
+            alasanInput.value = alasan;
+
             statusForm.action = `/pengajuan/${pengajuanToUpdate.id}/status`;
             statusForm.submit();
         }

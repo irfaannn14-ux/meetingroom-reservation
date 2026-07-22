@@ -167,7 +167,7 @@ class PengajuanController extends Controller
         $userRole = session('user_role');
         $userId = session('user_id');
 
-        $query = Pengajuan::with(['ruangan', 'user.organization'])
+        $query = Pengajuan::with(['ruangan', 'user.organization', 'approver'])
             ->where('status', '!=', 'pending');
 
         // Jika role adalah OPD, hanya tampilkan riwayat pengajuan milik user tersebut
@@ -523,6 +523,7 @@ class PengajuanController extends Controller
     {
         $validated = $request->validate([
             'status' => 'required|in:disetujui,ditolak',
+            'alasan_penolakan' => 'nullable|string',
         ]);
 
         // Jika status yang diminta adalah 'disetujui', cek ketersediaan dan batas peminjaman
@@ -557,7 +558,11 @@ class PengajuanController extends Controller
             }
         }
 
-        $pengajuan->update(['status' => $validated['status']]);
+        $pengajuan->update([
+            'status' => $validated['status'],
+            'approver_id' => session('user_id'),
+            'alasan_penolakan' => $validated['status'] === 'ditolak' ? ($validated['alasan_penolakan'] ?? null) : null,
+        ]);
 
         $activity = $validated['status'] === 'disetujui' ? 'Menyetujui' : 'Menolak';
         ActivityLog::create([

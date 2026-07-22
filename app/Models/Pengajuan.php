@@ -4,16 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Pengajuan extends Model
+class Pengajuan extends Model implements Auditable
 {
     use HasFactory;
+    use \OwenIt\Auditing\Auditable;
+
     protected $table = "pengajuans";
     protected $primarykey = "id";
     public $timestamps = true; // Mengaktifkan timestamps (created_at, updated_at)
     protected $fillable = [
         'user_id',
         'ruangan_id',
+        'approver_id',
         'nama_pengaju',
         'judul_kegiatan',
         'kegiatan',
@@ -23,6 +27,7 @@ class Pengajuan extends Model
         'jam_selesai',
         'jml_peserta',
         'status',
+        'alasan_penolakan',
     ];
 
      /**
@@ -41,5 +46,12 @@ class Pengajuan extends Model
         return $this->belongsTo(Ruangan::class);
     }
 
+    /**
+     * Relasi ke User (Admin yang menyetujui/menolak)
+     */
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approver_id');
+    }
 
 }

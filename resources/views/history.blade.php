@@ -495,13 +495,16 @@
                                     </td>
                                     <td>
                                         <div class="d-flex gap-2">
+                                            <button class="btn-action" style="background-color: #0dcaf0; color: white;" onclick="openDetailModal({{ json_encode($pengajuan) }})">
+                                                <i class="bi bi-eye"></i> Detail
+                                            </button>
                                             @if(strtolower($pengajuan->status) !== 'ditolak')
                                                 <button class="btn-action btn-primary" onclick="showQrCode({{ $pengajuan->id }})">
                                                     <i class="bi bi-qr-code"></i> QR
                                                 </button>
                                                 <a href="{{ route('presensi.show', $pengajuan->id) }}"
                                                     class="btn-action btn-secondary">
-                                                    <i class="bi bi-eye"></i> Detail
+                                                    <i class="bi bi-clipboard-check"></i> Absensi
                                                 </a>
                                             @endif
                                         </div>
@@ -575,7 +578,79 @@
         </div>
     </div>
 
+    <!-- Detail Modal -->
+    <div id="detailModal" class="custom-modal-backdrop">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="bi bi-clipboard-data"></i>
+                    Detail Pengajuan
+                </h3>
+                <button class="btn-close" onclick="closeModal('detailModal')">&times;</button>
+            </div>
+            <div class="modal-body" style="text-align: left; padding: 24px;">
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 16px; margin-bottom: 16px;">
+                    <div style="font-weight: 600; color: var(--primary-color);">Nama Pengaju</div>
+                    <div id="modalNamaPengaju" style="font-weight: bold;"></div>
+                    
+                    <div style="font-weight: 600; color: var(--primary-color);">Email Pengaju</div>
+                    <div id="modalEmailPengaju"></div>
+
+                    <div style="font-weight: 600; color: var(--primary-color);">Judul Kegiatan</div>
+                    <div id="modalJudul" style="font-weight: bold;"></div>
+                    
+                    <div style="font-weight: 600; color: var(--primary-color);">Status</div>
+                    <div id="modalStatus"></div>
+
+                    <div id="approverContainer" style="display: none; contents;">
+                        <div style="font-weight: 600; color: var(--primary-color);" id="approverLabel">Ditinjau Oleh</div>
+                        <div id="modalApprover"></div>
+                    </div>
+
+                    <div id="alasanContainer" style="display: none; contents;">
+                        <div style="font-weight: 600; color: var(--danger-color);">Alasan Penolakan</div>
+                        <div id="modalAlasan" style="color: var(--danger-color); font-weight: bold;"></div>
+                    </div>
+                </div>
+                <div style="text-align: right; margin-top: 20px;">
+                    <button class="btn-action btn-secondary" onclick="closeModal('detailModal')">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        function openDetailModal(pengajuan) {
+            document.getElementById('modalNamaPengaju').innerText = pengajuan.nama_pengaju || 'Tidak tersedia';
+            document.getElementById('modalEmailPengaju').innerText = pengajuan.user?.email || 'Tidak tersedia';
+            document.getElementById('modalJudul').innerText = pengajuan.judul_kegiatan || 'Tidak tersedia';
+            
+            let statusText = pengajuan.status || 'pending';
+            statusText = statusText.charAt(0).toUpperCase() + statusText.slice(1);
+            const statusClass = `status-${pengajuan.status?.toLowerCase() || 'pending'}`;
+            document.getElementById('modalStatus').innerHTML = `<span class="status-badge ${statusClass}">${statusText}</span>`;
+            
+            const approverContainer = document.getElementById('approverContainer');
+            if (pengajuan.status !== 'pending' && pengajuan.approver) {
+                approverContainer.style.display = 'contents';
+                const actionText = pengajuan.status === 'disetujui' ? 'Disetujui Oleh' : 'Ditolak Oleh';
+                document.getElementById('approverLabel').innerText = actionText;
+                document.getElementById('modalApprover').innerText = pengajuan.approver.name || 'Admin';
+            } else {
+                approverContainer.style.display = 'none';
+            }
+
+            const alasanContainer = document.getElementById('alasanContainer');
+            if (pengajuan.status === 'ditolak' && pengajuan.alasan_penolakan) {
+                alasanContainer.style.display = 'contents';
+                document.getElementById('modalAlasan').innerText = pengajuan.alasan_penolakan;
+            } else {
+                alasanContainer.style.display = 'none';
+            }
+
+            openModal('detailModal');
+        }
+
         function filterTable() {
             const input = document.getElementById("searchInput");
             const filter = input.value.toLowerCase().trim();
