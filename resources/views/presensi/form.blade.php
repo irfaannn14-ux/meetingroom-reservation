@@ -612,6 +612,7 @@
                 orgManualInput.value = '';
             }
         });
+        }
 
         // Close dropdown when clicking outside
         document.addEventListener('click', function(e) {
