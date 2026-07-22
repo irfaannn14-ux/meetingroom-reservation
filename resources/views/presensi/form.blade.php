@@ -451,7 +451,7 @@
                     <div class="mb-4">
                         <label for="organisasi" class="form-label">Organisasi <span class="required-badge">*</span></label>
                         <div class="custom-dropdown-container" id="org-dropdown-container">
-                            <div class="custom-dropdown-button" onclick="toggleOrgDropdown()">
+                            <div class="custom-dropdown-button">
                                 <span id="selected-org">Pilih organisasi...</span>
                                 <i class="bi bi-chevron-down"></i>
                             </div>
@@ -521,13 +521,21 @@
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 
 <script>
-    function toggleOrgDropdown() {
-        const container = document.getElementById('org-dropdown-container');
-        container.classList.toggle('dropdown-open');
-    }
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropdownBtn = document.querySelector('.custom-dropdown-button');
+        const dropdownContainer = document.getElementById('org-dropdown-container');
+        
+        if (dropdownBtn && dropdownContainer) {
+            dropdownBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                dropdownContainer.classList.toggle('dropdown-open');
+            });
+        }
+    });
 
     function filterOrgOptions(ev) {
         const orgList = document.getElementById('org-dropdown-content');
+        if (!orgList) return;
         const filter = (ev.target.value || '').toUpperCase();
         const links = orgList.querySelectorAll('.org-item');
         let count = 0;
@@ -567,22 +575,24 @@
         const sukmaUrl = 'https://sukma.jatimprov.go.id/fe/survey?idUser=2676';
 
         function showError(msg) {
+            if (!alertMessage || !alertBox) return;
             alertMessage.textContent = msg;
             alertBox.classList.remove('d-none');
             alertBox.scrollIntoView({ behavior: 'smooth' });
         }
 
         function hideError() {
-            alertBox.classList.add('d-none');
+            if (alertBox) alertBox.classList.add('d-none');
         }
 
         // Handle organization selection
-        orgList.addEventListener('click', function(event) {
-            const a = event.target.closest('.org-item');
-            if (!a || a.classList.contains('no-results-message')) return;
-            event.preventDefault();
+        if (orgList) {
+            orgList.addEventListener('click', function(event) {
+                const a = event.target.closest('.org-item');
+                if (!a || a.classList.contains('no-results-message')) return;
+                event.preventDefault();
 
-            const val = a.getAttribute('data-value');
+                const val = a.getAttribute('data-value');
             const text = a.getAttribute('data-text');
 
             orgInput.value = val;
