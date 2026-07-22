@@ -45,7 +45,7 @@ class RuanganController extends Controller
 
         ActivityLog::create([
             'user_id' => session('user_id'),
-            'activity' => 'Menambahkan ruangan baru: ' . $ruangan->nama_ruangan,
+            'activity' => 'Menambahkan data ruangan baru dengan nama: ' . $ruangan->nama_ruangan . ' (Kapasitas: ' . $ruangan->jml_peserta . ' orang)',
             'resource_type' => 'ruangan',
             'resource_id' => $ruangan->id,
         ]);
@@ -92,7 +92,7 @@ class RuanganController extends Controller
 
         ActivityLog::create([
             'user_id' => session('user_id'),
-            'activity' => 'Mengedit ruangan: ' . $ruangan->nama_ruangan,
+            'activity' => 'Mengubah data ruangan: ' . $ruangan->nama_ruangan,
             'resource_type' => 'ruangan',
             'resource_id' => $ruangan->id,
             'details' => [
@@ -130,7 +130,7 @@ class RuanganController extends Controller
 
         ActivityLog::create([
             'user_id' => session('user_id'),
-            'activity' => 'Menghapus ruangan: ' . $nama_ruangan,
+            'activity' => 'Menghapus data ruangan: ' . $nama_ruangan,
             'resource_type' => 'ruangan',
             'resource_id' => $ruangan->id,
         ]);

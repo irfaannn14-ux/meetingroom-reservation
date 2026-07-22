@@ -64,7 +64,7 @@ class UserController extends Controller
 
         ActivityLog::create([
             'user_id' => session('user_id'),
-            'activity' => 'Menambahkan pengguna baru: ' . $user->nama,
+            'activity' => 'Menambahkan data pengguna baru dengan nama: ' . $user->nama . ' dan peran: ' . $role,
             'resource_type' => 'user',
             'resource_id' => $user->id,
         ]);
@@ -98,7 +98,7 @@ class UserController extends Controller
             'no_wa' => 'required|string|max:20',
             'username' => 'required|string|max:255|unique:users,username,'.$id,
             'role' => 'required|string',
-            'organization_id' => 'nullable|exists:organizations,bkd_organization_id',
+            'organization_id' => 'nullable|exists:organization,bkd_organization_id',
             'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'password' => 'nullable|min:8|confirmed'
         ]);
@@ -140,7 +140,7 @@ class UserController extends Controller
         // Log Activity
         ActivityLog::create([
             'user_id' => session('user_id'),
-            'activity' => 'Mengedit pengguna: ' . $user->nama,
+            'activity' => 'Mengubah data profil pengguna atas nama: ' . $user->nama,
             'resource_type' => 'user',
             'resource_id' => $user->id,
             'details' => [
@@ -166,7 +166,7 @@ class UserController extends Controller
 
         ActivityLog::create([
             'user_id' => session('user_id'),
-            'activity' => 'Menghapus pengguna: ' . $nama_user,
+            'activity' => 'Menghapus data pengguna: ' . $nama_user,
             'resource_type' => 'user',
             'resource_id' => $user->id,
         ]);
@@ -282,7 +282,7 @@ class UserController extends Controller
 
         ActivityLog::create([
             'user_id' => $userId,
-            'activity' => 'Memperbarui profil',
+            'activity' => 'Memperbarui data profil diri sendiri',
             'resource_type' => 'user',
             'resource_id' => $userId,
             'details' => [

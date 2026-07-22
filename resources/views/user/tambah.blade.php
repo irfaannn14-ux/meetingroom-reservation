@@ -514,7 +514,7 @@ $isEdit = isset($user);
                 </div>
             @endif
 
-            <form action="{{ $isEdit && isset($user) && $user->id == session('user_id') ? route('profile.update') : ($isEdit ? route('user.update', $user->id) : route('user.store')) }}" method="POST" enctype="multipart/form-data" id="user-form">
+            <form action="{{ $isEdit && isset($user) && $user->id == session('user_id') ? route('profile.update') : ($isEdit ? route('user.update', $user->id) : route('user.store')) }}" method="POST" enctype="multipart/form-data" id="user-form" novalidate>
                 @csrf
                 @if($isEdit)
                     @method('PUT')

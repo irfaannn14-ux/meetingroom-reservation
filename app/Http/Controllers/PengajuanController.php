@@ -323,7 +323,7 @@ class PengajuanController extends Controller
             ])->withInput();
         }
 
-        Pengajuan::create([
+        $pengajuanBaru = Pengajuan::create([
             'user_id' => session('user_id'),
             'ruangan_id' => $validatedData['ruangan_id'],
             'nama_pengaju' => session('user_nama'),
@@ -332,6 +332,13 @@ class PengajuanController extends Controller
             'tanggal_mulai' => $tanggal_mulai,
             'tanggal_selesai' => $tanggal_selesai,
             'jml_peserta' => $validatedData['jml_peserta'],
+        ]);
+
+        ActivityLog::create([
+            'user_id' => session('user_id'),
+            'activity' => 'Menambahkan data pengajuan kegiatan baru dengan judul: ' . $validatedData['judul_kegiatan'],
+            'resource_type' => 'pengajuan',
+            'resource_id' => $pengajuanBaru->id,
         ]);
 
         return redirect()->route('pengajuan.index')->with('success', 'Pengajuan berhasil dikirim!');
@@ -497,7 +504,7 @@ class PengajuanController extends Controller
 
         ActivityLog::create([
             'user_id' => session('user_id'),
-            'activity' => 'Mengedit pengajuan ' . $pengajuan->judul_kegiatan,
+            'activity' => 'Mengubah data pengajuan kegiatan dengan judul: ' . $pengajuan->judul_kegiatan,
             'resource_type' => 'pengajuan',
             'resource_id' => $pengajuan->id,
             'details' => [
@@ -555,7 +562,7 @@ class PengajuanController extends Controller
         $activity = $validated['status'] === 'disetujui' ? 'Menyetujui' : 'Menolak';
         ActivityLog::create([
             'user_id' => session('user_id'),
-            'activity' => $activity . ' pengajuan ' . $pengajuan->judul_kegiatan,
+            'activity' => $activity . ' pengajuan kegiatan dengan judul: ' . $pengajuan->judul_kegiatan,
             'resource_type' => 'pengajuan',
             'resource_id' => $pengajuan->id,
         ]);
@@ -575,7 +582,7 @@ class PengajuanController extends Controller
 
         ActivityLog::create([
             'user_id' => session('user_id'),
-            'activity' => 'Menghapus pengajuan ' . $judul_kegiatan,
+            'activity' => 'Menghapus data pengajuan kegiatan dengan judul: ' . $judul_kegiatan,
             'resource_type' => 'pengajuan',
             'resource_id' => $pengajuan->id,
         ]);

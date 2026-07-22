@@ -141,7 +141,7 @@ class PresensiController extends Controller
         try {
             \App\Models\ActivityLog::create([
                 'user_id'       => session('user_id'),
-                'activity'      => 'Presensi berhasil untuk pengajuan ID ' . $data['pengajuan_id'],
+                'activity'      => 'Mengisi data presensi atas nama: ' . $data['nama'] . ' untuk kegiatan: ' . $pengajuan->judul_kegiatan,
                 'resource_type' => 'pengajuan',
                 'resource_id'   => $data['pengajuan_id'],
             ]);
