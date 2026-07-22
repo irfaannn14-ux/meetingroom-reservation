@@ -2,7 +2,8 @@
 
 @section('title', 'History Pengajuan')
 @section('content')
-    @phpuse Illuminate\Support\Facades\Storage;
+    @php
+    use Illuminate\Support\Facades\Storage;
                     use Illuminate\Support\Str;
                         use Carbon\Carbon;
             @endphp ?> ?>
