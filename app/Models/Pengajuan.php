@@ -41,11 +41,5 @@ class Pengajuan extends Model
         return $this->belongsTo(Ruangan::class);
     }
 
-    /**
-     * Relasi ke Komentar (satu pengajuan bisa punya banyak komentar)
-     */
-    public function komentars()
-    {
-        return $this->hasMany(Komentar::class);
-    }
+
 }

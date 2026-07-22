@@ -314,7 +314,7 @@
         background: #2563eb;
     }
     
-    .modal-backdrop {
+    .custom-modal-backdrop {
         position: fixed;
         top: 0;
         left: 0;
@@ -327,7 +327,7 @@
         z-index: 1050;
     }
     
-    .modal-content {
+    .custom-modal-backdrop .modal-content {
         background: white;
         border-radius: var(--border-radius);
         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
@@ -339,19 +339,19 @@
         transition: all 0.3s ease;
     }
     
-    .modal-content.show {
+    .custom-modal-backdrop .modal-content.show {
         transform: translateY(0);
         opacity: 1;
     }
     
-    .modal-header {
+    .custom-modal-backdrop .modal-header {
         background: linear-gradient(90deg, var(--primary-color) 0%, #2563eb 100%);
         color: white;
         padding: 20px 24px;
         position: relative;
     }
     
-    .modal-header::after {
+    .custom-modal-backdrop .modal-header::after {
         content: '';
         position: absolute;
         bottom: 0;
@@ -361,7 +361,7 @@
         background: var(--secondary-color);
     }
     
-    .modal-title {
+    .custom-modal-backdrop .modal-title {
         font-size: 1.5rem;
         font-weight: 700;
         margin: 0;
@@ -370,7 +370,7 @@
         gap: 10px;
     }
     
-    .btn-close {
+    .custom-modal-backdrop .btn-close {
         position: absolute;
         right: 16px;
         top: 50%;
@@ -384,11 +384,11 @@
         transition: var(--transition);
     }
     
-    .btn-close:hover {
+    .custom-modal-backdrop .btn-close:hover {
         opacity: 1;
     }
     
-    .modal-body {
+    .custom-modal-backdrop .modal-body {
         padding: 32px;
         display: flex;
         gap: 32px;
@@ -638,7 +638,7 @@
 </div>
 
 {{-- MODAL: Detail Pengguna --}}
-<div id="userDetailModal" class="modal-backdrop">
+<div id="userDetailModal" class="custom-modal-backdrop">
     <div class="modal-content">
         <div class="modal-header">
             <h3 class="modal-title">
@@ -686,7 +686,7 @@
 </div>
 
 {{-- MODAL: Konfirmasi Hapus --}}
-<div id="deleteConfirmModal" class="modal-backdrop">
+<div id="deleteConfirmModal" class="custom-modal-backdrop">
     <div class="modal-content">
         <div class="modal-header">
             <h3 class="modal-title">
@@ -815,7 +815,7 @@
     }
     
     // Close modals when clicking outside
-    document.querySelectorAll('.modal-backdrop').forEach(modal => {
+    document.querySelectorAll('.custom-modal-backdrop').forEach(modal => {
         modal.addEventListener('click', function(event) {
             if (event.target === this) {
                 closeModal(this.id);

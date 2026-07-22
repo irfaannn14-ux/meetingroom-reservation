@@ -215,7 +215,7 @@
         font-size: 1.1rem;
     }
     
-    .modal-backdrop {
+    .custom-modal-backdrop {
         position: fixed;
         top: 0;
         left: 0;
@@ -228,7 +228,7 @@
         z-index: 1050;
     }
     
-    .modal-content {
+    .custom-modal-backdrop .modal-content {
         background: white;
         border-radius: var(--border-radius);
         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
@@ -240,19 +240,19 @@
         transition: all 0.3s ease;
     }
     
-    .modal-content.show {
+    .custom-modal-backdrop .modal-content.show {
         transform: translateY(0);
         opacity: 1;
     }
     
-    .modal-header {
+    .custom-modal-backdrop .modal-header {
         background: linear-gradient(90deg, var(--primary-color) 0%, #2563eb 100%);
         color: white;
         padding: 20px 24px;
         position: relative;
     }
     
-    .modal-header::after {
+    .custom-modal-backdrop .modal-header::after {
         content: '';
         position: absolute;
         bottom: 0;
@@ -262,7 +262,7 @@
         background: var(--secondary-color);
     }
     
-    .modal-title {
+    .custom-modal-backdrop .modal-title {
         font-size: 1.5rem;
         font-weight: 700;
         margin: 0;
@@ -271,7 +271,7 @@
         gap: 10px;
     }
     
-    .btn-close {
+    .custom-modal-backdrop .btn-close {
         position: absolute;
         right: 16px;
         top: 50%;
@@ -285,17 +285,17 @@
         transition: var(--transition);
     }
     
-    .btn-close:hover {
+    .custom-modal-backdrop .btn-close:hover {
         opacity: 1;
     }
     
-    .modal-body {
+    .custom-modal-backdrop .modal-body {
         padding: 28px;
         max-height: 70vh;
         overflow-y: auto;
     }
     
-    .modal-body h5 {
+    .custom-modal-backdrop .modal-body h5 {
         color: var(--primary-color);
         font-weight: 700;
         margin-bottom: 1.25rem;
@@ -304,11 +304,11 @@
         font-size: 1.25rem;
     }
     
-    .modal-body .table {
+    .custom-modal-backdrop .modal-body .table {
         margin-bottom: 0;
     }
     
-    .modal-body .table th {
+    .custom-modal-backdrop .modal-body .table th {
         background-color: #f8fafc !important;
         color: var(--dark-color) !important;
         font-weight: 600;
@@ -316,12 +316,12 @@
         padding: 12px 16px;
     }
     
-    .modal-body .table td {
+    .custom-modal-backdrop .modal-body .table td {
         padding: 12px 16px;
         vertical-align: middle;
     }
     
-    .modal-body img {
+    .custom-modal-backdrop .modal-body img {
         max-width: 100%;
         max-height: 200px;
         height: auto;
@@ -331,7 +331,7 @@
         border: 1px solid #e2e8f0;
     }
     
-    .modal-footer {
+    .custom-modal-backdrop .modal-footer {
         padding: 16px 28px;
         border-top: 1px solid #e2e8f0;
         display: flex;
@@ -447,16 +447,16 @@
             padding: 12px 15px;
         }
         
-        .modal-content {
+        .custom-modal-backdrop .modal-content {
             max-width: 95%;
             margin: 10px;
         }
         
-        .modal-body {
+        .custom-modal-backdrop .modal-body {
             padding: 20px;
         }
         
-        .modal-footer {
+        .custom-modal-backdrop .modal-footer {
             padding: 16px 20px;
             flex-direction: column;
             gap: 10px;
@@ -606,10 +606,10 @@
                                     $canView = $resource !== null && !str_contains(strtolower($log->activity), 'delete');
                                 @endphp
                                 @if($canView)
-                                <button class="btn-icon btn-info" data-bs-toggle="modal" data-bs-target="#modalLogBootstrap"
+                                <button class="btn-icon btn-info" onclick="openLogDetail(this)"
                                         data-log-id="{{ $log->id }}"
-                                        data-log="{{ htmlspecialchars(json_encode($log), ENT_QUOTES, 'UTF-8') }}"
-                                        data-resource="{{ htmlspecialchars(json_encode($resource), ENT_QUOTES, 'UTF-8') }}"
+                                        data-log="{{ json_encode($log) }}"
+                                        data-resource="{{ json_encode($resource) }}"
                                         data-resource-type="{{ $log->resource_type }}"
                                         title="Lihat Detail">
                                     <i class="bi bi-eye"></i>
@@ -647,7 +647,7 @@
 </div>
 
 <!-- Modal Detail Aktivitas -->
-<div id="modalLogBootstrap" class="modal-backdrop">
+<div id="modalLogBootstrap" class="custom-modal-backdrop">
     <div class="modal-content">
         <div class="modal-header">
             <h3 class="modal-title">
@@ -724,6 +724,35 @@
         }
     }
 
+    function openLogDetail(button) {
+        // Get data attributes
+        const logData = button.getAttribute('data-log');
+        const resourceData = button.getAttribute('data-resource');
+        const resourceType = button.getAttribute('data-resource-type');
+        
+        // Parse data
+        let log = null;
+        let resource = null;
+        
+        try {
+            if (logData) log = JSON.parse(logData);
+        } catch (e) {
+            console.error('Error parsing log data:', e);
+        }
+        
+        try {
+            if (resourceData) resource = JSON.parse(resourceData);
+        } catch (e) {
+            console.error('Error parsing resource data:', e);
+        }
+        
+        // Populate modal
+        populateModal(log, resource, resourceType);
+        
+        // Open modal
+        openModal('modalLogBootstrap');
+    }
+
     function openModal(modalId) {
         const modal = document.getElementById(modalId);
         modal.style.display = 'flex';
@@ -738,18 +767,17 @@
 
     function closeModal(modalId) {
         const modal = document.getElementById(modalId);
-        modal.style.display = 'none';
-        document.body.style.overflow = '';
+        const content = modal.querySelector('.modal-content');
+        content.classList.remove('show');
         
-        // Reset modal animation
         setTimeout(() => {
-            const content = modal.querySelector('.modal-content');
-            content.classList.remove('show');
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
         }, 300);
     }
 
     // Close modal when clicking outside
-    document.querySelectorAll('.modal-backdrop').forEach(modal => {
+    document.querySelectorAll('.custom-modal-backdrop').forEach(modal => {
         modal.addEventListener('click', function(event) {
             if (event.target === this) {
                 closeModal(this.id);
@@ -757,45 +785,8 @@
         });
     });
 
-    // Handle modal show
-    document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.getElementById('modalLogBootstrap');
-        if (modal) {
-            modal.addEventListener('show.bs.modal', function(event) {
-                const button = event.relatedTarget;
-                if (!button) return;
-                
-                // Get data attributes
-                const logId = button.getAttribute('data-log-id');
-                const logData = button.getAttribute('data-log');
-                const resourceData = button.getAttribute('data-resource');
-                const resourceType = button.getAttribute('data-resource-type');
-                
-                // Parse data
-                let log = null;
-                let resource = null;
-                
-                try {
-                    if (logData) {
-                        log = JSON.parse(logData);
-                    }
-                } catch (e) {
-                    console.error('Error parsing log data:', e);
-                }
-                
-                try {
-                    if (resourceData) {
-                        resource = JSON.parse(resourceData);
-                    }
-                } catch (e) {
-                    console.error('Error parsing resource data:', e);
-                }
-                
-                // Populate modal
-                populateModal(log, resource, resourceType);
-            });
-        }
-    });
+
+
 
     function populateModal(log, resource, resourceType) {
         const modalTitle = document.getElementById('modalTitle');

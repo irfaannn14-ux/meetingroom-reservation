@@ -19,6 +19,20 @@ class PresensiController extends Controller
 {
     public function create($id)
     {
+        $pengajuan = Pengajuan::findOrFail($id);
+
+        if ($pengajuan->status !== 'disetujui') {
+            abort(403, 'Pengajuan belum disetujui.');
+        }
+
+        $sekarang = now();
+        $mulai = \Carbon\Carbon::parse($pengajuan->tanggal_mulai . ' ' . $pengajuan->jam_mulai);
+        $selesai = \Carbon\Carbon::parse($pengajuan->tanggal_selesai . ' ' . $pengajuan->jam_selesai);
+
+        if ($sekarang->lt($mulai) || $sekarang->gt($selesai)) {
+            abort(403, 'Presensi hanya dapat dilakukan dalam jadwal kegiatan.');
+        }
+
         // Ambil organisasi aktif & rapikan urutan (sesuaikan dengan kebutuhanmu)
         $organizations = Organization::query()
             ->whereNotIn('organization_name', ['ADMIN', 'SUPER ADMIN'])
@@ -38,8 +52,9 @@ class PresensiController extends Controller
             [
                 'pengajuan_id'      => ['required', 'integer'],
                 'nama'              => ['required', 'string', 'max:255'],
-                'jabatan'           => ['required', 'string', 'max:100'],   // text bebas
-                'organisasi'        => ['required', 'string'],              // id sync atau 'lainnya'
+                'jabatan'           => ['required', 'string', 'max:100'],
+                'no_wa'             => ['required', 'string', 'max:20'],
+                'organisasi'        => ['required', 'string'],
                 'organisasi_manual' => ['required_if:organisasi,lainnya', 'string', 'max:255'],
                 'ttd_path'          => ['required', 'string'],
             ],
@@ -47,9 +62,10 @@ class PresensiController extends Controller
                 'pengajuan_id.required'         => 'ID pengajuan tidak valid.',
                 'nama.required'                 => 'Nama Lengkap wajib diisi.',
                 'jabatan.required'              => 'Jabatan wajib diisi.',
+                'no_wa.required'                => 'Nomor WhatsApp wajib diisi.',
                 'organisasi.required'           => 'Organisasi wajib dipilih.',
                 'organisasi_manual.required_if' => 'Silakan isi nama organisasi pada kolom yang muncul.',
-                'ttd_path.required'                  => 'TTD Digital wajib diisi.',
+                'ttd_path.required'             => 'TTD Digital wajib diisi.',
             ]
         );
 
@@ -58,6 +74,27 @@ class PresensiController extends Controller
         }
 
         $data = $validator->validated();
+
+        $pengajuan = Pengajuan::find($data['pengajuan_id']);
+        if (!$pengajuan || $pengajuan->status !== 'disetujui') {
+            return response()->json(['ok' => false, 'message' => 'Pengajuan belum disetujui.'], 422);
+        }
+
+        $sekarang = now();
+        $mulai = \Carbon\Carbon::parse($pengajuan->tanggal_mulai . ' ' . $pengajuan->jam_mulai);
+        $selesai = \Carbon\Carbon::parse($pengajuan->tanggal_selesai . ' ' . $pengajuan->jam_selesai);
+
+        if ($sekarang->lt($mulai) || $sekarang->gt($selesai)) {
+            return response()->json(['ok' => false, 'message' => 'Presensi hanya dapat dilakukan dalam jadwal kegiatan.'], 422);
+        }
+
+        $sudahPresensi = Presensi::where('pengajuan_id', $data['pengajuan_id'])
+            ->where('no_wa', $data['no_wa'])
+            ->exists();
+
+        if ($sudahPresensi) {
+            return response()->json(['ok' => false, 'message' => 'Anda sudah melakukan presensi sebelumnya.'], 422);
+        }
 
         // Tentukan nilai organisasi yang disimpan (nama, bukan ID)
         if (strtolower($data['organisasi']) === 'lainnya') {
@@ -93,16 +130,17 @@ class PresensiController extends Controller
 
         $presensi = \App\Models\Presensi::create([
             'pengajuan_id' => $data['pengajuan_id'],
-            'user_id'      => Auth::id(),
+            'user_id'      => session('user_id'),
             'nama'         => $data['nama'],
             'jabatan'      => $data['jabatan'],
+            'no_wa'        => $data['no_wa'],
             'organisasi'   => $organisasi,
             'ttd_path'     => $ttdPath,
         ]);
 
         try {
             \App\Models\ActivityLog::create([
-                'user_id'       => Auth::id(),
+                'user_id'       => session('user_id'),
                 'activity'      => 'Presensi berhasil untuk pengajuan ID ' . $data['pengajuan_id'],
                 'resource_type' => 'pengajuan',
                 'resource_id'   => $data['pengajuan_id'],

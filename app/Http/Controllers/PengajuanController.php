@@ -46,10 +46,7 @@ class PengajuanController extends Controller
             ->orderBy('total', 'desc')
             ->with('ruangan');
 
-        // Apply same filter for OPD users
-        if ($userRole === 'OPD') {
-            $topRoomsQuery->where('user_id', $userId);
-        }
+        // (Dihapus: Filter OPD untuk Top Rooms agar user biasa bisa melihat ruangan mana yang sering dipakai secara global)
 
         $topRooms = $topRoomsQuery->get();
 
@@ -76,10 +73,7 @@ class PengajuanController extends Controller
             )
             ->where('status', 'disetujui');
 
-        // Apply same filter for OPD users
-        if ($userRole === 'OPD') {
-            $heatmapQuery->where('user_id', $userId);
-        }
+        // (Dihapus: Filter OPD untuk Heatmap agar user biasa bisa melihat jam sibuk secara global)
 
         $bookingsByTime = $heatmapQuery
             ->groupBy('hour', 'day_name')

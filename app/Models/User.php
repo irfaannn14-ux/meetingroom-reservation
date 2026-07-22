@@ -54,11 +54,6 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array<string,string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
         // Laravel's 'hashed' cast will automatically hash passwords on set
@@ -71,10 +66,7 @@ class User extends Authenticatable
         return $this->hasMany(Pengajuan::class);
     }
 
-    public function komentars()
-    {
-        return $this->hasMany(Komentar::class);
-    }
+
     
     /**
      * Definisikan relasi "belongs to" ke tabel organizations.

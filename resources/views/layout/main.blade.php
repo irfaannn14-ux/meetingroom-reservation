@@ -29,46 +29,46 @@
             min-height: 100vh;
         }
 
-        /* Modal Base Styles */
+        /* Notification Modal Base Styles - scoped to notification modal only */
         .modal-dialog.notification-modal {
             max-width: 400px;
             margin: 1.75rem auto;
         }
         
-        .modal-content {
-            border: none !important;
-            border-radius: 8px !important;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+        #notificationModal .modal-content {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         
-        /* Modal Header */
-        .modal-header {
-            background-color: #000C2B !important;
-            padding: 1rem 1.5rem !important;
-            border: none !important;
-            border-top-left-radius: 8px !important;
-            border-top-right-radius: 8px !important;
+        /* Notification Modal Header */
+        #notificationModal .modal-header {
+            background-color: #000C2B;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
         }
         
-        .modal-title {
-            color: #ffffff !important;
-            font-size: 1.25rem !important;
-            font-weight: 600 !important;
-            font-family: 'Montserrat', sans-serif !important;
-            margin: 0 !important;
+        #notificationModal .modal-title {
+            color: #ffffff;
+            font-size: 1.25rem;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
         }
         
         /* Close Button */
-        .modal-header .btn-close {
-            padding: 0.5rem !important;
-            margin: 0 !important;
-            background: none !important;
-            border: none !important;
-            opacity: 1 !important;
-            position: relative !important;
+        #notificationModal .modal-header .btn-close {
+            padding: 0.5rem;
+            margin: 0;
+            background: none;
+            border: none;
+            opacity: 1;
+            position: relative;
         }
         
-        .modal-header .btn-close::before {
+        #notificationModal .modal-header .btn-close::before {
             content: "×";
             color: white;
             font-size: 28px;
@@ -79,11 +79,11 @@
             transform: translate(-50%, -50%);
         }
         
-        /* Modal Body */
-        .modal-body {
-            padding: 0 !important;
-            max-height: 70vh !important;
-            overflow-y: auto !important;
+        /* Notification Modal Body */
+        #notificationModal .modal-body {
+            padding: 0;
+            max-height: 70vh;
+            overflow-y: auto;
         }
         
         /* Notification Items */
@@ -125,8 +125,8 @@
             transform: none !important;
         }
 
-        /* Modal Stacking Styles */
-        .modal {
+        /* Custom Modal Stacking Styles (for non-Bootstrap modals like log detail) */
+        .custom-modal-backdrop {
             position: fixed;
             top: 0;
             left: 0;
@@ -137,16 +137,9 @@
             justify-content: center;
             align-items: center;
             box-sizing: border-box;
+            z-index: 1055;
         }
-        .modal-content {
-            background-color: white;
-            padding: 0;
-            border-radius: 8px;
-            width: 100%;
-            animation: fadeIn 0.3s ease;
-            position: relative;
-        }
-        .modal.show {
+        .custom-modal-backdrop.show {
             display: flex !important;
         }
         @keyframes fadeIn {
@@ -158,46 +151,29 @@
 
 </head>
 
-{{-- Toast container (pojok kanan atas) --}}
-<div class="position-fixed top-0 end-0 p-3" style="z-index: 1080">
-  <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="d-flex">
-      <div class="toast-body d-flex align-items-center gap-2">
-        {{-- icon check --}}
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
-          <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 1 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.08-.02l3.99-4.99a.75.75 0 0 0-.01-1.05z"/>
-        </svg>
-        <span id="successToastMsg">Absensi berhasil.</span>
-      </div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-    </div>
-  </div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  @if(session('success'))
-    // set pesan dari flash (jika ada)
-    const msg = @json(session('success'));
-    const el = document.getElementById('successToast');
-    const msgEl = document.getElementById('successToastMsg');
-    if (msg && msgEl) msgEl.textContent = msg;
-
-    // tampilkan toast
-    const toast = new bootstrap.Toast(el, { delay: 2800, autohide: true });
-    toast.show();
-  @endif
-});
-</script>
-
 <body>
-    @include('sidebar.sidebar')
+    {{-- Toast container (pojok kanan atas) --}}
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080">
+      <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body d-flex align-items-center gap-2">
+            {{-- icon check --}}
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 1 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.08-.02l3.99-4.99a.75.75 0 0 0-.01-1.05z"/>
+            </svg>
+            <span id="successToastMsg">Absensi berhasil.</span>
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    </div>
+
     @include('navbar.navbar')
 
     @yield('content')
     
-    <!-- Notification Modal -->
-    <div class="modal" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+    <!-- Notification Modal (Bootstrap) -->
+    <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
         <div class="modal-dialog notification-modal">
             <div class="modal-content">
                 <div class="modal-header">
@@ -220,12 +196,31 @@ document.addEventListener('DOMContentLoaded', () => {
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Notification Script -->
+    <!-- Toast Script (must be after Bootstrap JS) -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      @if(session('success'))
+        // set pesan dari flash (jika ada)
+        const msg = @json(session('success'));
+        const el = document.getElementById('successToast');
+        const msgEl = document.getElementById('successToastMsg');
+        if (msg && msgEl) msgEl.textContent = msg;
+
+        // tampilkan toast
+        const toast = new bootstrap.Toast(el, { delay: 2800, autohide: true });
+        toast.show();
+      @endif
+    });
+    </script>
+
+    <!-- Notification Script (must be after Bootstrap JS and after modal HTML) -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         let lastNotificationCount = parseInt(localStorage.getItem('lastNotificationCount') || '0');
         let lastCheckTime = parseInt(localStorage.getItem('lastNotificationCheck') || '0');
         const indicator = document.getElementById('notificationIndicator');
+        
+        if (!indicator) return; // Guard if not logged in
         
         function checkNewNotifications() {
             const now = Date.now();
@@ -255,9 +250,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function loadNotifications() {
             const notificationList = document.getElementById('notificationList');
+            if (!notificationList) return;
+            
             notificationList.innerHTML = `
-                <div class="notification-item">
-                    <div class="notification-text">Memuat notifikasi...</div>
+                <div class="notification-item py-3 text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <div class="mt-2 text-muted">Memuat notifikasi...</div>
                 </div>`;
                 
             fetch('/api/notifications')
@@ -270,17 +270,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(data => {
                     if (!data || !Array.isArray(data) || data.length === 0) {
                         notificationList.innerHTML = `
-                            <div class="notification-item">
-                                <div class="notification-text">Tidak ada notifikasi</div>
+                            <div class="notification-item py-4 text-center text-muted">
+                                <i class="bi bi-bell-slash fs-1 mb-2"></i>
+                                <div class="notification-text">Tidak ada notifikasi baru</div>
                             </div>`;
                         return;
                     }
 
                     notificationList.innerHTML = data.map(notification => {
+                        const createdAt = notification.created_at.toLowerCase();
                         return `
-                        <div class="notification-item">
-                            <div class="notification-text">${notification.message}</div>
-                            <div class="notification-time">${notification.created_at}</div>
+                        <div class="notification-item py-3 border-bottom border-light">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="bg-blue-100 text-primary rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                        <i class="bi bi-info-circle"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="notification-text fw-medium">${notification.message}</div>
+                                    <div class="notification-time text-muted small">${createdAt}</div>
+                                </div>
+                            </div>
                         </div>
                         `;
                     }).join('');
@@ -288,34 +299,91 @@ document.addEventListener('DOMContentLoaded', () => {
                 .catch(error => {
                     console.error('Error loading notifications:', error);
                     notificationList.innerHTML = `
-                        <div class="notification-item">
-                            <div class="notification-text text-danger">Gagal memuat notifikasi</div>
-                            <small>${error.message}</small>
+                        <div class="notification-item py-4 text-center">
+                            <i class="bi bi-exclamation-triangle text-danger fs-1 mb-2"></i>
+                            <div class="text-danger fw-medium">Gagal memuat notifikasi</div>
+                            <small class="text-muted">${error.message}</small>
                         </div>`;
                 });
         }
 
         // Load notifications when modal is opened
         const notificationModal = document.getElementById('notificationModal');
-        
-        // Handle modal events
-        notificationModal.addEventListener('show.bs.modal', () => {
-            loadNotifications();
-            indicator.classList.remove('active'); // Remove indicator when opening modal
-            lastCheckTime = Date.now();
-            localStorage.setItem('lastNotificationCheck', lastCheckTime.toString());
-        });
+        if (notificationModal) {
+            notificationModal.addEventListener('show.bs.modal', () => {
+                loadNotifications();
+                indicator.classList.remove('active');
+                lastCheckTime = Date.now();
+                localStorage.setItem('lastNotificationCheck', lastCheckTime.toString());
+            });
 
-        notificationModal.addEventListener('hide.bs.modal', () => {
-            // Update last count after closing
-            fetch('/api/notifications')
-                .then(response => response.json())
-                .then(data => {
-                    const currentCount = Array.isArray(data) ? data.length : 0;
-                    lastNotificationCount = currentCount;
-                    localStorage.setItem('lastNotificationCount', currentCount.toString());
-                })
-                .catch(console.error);
+            notificationModal.addEventListener('hide.bs.modal', () => {
+                fetch('/api/notifications')
+                    .then(response => response.json())
+                    .then(data => {
+                        const currentCount = Array.isArray(data) ? data.length : 0;
+                        lastNotificationCount = currentCount;
+                        localStorage.setItem('lastNotificationCount', currentCount.toString());
+                    })
+                    .catch(console.error);
+            });
+
+            // Fix modal stacking issues
+            notificationModal.addEventListener('hidden.bs.modal', () => {
+                document.body.classList.remove('modal-open');
+                const modalBackdrops = document.getElementsByClassName('modal-backdrop');
+                while (modalBackdrops.length > 0) {
+                    modalBackdrops[0].parentNode.removeChild(modalBackdrops[0]);
+                }
+            });
+        }
+        
+        // Dropdown animation using Bootstrap events
+        document.querySelectorAll('.dropdown').forEach(function(dropdownElement) {
+            dropdownElement.addEventListener('show.bs.dropdown', function() {
+                const menu = this.querySelector('.dropdown-menu');
+                menu.style.opacity = '0';
+                menu.style.transform = 'translateY(5px)';
+                setTimeout(() => {
+                    menu.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+                    menu.style.opacity = '1';
+                    menu.style.transform = 'translateY(0)';
+                }, 10);
+            });
+            
+            dropdownElement.addEventListener('hide.bs.dropdown', function() {
+                const menu = this.querySelector('.dropdown-menu');
+                menu.style.opacity = '0';
+                menu.style.transform = 'translateY(5px)';
+            });
+        });
+        
+        // Untuk menutup dropdown ketika klik di luar dropdown area
+        document.addEventListener('click', function(event) {
+            document.querySelectorAll('.dropdown.show').forEach(function(dropdown) {
+                const toggle = dropdown.querySelector('[data-bs-toggle="dropdown"]');
+                const menu = dropdown.querySelector('.dropdown-menu');
+                
+                if (!toggle.contains(event.target) && !menu.contains(event.target)) {
+                    const bsDropdown = bootstrap.Dropdown.getInstance(toggle);
+                    if (bsDropdown) {
+                        bsDropdown.hide();
+                    }
+                }
+            });
+        });
+        
+        // Untuk menutup dropdown ketika tekan tombol Escape
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                document.querySelectorAll('.dropdown.show').forEach(function(dropdown) {
+                    const toggle = dropdown.querySelector('[data-bs-toggle="dropdown"]');
+                    const bsDropdown = bootstrap.Dropdown.getInstance(toggle);
+                    if (bsDropdown) {
+                        bsDropdown.hide();
+                    }
+                });
+            }
         });
     });
     </script>

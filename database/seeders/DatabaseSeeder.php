@@ -28,6 +28,16 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('admin'), 
         ]);
 
+        User::create([
+            'nama' => 'User Biasa (OPD)',
+            'email' => 'user@example.com',
+            'username' => 'useropd',
+            'no_wa' => '081234567891', 
+            'role' => 'OPD', 
+            'organization_id' => '3', // Kita akan buat organisasi dummy untuk OPD
+            'password' => Hash::make('password123'), 
+        ]);
+
         Organization::create([
             'organization_id' => 'ORG001',
             'organization_name' => 'ADMIN',
@@ -41,6 +51,15 @@ class DatabaseSeeder extends Seeder
             'organization_id' => 'ORG002',
             'organization_name' => 'SUPER ADMIN',
             'bkd_organization_id' => '2',
+            'active' => 'true',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        Organization::create([
+            'organization_id' => 'ORG003',
+            'organization_name' => 'DINAS KOMUNINFO',
+            'bkd_organization_id' => '3',
             'active' => 'true',
             'created_at' => now(),
             'updated_at' => now(),

@@ -199,14 +199,30 @@ class UserController extends Controller
             'password' => 'nullable|min:8'
         ]);
         
+        // Jika bukan Super Admin, tidak boleh mengganti role menjadi Admin atau Super Admin
+        $currentSessionRole = session('user_role');
+        $requestedRole = $request->role;
+        $protectedRoles = ['Admin', 'Super Admin'];
+
+        if ($currentSessionRole !== 'Super Admin' && in_array($requestedRole, $protectedRoles)) {
+            // Tolak: kembalikan dengan pesan error
+            return back()->withErrors([
+                'role' => 'Anda tidak diizinkan memilih role Admin atau Super Admin. Hubungi Super Admin.'
+            ])->withInput();
+        }
+
+        // Tentukan role dan organization_id yang akan disimpan
+        $roleToSave = $requestedRole;
+        $orgIdToSave = $requestedRole == 'OPD' ? $request->organization_id : null;
+
         // Update data user
         $user->update([
             'nama' => $request->nama,
             'email' => $request->email,
             'no_wa' => $request->no_wa,
             'username' => $request->username,
-            'role' => $request->role,
-            'organization_id' => $request->role == 'OPD' ? $request->organization_id : null
+            'role' => $roleToSave,
+            'organization_id' => $orgIdToSave
         ]);
         
         // Jika ada password yang diisi

@@ -27,6 +27,10 @@ Route::get('/verifikasi_email', function () {
     return view('auth.verifikasi_email');
 });
 
+// Presensi Publik (Tanpa Login)
+Route::get('/presensi/{id}', [PresensiController::class, 'create'])->name('presensi.create');
+Route::post('/presensi', [PresensiController::class, 'store'])->name('presensi.store');
+
 // Protected routes (memerlukan login)
 Route::middleware(['auth.custom'])->group(function () {
     Route::get('/', [PengajuanController::class, 'dashboard'])->name('dashboard');
@@ -89,10 +93,7 @@ Route::middleware(['auth.custom'])->group(function () {
     // Notifications
     Route::get('/api/notifications', [NotificationController::class, 'getNotifications'])->name('notifications.get');
 
-    // Presensi
-    Route::get('/presensi/{id}', [PresensiController::class, 'create'])->name('presensi.create');
-    Route::post('/presensi', [PresensiController::class, 'store'])->name('presensi.store');
-
+    // Presensi Data & Download (Memerlukan Login)
     Route::get('/presensi/{pengajuan}/data', [PresensiController::class, 'show'])->name('presensi.show');
 
     Route::get('/presensi/{pengajuanId}/ttd/all', [PresensiController::class, 'downloadAllTtd'])->name('presensi.ttd.all');

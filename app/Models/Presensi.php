@@ -9,7 +9,7 @@ class Presensi extends Model
 {
     protected $table = 'presensis'; // sesuaikan
     protected $fillable = [
-        'pengajuan_id', 'nama', 'jabatan', 'organisasi', 'ttd_path', 'user_id'
+        'pengajuan_id', 'nama', 'jabatan', 'no_wa', 'organisasi', 'ttd_path', 'user_id'
     ];
 
     // Akses nama organisasi untuk tampilan
