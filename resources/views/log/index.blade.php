@@ -495,101 +495,49 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th style="width: 5%;">No</th>
-                            <th style="width: 15%;">Pengguna (Role)</th>
-                            <th style="width: 25%;">Aktivitas / Event</th>
-                            <th style="width: 20%;">Ruangan</th>
-                            <th style="width: 15%;">Status Kegiatan</th>
-                            <th style="width: 10%;">Waktu Log</th>
-                            <th style="width: 10%;">Detail</th>
+                            <th style="width: 5%;">#</th>
+                            <th style="width: 15%;">TANGGAL</th>
+                            <th style="width: 20%;">USER</th>
+                            <th style="width: 15%;">EVENT</th>
+                            <th style="width: 20%;">MODEL</th>
+                            <th style="width: 15%;">IP</th>
+                            <th style="width: 10%;">AKSI</th>
                         </tr>
                     </thead>
                     <tbody id="logTableBody">
                         @forelse($logs as $log)
                         <tr>
                             <td class="fw-bold">{{ $loop->iteration }}</td>
+                            <td>{{ $log->created_at->format('d M Y, H.i') }}</td>
                             <td>
-                                <div>{{ $log->user->nama ?? 'N/A' }}</div>
-                                <span class="time-badge mt-1">{{ $log->user->role ?? 'N/A' }}</span>
+                                <div>{{ $log->user->nama ?? 'System' }}</div>
+                                <div class="text-muted" style="font-size: 0.85em;">{{ $log->user->email ?? '' }}</div>
                             </td>
                             <td>
                                 @php
                                     $event = strtolower($log->event);
                                     $badgeClass = 'log-default';
-                                    $badgeText = ucfirst($event) . ' Pengajuan';
-                                    $badgeIcon = 'bi-info-circle';
                                     
                                     if ($event === 'created') {
                                         $badgeClass = 'log-add';
-                                        $badgeText = 'Membuat Pengajuan';
-                                        $badgeIcon = 'bi-plus-circle';
                                     } elseif ($event === 'updated') {
                                         $badgeClass = 'log-edit';
-                                        $badgeText = 'Mengubah Pengajuan';
-                                        $badgeIcon = 'bi-pencil-square';
-                                        if (isset($log->new_values['status'])) {
-                                            $newStatus = strtolower($log->new_values['status']);
-                                            if ($newStatus === 'disetujui') {
-                                                $badgeClass = 'log-approve';
-                                                $badgeText = 'Menyetujui Pengajuan';
-                                                $badgeIcon = 'bi-check-circle';
-                                            } elseif ($newStatus === 'ditolak') {
-                                                $badgeClass = 'log-deny';
-                                                $badgeText = 'Menolak Pengajuan';
-                                                $badgeIcon = 'bi-x-circle';
-                                            }
-                                        }
                                     } elseif ($event === 'deleted') {
                                         $badgeClass = 'log-delete';
-                                        $badgeText = 'Menghapus Pengajuan';
-                                        $badgeIcon = 'bi-trash';
                                     }
                                 @endphp
                                 <span class="log-badge {{ $badgeClass }}">
-                                    <i class="bi {{ $badgeIcon }}"></i>
-                                    {{ $badgeText }}
+                                    {{ $event }}
                                 </span>
                             </td>
-                            <td>{{ $log->auditable->ruangan->nama_ruangan ?? 'N/A' }}</td>
+                            <td>{{ $log->auditable_type }}</td>
+                            <td>{{ $log->ip_address }}</td>
                             <td>
-                                @php
-                                    $statusKegiatan = 'N/A';
-                                    $statusClass = 'text-muted';
-                                    if ($log->auditable) {
-                                        $now = \Carbon\Carbon::now();
-                                        $mulai = \Carbon\Carbon::parse($log->auditable->tanggal_mulai);
-                                        $selesai = \Carbon\Carbon::parse($log->auditable->tanggal_selesai);
-                                        
-                                        if ($now->lt($mulai)) {
-                                            $statusKegiatan = 'Belum Mulai';
-                                            $statusClass = 'text-warning fw-bold';
-                                        } elseif ($now->between($mulai, $selesai)) {
-                                            $statusKegiatan = 'Berjalan';
-                                            $statusClass = 'text-primary fw-bold';
-                                        } else {
-                                            $statusKegiatan = 'Selesai';
-                                            $statusClass = 'text-success fw-bold';
-                                        }
-                                    }
-                                @endphp
-                                <span class="{{ $statusClass }}">{{ $statusKegiatan }}</span>
-                            </td>
-                            <td>
-                                <div class="time-badge">
-                                    {{ $log->created_at->format('d/m/Y H:i') }}
-                                </div>
-                            </td>
-                            <td class="text-center">
-                                @if($log->event !== 'deleted')
-                                <button class="btn-icon btn-info" onclick="openLogDetail(this)"
+                                <button class="btn btn-primary btn-sm rounded-1 px-3 py-1 text-white" style="background-color: #3b82f6; border: none; font-weight: 500;" onclick="openLogDetail(this)"
                                         data-log="{{ json_encode($log) }}"
-                                        data-resource="{{ json_encode($log->auditable) }}"
                                         title="Lihat Detail">
-                                    <i class="bi bi-eye"></i>
+                                    Detail
                                 </button>
-                                @else
-                                <span class="text-muted" title="Tidak tersedia untuk aktivitas penghapusan">-</span>
-                                @endif
                             </td>
                         </tr>
                         @empty
@@ -624,8 +572,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <h3 class="modal-title">
-                <i class="bi bi-journal-text"></i>
-                <span id="modalTitle">Detail Aktivitas</span>
+                <span id="modalTitle">Detail Audit</span>
             </h3>
             <button class="btn-close" onclick="closeModal('modalLogBootstrap')">&times;</button>
         </div>
@@ -700,12 +647,9 @@
     function openLogDetail(button) {
         // Get data attributes
         const logData = button.getAttribute('data-log');
-        const resourceData = button.getAttribute('data-resource');
-        const resourceType = button.getAttribute('data-resource-type');
         
         // Parse data
         let log = null;
-        let resource = null;
         
         try {
             if (logData) log = JSON.parse(logData);
@@ -713,14 +657,8 @@
             console.error('Error parsing log data:', e);
         }
         
-        try {
-            if (resourceData) resource = JSON.parse(resourceData);
-        } catch (e) {
-            console.error('Error parsing resource data:', e);
-        }
-        
         // Populate modal
-        populateModal(log, resource, resourceType);
+        populateModal(log);
         
         // Open modal
         openModal('modalLogBootstrap');
@@ -758,254 +696,57 @@
         });
     });
 
-
-
-
-    function populateModal(log, resource, resourceType) {
-        const modalTitle = document.getElementById('modalTitle');
+    function populateModal(log) {
         const modalBody = document.getElementById('modalBodyLog');
         
-        if (!resource || !resourceType) {
-            modalTitle.textContent = 'Detail Aktivitas';
-            modalBody.innerHTML = `
-                <div class="empty-state">
-                    <i class="bi bi-info-circle fs-1 text-muted"></i>
-                    <h4 class="mt-3">Detail Tidak Tersedia</h4>
-                    <p class="text-muted">Detail aktivitas ini tidak dapat ditampilkan.</p>
-                </div>
-            `;
-            return;
-        }
+        let oldValues = log.old_values || {};
+        let newValues = log.new_values || {};
         
-        let title = 'Detail Aktivitas';
-        let content = '';
+        // Get all unique keys from both old and new values
+        let allKeys = new Set([...Object.keys(oldValues), ...Object.keys(newValues)]);
         
-        // Handle different resource types
-        if (resourceType === 'pengajuan') {
-            title = 'Detail Pengajuan';
-            content = generatePengajuanContent(resource, log);
-        } else if (resourceType === 'ruangan') {
-            title = 'Detail Ruangan';
-            content = generateRuanganContent(resource, log);
-        } else if (resourceType === 'user') {
-            title = 'Detail Pengguna';
-            content = generateUserContent(resource, log);
-        } else {
-            title = 'Detail Aktivitas';
-            content = generateDefaultContent(log);
-        }
-        
-        modalTitle.textContent = title;
-        modalBody.innerHTML = content;
-    }
-
-    function generatePengajuanContent(resource, log) {
-        let approverHtml = '';
-        if (resource.status !== 'pending' && resource.approver) {
-            const actionText = resource.status === 'disetujui' ? 'Disetujui Oleh' : 'Ditolak Oleh';
-            approverHtml = `
-                <div class="mb-3">
-                    <label class="form-label detail-label">${actionText}</label>
-                    <div class="detail-value fw-bold text-primary">${resource.approver.name || 'Admin'}</div>
-                </div>
-            `;
-        }
-
-        let alasanHtml = '';
-        if (resource.status === 'ditolak' && resource.alasan_penolakan) {
-            alasanHtml = `
-                <div class="mb-3">
-                    <label class="form-label detail-label text-danger">Alasan Penolakan</label>
-                    <div class="detail-value fw-bold text-danger">${resource.alasan_penolakan}</div>
-                </div>
-            `;
-        }
-
-        return `
-            <h5>Informasi Pengajuan</h5>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label class="form-label detail-label">Judul Kegiatan</label>
-                        <div class="detail-value fw-bold">${resource.judul_kegiatan || '-'}</div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label detail-label">Nama Pengaju</label>
-                        <div class="detail-value">${resource.nama_pengaju || (resource.user && resource.user.nama) || '-'}</div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label detail-label">Ruangan</label>
-                        <div class="detail-value">${resource.ruangan?.nama_ruangan || '-'}</div>
-                    </div>
-                    ${approverHtml}
-                </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label class="form-label detail-label">Tanggal Mulai</label>
-                        <div class="detail-value time-badge">${resource.tanggal_mulai || '-'}</div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label detail-label">Tanggal Selesai</label>
-                        <div class="detail-value time-badge">${resource.tanggal_selesai || '-'}</div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label detail-label">Jumlah Peserta</label>
-                        <div class="detail-value">${resource.jml_peserta || '-'} orang</div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label detail-label">Status</label>
-                        <div class="detail-value">
-                            <span class="status-badge status-${resource.status?.toLowerCase() || 'pending'}">
-                                ${resource.status || '-'}
-                            </span>
-                        </div>
-                    </div>
-                    ${alasanHtml}
-                </div>
-            </div>
-        `;
-    }
-
-    function generateRuanganContent(resource, log) {
-        let fotoHtml = '';
-        if (resource.foto_ruangan) {
-            fotoHtml = `
-                <div class="mb-3">
-                    <label class="form-label detail-label">Foto Ruangan</label>
-                    <div class="detail-value">
-                        <img src="/storage/${resource.foto_ruangan}" alt="Foto Ruangan" class="img-fluid rounded">
-                    </div>
-                </div>
-            `;
-        }
-        
-        return `
-            <h5>Informasi Ruangan</h5>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label class="form-label detail-label">Nama Ruangan</label>
-                        <div class="detail-value fw-bold">${resource.nama_ruangan || '-'}</div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label detail-label">Kapasitas</label>
-                        <div class="detail-value">${resource.jml_peserta || '-'} orang</div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label class="form-label detail-label">Fasilitas</label>
-                        <div class="detail-value">${resource.fasilitas || '-'}</div>
-                    </div>
-                    ${fotoHtml}
-                </div>
-            </div>
-        `;
-    }
-
-    function generateUserContent(resource, log) {
-        let fotoHtml = '';
-        if (resource.foto_profil) {
-            fotoHtml = `
-                <div class="mb-3">
-                    <label class="form-label detail-label">Foto Profil</label>
-                    <div class="detail-value">
-                        <img src="/storage/${resource.foto_profil}" alt="Foto Profil" class="img-fluid rounded-circle" style="max-width: 150px;">
-                    </div>
-                </div>
-            `;
-        }
-        
-        return `
-            <h5>Informasi Pengguna</h5>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label class="form-label detail-label">Nama Lengkap</label>
-                        <div class="detail-value fw-bold">${resource.nama || '-'}</div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label detail-label">Email</label>
-                        <div class="detail-value">${resource.email || '-'}</div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label detail-label">Username</label>
-                        <div class="detail-value">${resource.username || '-'}</div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label class="form-label detail-label">Role</label>
-                        <div class="detail-value">
-                            <span class="time-badge">${resource.role || '-'}</span>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label detail-label">No. WhatsApp</label>
-                        <div class="detail-value">
-                            ${resource.no_wa || '-'}
-                            ${resource.no_wa ? `<a href="https://wa.me/62${resource.no_wa.replace(/^0/, '')}" target="_blank" class="ms-2 btn btn-sm btn-success">
-                                <i class="bi bi-whatsapp"></i> Chat
-                            </a>` : ''}
-                        </div>
-                    </div>
-                    ${fotoHtml}
-                </div>
-            </div>
-        `;
-    }
-
-    function generateDefaultContent(log) {
-        let activity = log?.activity?.toLowerCase() || '';
-        let content = '';
-        
-        if (activity.includes('edit')) {
-            content = `
-                <h5>Perubahan Data</h5>
-                <p class="text-muted">Perbandingan data sebelum dan sesudah perubahan:</p>
-                <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Field</th>
-                                <th>Nilai Lama</th>
-                                <th>Nilai Baru</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${Object.entries(log.details?.new_data || {}).map(([key, newVal]) => {
-                                const oldVal = log.details?.old_data?.[key] || '-';
-                                const isChanged = oldVal !== newVal;
-                                return `
-                                <tr ${isChanged ? 'class="table-warning"' : ''}>
-                                    <td><strong>${key}</strong></td>
-                                    <td>${oldVal}</td>
-                                    <td>${newVal}${isChanged ? ' <span class="text-warning"><i class="bi bi-arrow-right"></i></span>' : ''}</td>
-                                </tr>
-                                `;
-                            }).join('')}
-                        </tbody>
-                    </table>
-                </div>
+        let tableRows = '';
+        if (allKeys.size === 0) {
+            tableRows = `
+                <tr>
+                    <td colspan="3" class="text-center text-muted py-4">Tidak ada data perubahan detail</td>
+                </tr>
             `;
         } else {
-            content = `
-                <div class="detail-row">
-                    <div class="detail-label">Aktivitas</div>
-                    <div class="detail-value fw-bold">${log.activity || '-'}</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Waktu</div>
-                    <div class="detail-value time-badge">${log.created_at || '-'}</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Pengguna</div>
-                    <div class="detail-value">${log.user?.nama || '-'}</div>
-                </div>
-            `;
+            allKeys.forEach(key => {
+                let oldVal = oldValues[key] !== undefined ? oldValues[key] : '-';
+                let newVal = newValues[key] !== undefined ? newValues[key] : '-';
+                
+                // If they are objects/arrays, stringify them for display
+                if (typeof oldVal === 'object' && oldVal !== null) oldVal = JSON.stringify(oldVal);
+                if (typeof newVal === 'object' && newVal !== null) newVal = JSON.stringify(newVal);
+                
+                tableRows += `
+                    <tr>
+                        <td class="fw-bold text-dark">${key}</td>
+                        <td class="text-muted">${oldVal}</td>
+                        <td class="text-primary">${newVal}</td>
+                    </tr>
+                `;
+            });
         }
         
-        return content;
+        modalBody.innerHTML = `
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped" style="border-radius: 8px; overflow: hidden;">
+                    <thead style="background-color: #f8fafc;">
+                        <tr>
+                            <th class="text-center" style="width: 30%;">Field</th>
+                            <th class="text-center" style="width: 35%;">Old Value</th>
+                            <th class="text-center" style="width: 35%;">New Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+            </div>
+        `;
     }
 </script>
 @endsection

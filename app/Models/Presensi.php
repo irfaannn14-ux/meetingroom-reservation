@@ -5,8 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Organization;
 
-class Presensi extends Model
+use OwenIt\Auditing\Contracts\Auditable;
+
+class Presensi extends Model implements Auditable
 {
+    use \OwenIt\Auditing\Auditable;
     protected $table = 'presensis'; // sesuaikan
     protected $fillable = [
         'pengajuan_id', 'nama', 'jabatan', 'no_wa', 'organisasi', 'ttd_path', 'user_id'

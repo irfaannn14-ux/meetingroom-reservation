@@ -13,9 +13,8 @@ class ActivityLogController extends Controller
             abort(403, 'ANDA TIDAK MEMILIKI AKSES.');
         }
 
-        // Get audits for Pengajuan model
-        $logs = Audit::with(['user', 'auditable.ruangan', 'auditable.approver'])
-            ->where('auditable_type', 'App\\Models\\Pengajuan')
+        // Get all audits
+        $logs = Audit::with(['user'])
             ->latest()
             ->get();
 
