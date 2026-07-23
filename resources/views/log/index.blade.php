@@ -533,8 +533,15 @@
                             <td>{{ $log->auditable_type }}</td>
                             <td>{{ $log->ip_address }}</td>
                             <td>
+                                @php
+                                    $auditableData = $log->auditable;
+                                    if ($auditableData && $log->auditable_type === 'App\\Models\\Pengajuan') {
+                                        $auditableData->loadMissing('ruangan');
+                                    }
+                                @endphp
                                 <button class="btn btn-primary btn-sm rounded-1 px-3 py-1 text-white" style="background-color: #3b82f6; border: none; font-weight: 500;" onclick="openLogDetail(this)"
                                         data-log="{{ json_encode($log) }}"
+                                        data-auditable="{{ json_encode($auditableData) }}"
                                         title="Lihat Detail">
                                     Detail
                                 </button>
@@ -645,11 +652,11 @@
     }
 
     function openLogDetail(button) {
-        // Get data attributes
         const logData = button.getAttribute('data-log');
+        const auditableData = button.getAttribute('data-auditable');
         
-        // Parse data
         let log = null;
+        let auditable = null;
         
         try {
             if (logData) log = JSON.parse(logData);
@@ -657,10 +664,13 @@
             console.error('Error parsing log data:', e);
         }
         
-        // Populate modal
-        populateModal(log);
+        try {
+            if (auditableData) auditable = JSON.parse(auditableData);
+        } catch (e) {
+            console.error('Error parsing auditable data:', e);
+        }
         
-        // Open modal
+        populateModal(log, auditable);
         openModal('modalLogBootstrap');
     }
 
@@ -696,54 +706,97 @@
         });
     });
 
-    function populateModal(log) {
+    function populateModal(log, auditable) {
         const modalBody = document.getElementById('modalBodyLog');
+        const modalTitle = document.getElementById('modalTitle');
         
+        const modelType = log.auditable_type || '';
+        let modelLabel = modelType.split('\\').pop();
+        modalTitle.textContent = 'Detail Audit — ' + modelLabel;
+
+        // Build old/new values comparison table
         let oldValues = log.old_values || {};
         let newValues = log.new_values || {};
-        
-        // Get all unique keys from both old and new values
         let allKeys = new Set([...Object.keys(oldValues), ...Object.keys(newValues)]);
         
         let tableRows = '';
+
+        // Add extra context rows at the top for Pengajuan
+        if (modelLabel === 'Pengajuan' && auditable) {
+            const extraFields = [
+                { label: 'Nama Ruangan', val: auditable.ruangan ? auditable.ruangan.nama_ruangan : null },
+                { label: 'Judul Kegiatan', val: auditable.judul_kegiatan },
+                { label: 'Nama Pengaju', val: auditable.nama_pengaju },
+            ];
+            extraFields.forEach(f => {
+                if (f.val) {
+                    tableRows += `
+                        <tr style="background-color:#eff6ff;">
+                            <td style="font-weight:700;color:#1e3a8a;">${f.label}</td>
+                            <td colspan="2" style="font-weight:600;color:#1e40af;">${f.val}</td>
+                        </tr>`;
+                }
+            });
+            // Separator
+            if (tableRows) {
+                tableRows += `<tr><td colspan="3" style="padding:0;background:#e2e8f0;height:2px;"></td></tr>`;
+            }
+        } else if (modelLabel === 'Ruangan' && auditable) {
+            if (auditable.nama_ruangan) {
+                tableRows += `
+                    <tr style="background-color:#eff6ff;">
+                        <td style="font-weight:700;color:#1e3a8a;">Nama Ruangan</td>
+                        <td colspan="2" style="font-weight:600;color:#1e40af;">${auditable.nama_ruangan}</td>
+                    </tr>
+                    <tr><td colspan="3" style="padding:0;background:#e2e8f0;height:2px;"></td></tr>`;
+            }
+        } else if (modelLabel === 'User' && auditable) {
+            if (auditable.nama) {
+                tableRows += `
+                    <tr style="background-color:#eff6ff;">
+                        <td style="font-weight:700;color:#1e3a8a;">Nama Pengguna</td>
+                        <td colspan="2" style="font-weight:600;color:#1e40af;">${auditable.nama} (${auditable.email || '-'})</td>
+                    </tr>
+                    <tr><td colspan="3" style="padding:0;background:#e2e8f0;height:2px;"></td></tr>`;
+            }
+        }
+
         if (allKeys.size === 0) {
-            tableRows = `
-                <tr>
-                    <td colspan="3" class="text-center text-muted py-4">Tidak ada data perubahan detail</td>
-                </tr>
-            `;
+            tableRows += `<tr><td colspan="3" class="text-center text-muted py-4">Tidak ada data perubahan pada event ini</td></tr>`;
         } else {
             allKeys.forEach(key => {
-                let oldVal = oldValues[key] !== undefined ? oldValues[key] : '-';
-                let newVal = newValues[key] !== undefined ? newValues[key] : '-';
+                let oldVal = oldValues[key] !== undefined ? oldValues[key] : null;
+                let newVal = newValues[key] !== undefined ? newValues[key] : null;
                 
-                // If they are objects/arrays, stringify them for display
                 if (typeof oldVal === 'object' && oldVal !== null) oldVal = JSON.stringify(oldVal);
                 if (typeof newVal === 'object' && newVal !== null) newVal = JSON.stringify(newVal);
+
+                const oldDisplay = oldVal !== null ? oldVal : '<span class="text-muted fst-italic">null</span>';
+                const newDisplay = newVal !== null ? newVal : '<span class="text-muted fst-italic">null</span>';
+
+                const isChanged = String(oldVal) !== String(newVal);
+                const rowStyle = isChanged ? 'background-color:#fffbeb;' : '';
                 
                 tableRows += `
-                    <tr>
-                        <td class="fw-bold text-dark">${key}</td>
-                        <td class="text-muted">${oldVal}</td>
-                        <td class="text-primary">${newVal}</td>
-                    </tr>
-                `;
+                    <tr style="${rowStyle}">
+                        <td style="font-weight:600;">${key}</td>
+                        <td class="text-muted">${oldDisplay}</td>
+                        <td style="color:#1d4ed8;font-weight:${isChanged ? '600' : '400'}">${newDisplay}</td>
+                    </tr>`;
             });
         }
         
         modalBody.innerHTML = `
             <div class="table-responsive">
-                <table class="table table-bordered table-striped" style="border-radius: 8px; overflow: hidden;">
-                    <thead style="background-color: #f8fafc;">
+                <table class="table table-bordered" style="border-radius:8px;overflow:hidden;">
+                    <thead style="background-color:#1e3a8a;color:white;">
                         <tr>
-                            <th class="text-center" style="width: 30%;">Field</th>
-                            <th class="text-center" style="width: 35%;">Old Value</th>
-                            <th class="text-center" style="width: 35%;">New Value</th>
+                            <th style="width:30%;">FIELD</th>
+                            <th style="width:35%;">OLD VALUE</th>
+                            <th style="width:35%;">NEW VALUE</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        ${tableRows}
-                    </tbody>
+                    <tbody>${tableRows}</tbody>
                 </table>
             </div>
         `;
