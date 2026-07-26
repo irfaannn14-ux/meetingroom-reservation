@@ -74,7 +74,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('pengajuan/{pengajuan}/status', [PengajuanController::class, 'updateStatus'])->name('pengajuan.updateStatus');
     Route::get('/calendar-events', [PengajuanController::class, 'calendarEvents'])->name('calendar.events');
 
-    //manajemen user
+    //manajemen user & rekap
     Route::group(['middleware' => 'admin.access'], function () {
         Route::get('user/', [UserController::class, 'index'])->name('user.index');
         Route::get('user/tambah', [UserController::class, 'create'])->name('user.tambah');
@@ -82,6 +82,9 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::get('user/{user}/edit', [UserController::class, 'edit'])->name('user.edit');
         Route::put('user/{user}', [UserController::class, 'update'])->name('user.update');
         Route::delete('user/{user}', [UserController::class, 'destroy'])->name('user.destroy');
+
+        // Rekap Laporan
+        Route::get('/rekap', [\App\Http\Controllers\RekapController::class, 'index'])->name('rekap.index');
     });
 
     //history

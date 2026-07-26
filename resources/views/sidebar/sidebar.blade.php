@@ -374,6 +374,19 @@
         </li>
         @endif
         
+        @if(session('user_role') === 'Admin' || session('user_role') === 'Super Admin')
+        <div class="sidebar-divider"></div>
+        
+        <li class="sidebar-item">
+            <a href="{{ route('rekap.index') }}" class="sidebar-link {{ request()->is('rekap*') ? 'active' : '' }}">
+                <span class="sidebar-icon">
+                    <i class="bi bi-file-earmark-bar-graph"></i>
+                </span>
+                <span class="sidebar-link-text">Rekap Laporan</span>
+            </a>
+        </li>
+        @endif
+
         @if(session('user_role') === 'Super Admin')
         <div class="sidebar-divider"></div>
         
