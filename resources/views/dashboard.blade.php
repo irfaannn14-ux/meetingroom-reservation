@@ -112,10 +112,25 @@
             margin: 0 auto;
         }
 
-        /* Custom styling for calendar events */
-        .fc-event.approved-event {
-            border-width: 1px;
-            border-style: solid;
+        /* Prevent text truncation in calendar events */
+        .fc-daygrid-event {
+            white-space: normal !important;
+            align-items: normal !important;
+        }
+
+        /* Garis pemisah untuk jadwal yang lebih dari 1 di hari yang sama */
+        .fc-daygrid-event-harness:not(:last-child) {
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.15);
+            padding-bottom: 4px;
+            margin-bottom: 4px;
+        }
+        
+        .fc-event-main, .fc-event-title {
+            white-space: normal !important;
+            word-wrap: break-word !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            line-height: 1.3 !important;
         }
 
         /* Developer Image Shift on Sidebar Hover */
@@ -241,16 +256,15 @@
                 <div id='calendar'></div>
 
                 <!-- Calendar Legend -->
-                <div class="mt-3 d-flex justify-content-center gap-4" style="font-family:'Montserrat',sans-serif;">
+                <div class="mt-3 d-flex flex-wrap justify-content-center gap-4" style="font-family:'Montserrat',sans-serif;">
                     <div class="d-flex align-items-center">
-                        <span class="me-2"
-                            style="display:inline-block;width:20px;height:20px;background-color:rgba(40, 167, 69, 0.3);border:2px solid #28a745;border-radius:3px;"></span>
+                        <span style="font-size:14px;font-weight:500;color:#010D26;">🎨 Warna Event = Ruangan (Sesuai Statistik)</span>
+                    </div>
+                    <div class="d-flex align-items-center">
                         <span style="font-size:14px;font-weight:500;color:#0f5132;">✓ Disetujui (Approved)</span>
                     </div>
                     <div class="d-flex align-items-center">
-                        <span class="me-2"
-                            style="display:inline-block;width:20px;height:20px;background-color:rgba(255, 193, 7, 0.3);border:2px solid #ffc107;border-radius:3px;"></span>
-                        <span style="font-size:14px;font-weight:500;color:#856404;">⏳ Menunggu Persetujuan (Pending)</span>
+                        <span style="font-size:14px;font-weight:500;color:#856404;opacity:0.7;">⏳ Menunggu Persetujuan (Pending)</span>
                     </div>
                 </div>
                 <!-- End Calendar Legend -->
@@ -368,11 +382,15 @@
                     navLinks: true,
                     editable: false,
                     eventLimit: true,
+                    displayEventTime: false,
                     locale: 'id',
                     eventClassNames: 'approved-event',
                     eventDidMount: function (info) {
                         info.el.style.fontFamily = "'Montserrat', sans-serif";
                         info.el.style.fontWeight = '500';
+                        if (info.event.extendedProps.opacity) {
+                            info.el.style.opacity = info.event.extendedProps.opacity;
+                        }
                     },
                     views: {
                         dayGridMonth: { titleFormat: { year: 'numeric', month: 'long' } },

@@ -26,8 +26,8 @@ class PresensiController extends Controller
         }
 
         $sekarang = now();
-        $mulai = \Carbon\Carbon::parse($pengajuan->tanggal_mulai . ' ' . $pengajuan->jam_mulai);
-        $selesai = \Carbon\Carbon::parse($pengajuan->tanggal_selesai . ' ' . $pengajuan->jam_selesai);
+        $mulai = \Carbon\Carbon::parse($pengajuan->tanggal_mulai);
+        $selesai = \Carbon\Carbon::parse($pengajuan->tanggal_selesai);
 
         if ($sekarang->lt($mulai) || $sekarang->gt($selesai)) {
             abort(403, 'Presensi hanya dapat dilakukan dalam jadwal kegiatan.');
@@ -41,6 +41,7 @@ class PresensiController extends Controller
 
         return view('presensi.form', [
             'id'            => $id,
+            'pengajuan'     => $pengajuan,
             'organizations' => $organizations,
         ]);
     }
@@ -81,8 +82,8 @@ class PresensiController extends Controller
         }
 
         $sekarang = now();
-        $mulai = \Carbon\Carbon::parse($pengajuan->tanggal_mulai . ' ' . $pengajuan->jam_mulai);
-        $selesai = \Carbon\Carbon::parse($pengajuan->tanggal_selesai . ' ' . $pengajuan->jam_selesai);
+        $mulai = \Carbon\Carbon::parse($pengajuan->tanggal_mulai);
+        $selesai = \Carbon\Carbon::parse($pengajuan->tanggal_selesai);
 
         if ($sekarang->lt($mulai) || $sekarang->gt($selesai)) {
             return response()->json(['ok' => false, 'message' => 'Presensi hanya dapat dilakukan dalam jadwal kegiatan.'], 422);

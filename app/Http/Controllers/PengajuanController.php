@@ -605,33 +605,50 @@ class PengajuanController extends Controller
             ->whereIn('status', ['disetujui', 'pending'])
             ->get();
 
-        $events = $pengajuans->map(function ($pengajuan) {
-            // Tentukan warna berdasarkan status
+        // Dapatkan mapping warna ruangan seperti di dashboard
+        $topRooms = Pengajuan::select('ruangan_id', DB::raw('count(*) as total'))
+            ->groupBy('ruangan_id')
+            ->orderBy('total', 'desc')
+            ->get();
+            
+        $baseColors = ['#6366F1', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#06B6D4', '#EF4444', '#F97316', '#84CC16', '#14B8A6'];
+        $roomColorMap = [];
+        foreach ($topRooms as $index => $room) {
+            $roomColorMap[$room->ruangan_id] = $baseColors[$index % count($baseColors)];
+        }
+
+        $events = $pengajuans->map(function ($pengajuan) use ($roomColorMap) {
+            $roomColor = $roomColorMap[$pengajuan->ruangan_id] ?? '#6c757d';
+
+            // Tentukan label berdasarkan status
             if ($pengajuan->status === 'disetujui') {
-                // APPROVED: Hijau
-                $backgroundColor = 'rgba(40, 167, 69, 0.2)'; // Light green background
-                $borderColor = '#28a745'; // Solid green border
-                $textColor = '#0f5132'; // Dark green text
                 $statusLabel = '✓';
+                $opacity = '1';
             } else {
-                // PENDING: Kuning/Oranye
-                $backgroundColor = 'rgba(255, 193, 7, 0.2)'; // Light yellow/amber background
-                $borderColor = '#ffc107'; // Solid yellow border
-                $textColor = '#856404'; // Dark yellow text
                 $statusLabel = '⏳';
+                $opacity = '0.7'; // Sedikit transparan untuk pending
             }
+            
+            $backgroundColor = $roomColor;
+            $borderColor = $roomColor;
+            $textColor = '#ffffff';
+
+            $waktuMulai = Carbon::parse($pengajuan->tanggal_mulai)->format('H:i');
+            $waktuSelesai = Carbon::parse($pengajuan->tanggal_selesai)->format('H:i');
 
             return [
-                'title' => $statusLabel . ' ' . $pengajuan->judul_kegiatan . ' (' . ($pengajuan->ruangan->nama_ruangan ?? 'N/A') . ')',
+                'title' => $statusLabel . ' [' . $waktuMulai . ' - ' . $waktuSelesai . '] ' . $pengajuan->judul_kegiatan . ' (' . ($pengajuan->ruangan->nama_ruangan ?? 'N/A') . ')',
                 'start' => $pengajuan->tanggal_mulai,
                 'end' => $pengajuan->tanggal_selesai,
                 'backgroundColor' => $backgroundColor,
                 'borderColor' => $borderColor,
                 'textColor' => $textColor,
+                'classNames' => $pengajuan->status === 'pending' ? ['pending-event'] : [],
                 'extendedProps' => [
                     'status' => $pengajuan->status,
                     'kegiatan' => $pengajuan->kegiatan,
-                    'jml_peserta' => $pengajuan->jml_peserta
+                    'jml_peserta' => $pengajuan->jml_peserta,
+                    'opacity' => $opacity
                 ]
             ];
         });

@@ -394,10 +394,53 @@
         .signature-pad-wrapper {
             min-height: 200px;
         }
-        
+
         canvas#signature-pad {
             height: 160px;
         }
+    }
+
+    /* Activity Info Styling */
+    .activity-info {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    
+    .activity-title {
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 12px;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 10px;
+    }
+    
+    .activity-detail {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+    
+    .activity-detail:last-child {
+        margin-bottom: 0;
+    }
+    
+    .activity-icon {
+        color: var(--secondary-color);
+        margin-right: 12px;
+        font-size: 1.1rem;
+        width: 20px;
+        text-align: center;
+    }
+    
+    .activity-text {
+        color: #475569;
+        font-weight: 500;
     }
 </style>
 
@@ -412,6 +455,36 @@
         </div>
         
         <div class="form-body">
+            <!-- Informasi Kegiatan -->
+            <div class="activity-info">
+                <div class="activity-title">
+                    <i class="bi bi-info-circle-fill me-2"></i>Informasi Kegiatan
+                </div>
+                <div class="activity-detail">
+                    <div class="activity-icon"><i class="bi bi-bookmark-fill"></i></div>
+                    <div class="activity-text">{{ $pengajuan->judul_kegiatan }}</div>
+                </div>
+                <div class="activity-detail">
+                    <div class="activity-icon"><i class="bi bi-door-open-fill"></i></div>
+                    <div class="activity-text">{{ $pengajuan->ruangan->nama_ruangan ?? 'Ruangan tidak diketahui' }}</div>
+                </div>
+                <div class="activity-detail">
+                    <div class="activity-icon"><i class="bi bi-calendar-event-fill"></i></div>
+                    <div class="activity-text">
+                        {{ \Carbon\Carbon::parse($pengajuan->tanggal_mulai)->translatedFormat('l, d F Y') }}
+                        @if($pengajuan->tanggal_mulai !== $pengajuan->tanggal_selesai)
+                            - {{ \Carbon\Carbon::parse($pengajuan->tanggal_selesai)->translatedFormat('l, d F Y') }}
+                        @endif
+                    </div>
+                </div>
+                <div class="activity-detail">
+                    <div class="activity-icon"><i class="bi bi-clock-fill"></i></div>
+                    <div class="activity-text">
+                        {{ \Carbon\Carbon::parse($pengajuan->tanggal_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($pengajuan->tanggal_selesai)->format('H:i') }} WIB
+                    </div>
+                </div>
+            </div>
+
             <div id="formAlert" class="alert alert-danger d-none" role="alert">
                 <i class="bi bi-exclamation-triangle-fill"></i>
                 <span id="alertMessage"></span>
