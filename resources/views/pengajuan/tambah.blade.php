@@ -577,7 +577,7 @@ if ($selectedRuanganId) {
                 </div>
             @endif
 
-            <form action="{{ $isEdit ? route('pengajuan.update', $pengajuan->id) : route('pengajuan.store') }}" method="POST" id="pengajuan-form" novalidate>
+            <form action="{{ $isEdit ? route('pengajuan.update', $pengajuan->id) : '#' }}" method="{{ $isEdit ? 'POST' : 'GET' }}" id="pengajuan-form" novalidate onsubmit="{{ $isEdit ? '' : 'return false;' }}">
                 @csrf
                 @if($isEdit)
                     @method('PUT')
@@ -702,11 +702,39 @@ if ($selectedRuanganId) {
                     <a href="{{ route('pengajuan.index') }}" class="btn btn-outline-dark">
                         <i class="bi bi-arrow-left"></i> Kembali
                     </a>
-                    <button type="submit" class="btn btn-primary" id="submit-btn">
-                        <i class="bi bi-check-circle"></i> {{ $isEdit ? 'Perbarui Pengajuan' : 'Ajukan Sekarang' }}
-                    </button>
+                    @if($isEdit)
+                        <button type="submit" class="btn btn-primary" id="submit-btn">
+                            <i class="bi bi-check-circle"></i> Perbarui Pengajuan
+                        </button>
+                    @else
+                        <button type="button" class="btn btn-primary" id="submit-direct-btn">
+                            <i class="bi bi-send"></i> Ajukan Sekarang
+                        </button>
+                        <button type="button" class="btn btn-secondary text-white" id="add-cart-btn" style="background: linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%); border: none;">
+                            <i class="bi bi-cart-plus"></i> Tambah ke Keranjang
+                        </button>
+                    @endif
                 </div>
             </form>
+
+            @if(!$isEdit)
+            <!-- Cart Section -->
+            <div id="cart-section" style="display: none; margin-top: 40px; padding-top: 30px; border-top: 2px dashed #cbd5e1;">
+                <h3 class="form-title" style="font-size: 1.4rem; margin-bottom: 20px;">
+                    <i class="bi bi-cart3"></i> Keranjang Pengajuan (<span id="cart-count">0</span>)
+                </h3>
+                
+                <div id="cart-items" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
+                    <!-- Items go here -->
+                </div>
+
+                <div class="text-end">
+                    <button type="button" class="btn btn-primary" id="checkout-btn" style="width: auto; display: inline-flex; min-width: 200px;">
+                        <i class="bi bi-send-check"></i> Ajukan Semua Sekarang
+                    </button>
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 </div>
@@ -881,8 +909,26 @@ if ($selectedRuanganId) {
             const data = await response.json();
             
             if (response.ok) {
-                // Update bentrokIds state
+                // Update bentrokIds state from server
                 bentrokIds = data.bentrok_ids || [];
+                
+                // Cek konflik dengan item yang sudah ada di keranjang lokal
+                if (typeof cart !== 'undefined' && cart.length > 0) {
+                    const reqStart = new Date(`${tglMulai}T${wktMulai}`);
+                    const reqEnd = new Date(`${tglSelesai}T${wktSelesai}`);
+                    
+                    cart.forEach(item => {
+                        const itemStart = new Date(`${item.tanggal_pinjam}T${item.waktu_pinjam}`);
+                        const itemEnd = new Date(`${item.tanggal_kembali}T${item.waktu_kembali}`);
+                        
+                        if (reqStart < itemEnd && itemStart < reqEnd) {
+                            const rId = parseInt(item.ruangan_id);
+                            if (!bentrokIds.includes(rId)) {
+                                bentrokIds.push(rId);
+                            }
+                        }
+                    });
+                }
                 
                 // Re-render dropdown
                 renderRuanganDropdown();
@@ -913,10 +959,18 @@ if ($selectedRuanganId) {
         updateRekomendasi();
     }
 
+    function getActionBtns() {
+        return [
+            document.getElementById('submit-btn'),
+            document.getElementById('submit-direct-btn'),
+            document.getElementById('add-cart-btn')
+        ].filter(Boolean);
+    }
+
     function updateRekomendasi() {
         const jmlPeserta = currentJmlPeserta;
         const ruanganHint = document.getElementById('ruangan-hint');
-        const submitBtn = document.getElementById('submit-btn');
+        const actionBtns = getActionBtns();
         
         const tglMulai = document.getElementById('tanggal_pinjam').value;
         const wktMulai = document.getElementById('waktu_pinjam').value;
@@ -926,7 +980,7 @@ if ($selectedRuanganId) {
         if (!tglMulai || !wktMulai || !tglSelesai || !wktSelesai) {
             ruanganHint.textContent = 'Silakan lengkapi Tanggal & Waktu terlebih dahulu';
             ruanganHint.className = 'input-hint';
-            submitBtn.disabled = true;
+            actionBtns.forEach(b => b.disabled = true);
             renderRuanganDropdown();
             return;
         }
@@ -934,7 +988,7 @@ if ($selectedRuanganId) {
         if (!jmlPeserta || jmlPeserta < 1) {
             ruanganHint.textContent = 'Masukkan jumlah peserta untuk melihat rekomendasi ruangan';
             ruanganHint.className = 'input-hint';
-            submitBtn.disabled = true;
+            actionBtns.forEach(b => b.disabled = true);
             renderRuanganDropdown();
             return;
         }
@@ -966,7 +1020,7 @@ if ($selectedRuanganId) {
                 ruanganHint.className = 'input-hint';
             }
             
-            submitBtn.disabled = false;
+            actionBtns.forEach(b => b.disabled = false);
         } else {
             if (ruangansArray.length > 0 && ruangansArray.some(r => !bentrokIds.includes(r.id))) {
                 ruanganHint.innerHTML = `<i class="bi bi-exclamation-triangle text-warning me-1"></i> Tidak ada ruangan yang dapat menampung ${jmlPeserta} peserta pada waktu tersebut!`;
@@ -977,7 +1031,7 @@ if ($selectedRuanganId) {
             document.getElementById("ruangan-id-input").value = '';
             document.getElementById("selected-ruangan").textContent = 'Tidak Ada Ruangan Tersedia';
             selectedRuanganId = null;
-            submitBtn.disabled = true;
+            actionBtns.forEach(b => b.disabled = true);
         }
     }
 
@@ -1053,8 +1107,11 @@ if ($selectedRuanganId) {
             document.body.removeChild(toast);
         });
     }
+    // Cart state (only used if !isEdit)
+    let cart = [];
+
     // Form submission loading state and client validation
-    document.getElementById('pengajuan-form').addEventListener('submit', function(e) {
+    function validateForm() {
         // Clear previous validation errors
         document.querySelectorAll('.client-error').forEach(el => el.remove());
         document.querySelectorAll('.is-invalid-client').forEach(el => el.classList.remove('is-invalid-client'));
@@ -1121,7 +1178,6 @@ if ($selectedRuanganId) {
 
         // If errors found, display them
         if (errors.length > 0) {
-            e.preventDefault();
 
             errors.forEach(err => {
                 // Add red highlight
@@ -1143,10 +1199,183 @@ if ($selectedRuanganId) {
             return false;
         }
 
-        const btn = document.getElementById('submit-btn');
-        btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...`;
-        btn.disabled = true;
-    });
+        return true;
+    }
+
+    const isEdit = {{ $isEdit ? 'true' : 'false' }};
+    const formEl = document.getElementById('pengajuan-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const addCartBtn = document.getElementById('add-cart-btn');
+
+    if (isEdit && formEl && submitBtn) {
+        formEl.addEventListener('submit', function(e) {
+            if (!validateForm()) {
+                e.preventDefault();
+                return;
+            }
+            submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...`;
+            submitBtn.disabled = true;
+        });
+    }
+
+    const submitDirectBtn = document.getElementById('submit-direct-btn');
+
+    if (!isEdit && submitDirectBtn) {
+        submitDirectBtn.addEventListener('click', function() {
+            if (!validateForm()) {
+                return;
+            }
+            // Simulasikan tambah ke keranjang
+            addCartBtn.click();
+            // Simulasikan checkout (setTimeout sedikit agar UI keranjang selesai render, meskipun sebenarnya tidak perlu)
+            setTimeout(() => {
+                const checkout = document.getElementById('checkout-btn');
+                if (checkout) checkout.click();
+            }, 100);
+        });
+    }
+
+    if (!isEdit && addCartBtn) {
+        addCartBtn.addEventListener('click', function() {
+            if (!validateForm()) {
+                return;
+            }
+
+            // Get form values
+            const judul = document.getElementById('judul_kegiatan').value;
+            const kegiatan = document.getElementById('kegiatan').value;
+            const tglPinjam = document.getElementById('tanggal_pinjam').value;
+            const tglKembali = document.getElementById('tanggal_kembali').value;
+            const waktuPinjam = document.getElementById('waktu_pinjam').value;
+            const waktuKembali = document.getElementById('waktu_kembali').value;
+            const jmlPeserta = document.getElementById('jml_peserta').value;
+            const ruanganId = document.getElementById('ruangan-id-input').value;
+            
+            // Get selected room name
+            const ruanganItems = document.querySelectorAll('#ruangan-dropdown-content a');
+            let ruanganNama = 'Ruangan';
+            ruanganItems.forEach(item => {
+                if (item.getAttribute('data-value') === ruanganId) {
+                    ruanganNama = item.getAttribute('data-nama');
+                }
+            });
+
+            // Add to cart
+            cart.push({
+                judul_kegiatan: judul,
+                kegiatan: kegiatan,
+                tanggal_pinjam: tglPinjam,
+                tanggal_kembali: tglKembali,
+                waktu_pinjam: waktuPinjam,
+                waktu_kembali: waktuKembali,
+                jml_peserta: jmlPeserta,
+                ruangan_id: ruanganId,
+                ruangan_nama: ruanganNama
+            });
+
+            renderCart();
+            showToast('Pengajuan berhasil ditambahkan ke keranjang!', 'success');
+            
+            // Reset form for next entry
+            formEl.reset();
+            currentJmlPeserta = 0;
+            document.getElementById("selected-ruangan").textContent = 'Pilih Tanggal & Waktu Dulu';
+            document.getElementById('ruangan-id-input').value = '';
+            document.getElementById('ruangan-hint').textContent = 'Silakan lengkapi Tanggal & Waktu terlebih dahulu';
+            getActionBtns().forEach(b => b.disabled = true);
+            
+            // Trigger events if needed
+            const startDateInput = document.getElementById('tanggal_pinjam');
+            const today = new Date().toISOString().split('T')[0];
+            startDateInput.min = today;
+            checkAvailableRooms();
+        });
+    }
+
+    function renderCart() {
+        const cartSection = document.getElementById('cart-section');
+        const cartItems = document.getElementById('cart-items');
+        const cartCount = document.getElementById('cart-count');
+        
+        if (cart.length === 0) {
+            cartSection.style.display = 'none';
+            return;
+        }
+
+        cartSection.style.display = 'block';
+        cartCount.textContent = cart.length;
+        cartItems.innerHTML = '';
+
+        cart.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'card shadow-sm border-0';
+            div.innerHTML = `
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1"><strong>${item.judul_kegiatan}</strong></h6>
+                        <div class="text-muted fs-sm">
+                            <i class="bi bi-door-open me-1"></i> ${item.ruangan_nama} | 
+                            <i class="bi bi-calendar me-1"></i> ${item.tanggal_pinjam} s/d ${item.tanggal_kembali} | 
+                            <i class="bi bi-clock me-1"></i> ${item.waktu_pinjam} - ${item.waktu_kembali} | 
+                            <i class="bi bi-people me-1"></i> ${item.jml_peserta} peserta
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger" onclick="removeFromCart(${index})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            `;
+            cartItems.appendChild(div);
+        });
+    }
+
+    window.removeFromCart = function(index) {
+        cart.splice(index, 1);
+        renderCart();
+        showToast('Item dihapus dari keranjang', 'warning');
+        
+        // Panggil ulang pengecekan ruangan karena mungkin ada ruangan yang tadinya bentrok di keranjang menjadi tersedia kembali
+        checkAvailableRooms();
+    };
+
+    const checkoutBtn = document.getElementById('checkout-btn');
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', function() {
+            if (cart.length === 0) return;
+
+            checkoutBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...`;
+            checkoutBtn.disabled = true;
+
+            fetch('{{ route('pengajuan.store') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ pengajuan: cart })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '{{ route('pengajuan.index') }}';
+                } else if (data.errors) {
+                    // Handle validation errors from server
+                    let errMsg = 'Gagal menyimpan:<br>';
+                    for (let key in data.errors) {
+                        errMsg += `- ${data.errors[key][0]}<br>`;
+                    }
+                    showToast(errMsg, 'danger');
+                    checkoutBtn.innerHTML = `<i class="bi bi-send-check"></i> Ajukan Semua Sekarang`;
+                    checkoutBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                showToast('Terjadi kesalahan. Silakan coba lagi.', 'danger');
+                checkoutBtn.innerHTML = `<i class="bi bi-send-check"></i> Ajukan Semua Sekarang`;
+                checkoutBtn.disabled = false;
+            });
+        });
+    }
 
     // Remove error highlight on input
     document.querySelectorAll('.form-control, .custom-dropdown-button').forEach(el => {
@@ -1202,9 +1431,14 @@ if ($selectedRuanganId) {
             checkAvailableRooms();
         } else {
             // initial state: disable room selection until time is picked
-            document.getElementById("selected-ruangan").textContent = 'Pilih Tanggal & Waktu Dulu';
-            document.getElementById('ruangan-hint').textContent = 'Silakan lengkapi Tanggal & Waktu terlebih dahulu';
-            document.getElementById('submit-btn').disabled = true;
+            const selectedRuangan = document.getElementById("selected-ruangan");
+            if (selectedRuangan) selectedRuangan.textContent = 'Pilih Tanggal & Waktu Dulu';
+            
+            const hint = document.getElementById('ruangan-hint');
+            if (hint) hint.textContent = 'Silakan lengkapi Tanggal & Waktu terlebih dahulu';
+            
+            if (submitBtn) submitBtn.disabled = true;
+            if (addCartBtn) addCartBtn.disabled = true;
         }
     });
 </script>
